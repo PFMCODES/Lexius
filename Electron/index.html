@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexius</title>
+    <link rel="stylesheet" href="./Monaco/editor.main.css">
+    <link rel="shortcut icon" href="images/logo.svg" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="Fonts/codicons.css">
+</head>
+<body>
+    <main class="main">
+        <div class="top-bar">
+            <main class="top-bar-main">
+                <div class="logo">
+                    <img src="images/logo.svg" alt="">
+                </div>
+                <div class="file">
+                    <button data="false">File</button>
+                </div>
+                </div>
+            </main>
+        </div>
+        <main class="text-editor">
+            <div>
+                <div class="side-bar">
+                    <button onclick="Run()"><i class="codicon codicon-play" aria-hidden="true"></i></button>
+                    <button data="false"><i class="codicon codicon-account bold" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <div class="Lexius">
+                <div id="editor" style="height: 100vh;"></div> <!-- Monaco editor -->
+            </div>
+        </main>
+    </main>
+
+    <!-- Load Monaco's loader.js script -->
+    <script crossorigin src="https://unpkg.com/monaco-editor@0.39.0/min/vs/loader.js"></script>
+
+    <!-- Bundle your JavaScript with esbuild -->
+    <script src="scripts/dist/index.js"></script>
+</body>
+</html>

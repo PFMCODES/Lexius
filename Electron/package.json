@@ -1,0 +1,85 @@
+{
+  "name": "lexius",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "Lexius is a lightweight, fast, and customizable code editor built with web technologies. It includes features like syntax highlighting, live preview.",
+  "author": "PFMCODES",
+  "license": "ISC",
+  "homepage": "https://github.com/pfmjs/Lexius#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pfmjs/Lexius.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pfmjs/Lexius/issues"
+  },
+  "keywords": [
+    "vs",
+    "VS",
+    "Vs",
+    "vS",
+    "Code",
+    "code",
+    "CODE",
+    "Lexius",
+    "lexius",
+    "LEXIUS",
+    "Editor",
+    "editor",
+    "EDITOR",
+    "vs code",
+    "VS code",
+    "Vs code",
+    "vS code",
+    "vs Code",
+    "vs CODE",
+    "VS Code",
+    "Vs Code",
+    "vS Code",
+    "VS CODE",
+    "Vs CODE",
+    "vS CODE",
+    "Code Editor",
+    "code editor",
+    "CODE EDITOR",
+    "Code Editor",
+    "code Editor",
+    "CODE Editor",
+    "Code editor",
+    "Code EDITOR"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . Lexius --platform=win32 --arch=ia --icon=assets/icon.ico --overwrite --platform=win64 --arch=x64 --icon=assets/icon.ico --overwrite --platform=linux --icon=icon.png --overwrite"
+  },
+  "build": {
+    "appId": "com.krushna.lexius",
+    "productName": "Lexius",
+    "files": [
+      "index.html",
+      "main.js",
+      "styles.css",
+      "scripts/**/*",
+      "assets/**/*",
+      "images/**/*",
+      "Fonts/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "esbuild": "^0.25.3",
+    "electron": "^35.2.1"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.52.2"
+  }
+}
