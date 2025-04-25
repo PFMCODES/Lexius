@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<<<<<<< HEAD
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexius</title>
+    <link rel="stylesheet" href="https://unpkg.com/monaco-editor@0.39.1/min/vs/editor/editor.main.css">
+    <link rel="shortcut icon" href="images/logo.svg" type="image/x-icon">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css">
+</head>
+<body>
+    <main class="main">
+        <div class="top-bar">
+            <main class="top-bar-main">
+                <div class="logo">
+                    <img src="images/logo.svg" alt="">
+                </div>
+                <div class="file">
+                    <button data="false">File</button>
+                </div>
+                </div>
+            </main>
+        </div>
+        <main class="text-editor">
+            <div>
+                <div class="side-bar">
+                    <button onclick="Run()"><i class="codicon codicon-play" aria-hidden="true"></i></button>
+                    <button data="false"><i class="codicon codicon-account bold" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <div class="Lexius">
+                <div id="editor" style="height: 100vh;"></div> <!-- Monaco editor -->
+            </div>
+        </main>
+    </main>
+=======
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lexius</title>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  
+  <!-- Firebase Auth SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/monaco-editor@0.39.0/min/vs/editor/editor.main.css" />
+  <link rel="shortcut icon" href="images/logo.svg" type="image/x-icon" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <div class="top-bar-main">
+      <div class="logo">
+        <img src="images/logo.svg" alt="logo" />
+      </div>
+      <div class="file">
+        <button data="false">File</button>
+      </div>
+      <div id="lang-path"></div>
+    </div>
+  </div>
+>>>>>>> 28133a1ac12fc724306bb64912f1e7e5068bc2a5
+
+  <main>
+    <div class="side-bar">
+      <div class="top">
+        <button onclick="Run()"><i class="codicon codicon-play" aria-hidden="true"></i></button>
+        <button onclick="search()"><i class="codicon codicon-search" aria-hidden="true"></i></button>
+      </div>
+      <div class="bottom">
+        <button id="googleSignInBtn"><i class="codicon codicon-account"></i></button>
+      </div>
+    </div>
+
+    <div class="Lexius">
+      <button id="googleSignInBtn">Google</button>
+      <button id="signOutBtn" style="display: none;">Sign Out</button>
+      <div id="editor"></div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/monaco-editor@0.39.0/min/vs/loader.js"></script>
+  <script>
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4MKEvFZtZzc7Uwz8NPL3vuL1MQKvjQK8",
+        authDomain: "lexius-f29ec.firebaseapp.com",
+        projectId: "lexius-f29ec",
+        storageBucket: "lexius-f29ec.firebasestorage.app",
+        messagingSenderId: "860036455823",
+        appId: "1:860036455823:web:7c9872501048483014fffa",
+        measurementId: "G-6XE1154JDL"
+      };
+      
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      
+      const provider = new firebase.auth.GoogleAuthProvider();
+      
+      // Google Sign-In
+      document.getElementById("googleSignInBtn").addEventListener("click", function() {
+        firebase.auth().signInWithPopup(provider)
+          .then((result) => {
+            const user = result.user;
+            console.log("User signed in: ", user.displayName);
+            document.getElementById("googleSignInBtn").style.display = "none";
+            document.getElementById("signOutBtn").style.display = "block";
+            document.getElementById("editorContainer").style.display = "block";
+          })
+          .catch((error) => {
+            console.error("Error signing in: ", error.message);
+          });
+      });
+      
+      // Listen for authentication state changes
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          console.log("User is signed in:", user.displayName);
+          document.getElementById("googleSignInBtn").style.display = "none";
+          document.getElementById("signOutBtn").style.display = "block";
+          document.getElementById("editorContainer").style.display = "block";
+        } else {
+          console.log("User is signed out.");
+          document.getElementById("googleSignInBtn").style.display = "block";
+          document.getElementById("signOutBtn").style.display = "none";
+          document.getElementById("editorContainer").style.display = "none";
+        }
+      });
+      
+      // Sign out logic
+      document.getElementById("signOutBtn").addEventListener("click", function() {
+        firebase.auth().signOut().then(() => {
+          console.log("User signed out.");
+          document.getElementById("googleSignInBtn").style.display = "block";
+          document.getElementById("signOutBtn").style.display = "none";
+          document.getElementById("editorContainer").style.display = "none";
+        }).catch((error) => {
+          console.error("Error signing out: ", error.message);
+        });
+      });
+  </script>
+  <script src="scripts/index.js"></script>
+</body>
+</html>
