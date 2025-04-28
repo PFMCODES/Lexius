@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 let lang;
-=======
-let lang = 'html'
->>>>>>> 28133a1ac12fc724306bb64912f1e7e5068bc2a5
 
 // Initialize Monaco Editor
 require.config({
@@ -15,13 +11,9 @@ require(['vs/editor/editor.main'], function () {
     const editor = monaco.editor.create(document.getElementById('editor'), {
         value: ``,
         language: lang,
-<<<<<<< HEAD
-        theme: 'MyCustomtheme'
-=======
         theme: 'MyCustomtheme',
         placeholder: "Type '!' for HTML boilerplate", // ✅ Built-in support
         automaticLayout: true,
->>>>>>> 28133a1ac12fc724306bb64912f1e7e5068bc2a5
     });
 
     
@@ -87,19 +79,6 @@ require(['vs/editor/editor.main'], function () {
     });
 });
 
-<<<<<<< HEAD
-function langu() {
-    try {
-        lang = prompt("what language would you like to code in")
-    } catch (err) {
-        lang = showPropt()
-    }
-}
-
-document.onload(
-    langu()
-)
-=======
 // App's internal virtual storage
 const appStorage = {
     "user": {
@@ -146,10 +125,6 @@ function search(query) {
 window.addEventListener("resize", () => {
     editor.layout();
 });
-  
-window.addEventListener("DOMContentLoaded", () => {
-    editor.layout();
-});
 
 const langhtm = 'html'; // or whatever language you want to display
 const langPath = document.getElementById('lang-path');
@@ -161,4 +136,3 @@ const textNode = document.createTextNode(langhtm);
 langEl.appendChild(icon);
 langEl.appendChild(textNode);
 langPath.appendChild(langEl);
->>>>>>> 28133a1ac12fc724306bb64912f1e7e5068bc2a5
