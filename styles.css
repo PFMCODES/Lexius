@@ -94,14 +94,6 @@ html, body {
     font-size: 50px !important;
 }
 
-#empty-space {
-    width: calc(30vw);
-    height: 100vh;
-    flex: 1;
-    background-color: #151515;  
-    z-index: 1;
-}
-
 main {
     display: flex;
     align-items: center;
