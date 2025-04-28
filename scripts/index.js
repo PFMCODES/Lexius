@@ -1,4 +1,4 @@
-let lang;
+let lang = 'html';
 
 // Initialize Monaco Editor
 require.config({
@@ -8,47 +8,46 @@ require.config({
 });
 
 require(['vs/editor/editor.main'], function () {
-    const editor = monaco.editor.create(document.getElementById('editor'), {
-        value: ``,
-        language: lang,
-        theme: 'MyCustomtheme',
-        placeholder: "Type '!' for HTML boilerplate", // ✅ Built-in support
-        automaticLayout: true,
-    });
-
-    
-
-    // Define custom theme
+    // Define custom theme first
     monaco.editor.defineTheme('myCustomTheme', {
-        base: 'vs-dark', // or 'vs', 'hc-black'
-        inherit: true, // set to false if you don’t want to inherit anything
+        base: 'vs-dark',
+        inherit: true,
         rules: [
-          { token: '', foreground: 'F8F8F8', background: '1E1E1E' },
-          { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
-          { token: 'string', foreground: 'CE9178' },
-          { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
-          // Add more token styles here...
+            { token: '', foreground: 'F8F8F8', background: '1E1E1E' },
+            { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+            { token: 'string', foreground: 'CE9178' },
+            { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
         ],
         colors: {
-          'editor.background': '#1E1E1E',
-          'editor.foreground': '#F8F8F8',
-          'editor.lineHighlightBackground': '#2B2B2B',
-          'editorCursor.foreground': '#7C56C1',
-          'editorIndentGuide.background': '#404040',
-          'editor.selectionBackground': '#264F78',
-          // Add more editor colors here...
+            'editor.background': '#1E1E1E',
+            'editor.foreground': '#F8F8F8',
+            'editor.lineHighlightBackground': '#2B2B2B',
+            'editorCursor.foreground': '#7C56C1',
+            'editorIndentGuide.background': '#404040',
+            'editor.selectionBackground': '#264F78',
         }
-      });
-      
-      monaco.editor.setTheme('myCustomTheme');
+    });
 
-    // Add ! abbreviation trigger
+    // Now create editor
+    const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: '',
+        language: lang,
+        theme: 'myCustomTheme', // Correct spelling
+        placeholder: "Type '!' for HTML boilerplate",
+    });
+
+    // Now editor will have placeholder correctly!
+
     editor.onDidChangeModelContent(() => {
         const model = editor.getModel();
         const content = model.getValue();
 
-        if (content.trim() === "!") {
-            const html5Template = `<!DOCTYPE html>
+        if (lang === 'html') {
+            if (!content.trim() === "!") {
+                console.log('Hmm')
+            }
+            else {
+                const html5Template = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -60,34 +59,31 @@ require(['vs/editor/editor.main'], function () {
 </body>
 </html>`;
 
-            // Set content and place cursor at "Document"
-            model.setValue(html5Template);
+                model.setValue(html5Template);
 
-            const index = html5Template.indexOf("Document");
-            const position = model.getPositionAt(index);
+                const index = html5Template.indexOf("Document");
+                const position = model.getPositionAt(index);
 
-            editor.setPosition(position);
-            editor.setSelection({
-                startLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endLineNumber: position.lineNumber,
-                endColumn: position.column + "Document".length
-            });
+                editor.setPosition(position);
+                editor.setSelection({
+                    startLineNumber: position.lineNumber,
+                    startColumn: position.column,
+                    endLineNumber: position.lineNumber,
+                    endColumn: position.column + "Document".length
+                });
 
-            editor.focus();
+                editor.focus();
+            }
         }
     });
+
+    // App storage etc. (no changes here, but fix .value usage later)
 });
 
-// App's internal virtual storage
-const appStorage = {
-    "user": {
-        "index.html": ""
-    }
-};
+// Also: Make sure your editor DIV has a height!
 
 async function Run() {
-    const html = editor.value
+    const html = editor.getValue()
     const user = localStorage.getItem('user')
     if (!user) {
         const username = prompt('Enter a user name');
@@ -110,7 +106,7 @@ async function Run() {
 }
 
 function search(query) {
-    const content = editor.value || editor.innerText;
+    const content = editor.getValue() || editor.innerText;
     const matches = [];
     const regex = new RegExp(query, 'gi');
     let match;
@@ -125,14 +121,12 @@ function search(query) {
 window.addEventListener("resize", () => {
     editor.layout();
 });
-
-const langhtm = 'html'; // or whatever language you want to display
 const langPath = document.getElementById('lang-path');
 const langEl = document.createElement("div");
 const icon = document.createElement("i");
 icon.classList.add("codicon", "codicon-json");
 icon.style.fontSize = '20px'
-const textNode = document.createTextNode(langhtm);
+const textNode = document.createTextNode(lang);
 langEl.appendChild(icon);
 langEl.appendChild(textNode);
 langPath.appendChild(langEl);
