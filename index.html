@@ -1,43 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexius</title>
-    <link rel="stylesheet" href="https://unpkg.com/monaco-editor@0.39.1/min/vs/editor/editor.main.css">
-    <link rel="shortcut icon" href="images/logo.svg" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css">
-</head>
-<body>
-    <main class="main">
-        <div class="top-bar">
-            <main class="top-bar-main">
-                <div class="logo">
-                    <img src="images/logo.svg" alt="">
-                </div>
-                <div class="file">
-                    <button data="false">File</button>
-                </div>
-                </div>
-            </main>
-        </div>
-        <main class="text-editor">
-            <div>
-                <div class="side-bar">
-                    <button onclick="Run()"><i class="codicon codicon-play" aria-hidden="true"></i></button>
-                    <button data="false"><i class="codicon codicon-account bold" aria-hidden="true"></i></button>
-                </div>
-            </div>
-            <div class="Lexius">
-                <div id="editor" style="height: 100vh;"></div> <!-- Monaco editor -->
-            </div>
-        </main>
-    </main>
-=======
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7E57C2">
   <title>Lexius</title>
   <!-- Firebase App (the core Firebase SDK) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -61,7 +28,6 @@
       <div id="lang-path"></div>
     </div>
   </div>
->>>>>>> 28133a1ac12fc724306bb64912f1e7e5068bc2a5
 
   <main>
     <div class="side-bar">
@@ -74,7 +40,7 @@
       </div>
     </div>
 
-    <div class="Lexius">
+    <div id="Lexius" class="Lexius">
       <button id="googleSignInBtn">Google</button>
       <button id="signOutBtn" style="display: none;">Sign Out</button>
       <div id="editor"></div>
@@ -108,7 +74,7 @@
             console.log("User signed in: ", user.displayName);
             document.getElementById("googleSignInBtn").style.display = "none";
             document.getElementById("signOutBtn").style.display = "block";
-            document.getElementById("editorContainer").style.display = "block";
+            document.getElementById("Lexius").style.display = "block";
           })
           .catch((error) => {
             console.error("Error signing in: ", error.message);
@@ -121,12 +87,12 @@
           console.log("User is signed in:", user.displayName);
           document.getElementById("googleSignInBtn").style.display = "none";
           document.getElementById("signOutBtn").style.display = "block";
-          document.getElementById("editorContainer").style.display = "block";
+          document.getElementById("Lexius").style.display = "block";
         } else {
           console.log("User is signed out.");
           document.getElementById("googleSignInBtn").style.display = "block";
           document.getElementById("signOutBtn").style.display = "none";
-          document.getElementById("editorContainer").style.display = "none";
+          document.getElementById("Lexius").style.display = "none";
         }
       });
       
@@ -136,11 +102,22 @@
           console.log("User signed out.");
           document.getElementById("googleSignInBtn").style.display = "block";
           document.getElementById("signOutBtn").style.display = "none";
-          document.getElementById("editorContainer").style.display = "none";
+          document.getElementById("Lexius").style.display = "none";
         }).catch((error) => {
           console.error("Error signing out: ", error.message);
         });
       });
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+    .then(function(registration) {
+      console.log('Service Worker Registered', registration);
+    })
+    .catch(function(error) {
+      console.log('Service Worker Registration Failed', error);
+    });
+  }
   </script>
   <script src="scripts/index.js"></script>
 </body>
