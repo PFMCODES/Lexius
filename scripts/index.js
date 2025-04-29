@@ -43,7 +43,7 @@ require(['vs/editor/editor.main'], function () {
         const content = model.getValue();
 
         if (lang === 'html') {
-            if (!content.trim() === "!") {
+            if (content.trim() != "!") {
                 console.log('Hmm')
             }
             else {
