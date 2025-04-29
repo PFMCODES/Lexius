@@ -1,4 +1,5 @@
 let lang = 'html';
+let editor; // outside of require()
 
 // Initialize Monaco Editor
 require.config({
@@ -29,7 +30,7 @@ require(['vs/editor/editor.main'], function () {
     });
 
     // Now create editor
-    const editor = monaco.editor.create(document.getElementById('editor'), {
+    editor = monaco.editor.create(document.getElementById('editor'), {
         value: '',
         language: lang,
         theme: 'myCustomTheme', // Correct spelling
@@ -46,7 +47,7 @@ require(['vs/editor/editor.main'], function () {
             if (editor.getValue() != "!") {
                 console.log('Hmm')
             }
-            if (editor.gtevalue == "!") {
+            if (content === "!") {
                 const html5Template = `<!DOCTYPE html>
 <html lang="en">
 <head>
