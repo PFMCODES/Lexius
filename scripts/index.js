@@ -43,10 +43,10 @@ require(['vs/editor/editor.main'], function () {
         const content = model.getValue();
 
         if (lang === 'html') {
-            if (content.trim() != "!") {
+            if (editor.getValue() != "!") {
                 console.log('Hmm')
             }
-            else {
+            if (editor.gtevalue == "!") {
                 const html5Template = `<!DOCTYPE html>
 <html lang="en">
 <head>
