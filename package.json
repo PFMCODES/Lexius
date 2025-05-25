@@ -4,7 +4,7 @@
   "description": "Lexius, Code editor for both mobile and Desktop",
   "main": "electron/index.js",
   "scripts": {
-    "start":  "electron ."
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
@@ -37,5 +37,9 @@
   "bugs": {
     "url": "https://github.com/pfmjs/Lexius/issues"
   },
-  "homepage": "https://github.com/pfmjs/Lexius#readme"
+  "homepage": "https://github.com/pfmjs/Lexius#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "path": "^0.12.7"
+  }
 }

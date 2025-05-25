@@ -23,9 +23,16 @@ html, body {
 }  
   
 #editor {
-    width: 100%;
+    width: 50%;
+    max-width: 50%;
     height: 100%;
 }  
+
+#preview {
+    width: 50%;
+    max-width: 50%;
+    height: 100%;
+}
 
 .top-bar {
     height: 35px; /* Or a specific value like 60px */
