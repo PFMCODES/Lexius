@@ -44,9 +44,6 @@ require(['vs/editor/editor.main'], function () {
         const content = model.getValue();
 
         if (lang === 'html') {
-            if (editor.getValue() != "!") {
-                console.log('Hmm')
-            }
             if (content === "!") {
                 const html5Template = `<!DOCTYPE html>
 <html lang="en">
@@ -83,27 +80,10 @@ require(['vs/editor/editor.main'], function () {
 
 // Also: Make sure your editor DIV has a height!
 
-async function Run() {
-    const html = editor.getValue()
-    const user = localStorage.getItem('user')
-    if (!user) {
-        const username = prompt('Enter a user name');
-        const pass = prompt('Enter a password');
-        localStorage.setItem('user', username)
-    }
-    else {
-        // create a new handle
-        const newHandle = await window.showSaveFilePicker();
-
-        // create a FileSystemWritableFileStream to write to
-        const writableStream = await newHandle.createWritable();
-
-        // write our file
-        await writableStream.write(html);
-
-        // close the file and write the contents to disk.
-        await writableStream.close();
-    }
+function Run() {
+    let iframe = document.getElementById("iframe");
+    let html = editor.getValue();
+    console.log(html)
 }
 
 function search(query) {
@@ -131,3 +111,8 @@ const textNode = document.createTextNode(lang);
 langEl.appendChild(icon);
 langEl.appendChild(textNode);
 langPath.appendChild(langEl);
+
+
+document.getElementById("run").addEventListener("click", () => {
+    Run();
+})

@@ -32,7 +32,7 @@
   <main>
     <div class="side-bar">
       <div class="top">
-        <button onclick="Run()"><i class="codicon codicon-play" aria-hidden="true"></i></button>
+        <button id="run"><i class="codicon codicon-play" aria-hidden="true"></i></button>
         <button onclick="search()"><i class="codicon codicon-search" aria-hidden="true"></i></button>
       </div>
       <div class="bottom">
@@ -42,6 +42,9 @@
 
     <div id="Lexius text-editor" class="Lexius">
       <div id="editor"></div>
+      <div id="preview">
+        <iframe class="iframe" id="iframe"></iframe>
+      </div>
     </div>
   </main>
 
