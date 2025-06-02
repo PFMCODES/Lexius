@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
 
   // Head Elements
-  document.title = 'MineCraft'
+  document.title = 'Lexius'
 
   const metaCharset = document.createElement('meta')
   metaCharset.setAttribute('charset', 'UTF-8')
