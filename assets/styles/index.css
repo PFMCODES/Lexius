@@ -1,0 +1,60 @@
+* {
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+body.dark {
+  --background-color: #121212;
+  --text-color: #e0e0e0;
+  --text-color-inverted: #121212;
+}
+
+body.light {
+  --background-color: #f0f0f0;
+  --text-color: #333;
+  --text-color-inverted: #f0f0f0;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 45vh;
+}
+
+body.dark .container .langauge {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border: none;
+}
+
+body.light .container .langauge {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border: none;
+    background-color: #333;
+    color: var(--text-color-inverted);
+}
+
+body.dark .container .langauge:hover {
+    background-color: #7E57C2;
+    color: var(--text-color);
+}
+
+body.light .container .langauge:hover {
+    background-color: #7E57C2;
+    color: var(--text-color-inverted);
+}
