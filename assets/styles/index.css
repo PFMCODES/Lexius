@@ -58,3 +58,9 @@ body.light .container .langauge:hover {
     background-color: #7E57C2;
     color: var(--text-color-inverted);
 }
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

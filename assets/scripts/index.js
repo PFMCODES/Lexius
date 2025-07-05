@@ -24,22 +24,3 @@ rust.addEventListener('click', () => {
     window.location.href = './langs/rust/';
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = prefersDark ? "dark" : "light";
-  document.body.classList.add(theme);
-
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
-    document.body.classList.remove("dark", "light");
-    document.body.classList.add(e.matches ? "dark" : "light");
-});
-
-  // Theme toggle button
-  document.getElementById("toggle").addEventListener("click", () => {
-    const current = document.body.classList.contains("dark") ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
-    document.body.classList.remove(current);
-    document.body.classList.add(next);
-    localStorage.setItem("theme", next);
-  });
-});
