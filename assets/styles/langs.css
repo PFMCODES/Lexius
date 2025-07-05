@@ -6,8 +6,8 @@ body.dark {
 }
 
 body.light {
-  --nav-bg: #7E57C250;
-  --nav-text: #fff;
+  --nav-bg: #fff;
+  --nav-text: #333;
 }
 
 body {
@@ -45,4 +45,28 @@ nav.nav-bar {
 
 #toggle img {
     margin-top: 20px;
+}
+
+.files {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.file {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--file-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.fileIcon {
+    width: 20px;
+    max-width: 20px;
+    height: 20px;
+    max-height: 20px;
 }
