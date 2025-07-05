@@ -1,0 +1,48 @@
+@import url('./theme.css');
+
+body.dark {
+  --nav-bg: #222;
+    --nav-text: #e0e0e0;
+}
+
+body.light {
+  --nav-bg: #7E57C250;
+  --nav-text: #fff;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+nav.nav-bar .logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  height: 60px;
+}
+
+nav.nav-bar {
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  height: 60px;
+}
+
+#toggle img {
+    margin-top: 20px;
+}

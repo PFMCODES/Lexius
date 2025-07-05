@@ -5,18 +5,6 @@
   box-sizing: border-box;
 }
 
-body.dark {
-  --background-color: #121212;
-  --text-color: #e0e0e0;
-  --text-color-inverted: #121212;
-}
-
-body.light {
-  --background-color: #f0f0f0;
-  --text-color: #333;
-  --text-color-inverted: #f0f0f0;
-}
-
 body {
   background-color: var(--background-color);
   color: var(--text-color);
