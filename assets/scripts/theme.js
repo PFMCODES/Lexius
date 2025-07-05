@@ -15,7 +15,7 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e =
   // Theme toggle button
   document.getElementById("toggle").addEventListener("click", () => {
     const current = document.body.classList.contains("dark") ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
+    const next = current === "dark" ? "dark" : "light";
     document.body.classList.remove(current);
     document.body.classList.add(next);
     localStorage.setItem("theme", next);
