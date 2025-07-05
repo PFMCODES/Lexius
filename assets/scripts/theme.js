@@ -33,8 +33,8 @@ window.addEventListener("DOMContentLoaded", () => {
   function updateToggleIcon(theme) {
     if (!toggleImg) return;
     toggleImg.src = theme === "dark"
-      ? "https://lexius.onrender.com/assets/images/light.svg"
-      : "https://lexius.onrender.com/assets/images/dark.svg";
+      ? "https://lexius.onrender.com/assets/images/dark.svg"
+      : "https://lexius.onrender.com/assets/images/light.svg";
     toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
   }
 });
