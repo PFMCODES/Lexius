@@ -1,10 +1,12 @@
+import { monaco } from './monaco.js';
+
 function DetectFileType(f) {
     f = f.toLowerCase();
 
     if (f.endsWith(".js")) return "javascript";
     if (f.endsWith(".ts")) return "typescript";
-    if (f.endsWith(".jsx")) return "react";
-    if (f.endsWith(".tsx")) return "react";
+    if (f.endsWith(".jsx")) return "javascript";
+    if (f.endsWith(".tsx")) return "typescript";
     if (f.endsWith(".json")) return "json";
     if (f.endsWith(".html")) return "html";
     if (f.endsWith(".css")) return "css";
@@ -135,9 +137,12 @@ function returnFileIcon(f) {
     return base + (map[type] || "file.svg");
 }
 
+const filesContainer = document.getElementsByClassName("files")[0];
+const filesTab = document.getElementsByClassName('files-tab')[0];
+
 document.addEventListener("DOMContentLoaded", () => {
-    const filesContainer = document.getElementsByClassName("files")[0];
     if (!filesContainer) return;
+    filesTab.setAttribute('data-status', "open")
 
     const fileElements = filesContainer.getElementsByClassName("file");
 
@@ -155,5 +160,87 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log(`Set icon for ${fileName}: ${iconUrl}`);
         }
+    }
+});
+
+document.getElementById('closeBtn').addEventListener('click', () => {
+  if (!filesTab) return;
+  const filesTabStatus = filesTab.getAttribute('data-status');
+
+  if (filesTabStatus == "open") {
+    filesTab.setAttribute('data-status', 'close');
+    filesTab.style.display = "none";
+  } else {
+    filesTab.style.display = 'block';
+
+    // Wait for DOM reflow before updating status and layout
+    requestAnimationFrame(() => {
+      filesTab.setAttribute('data-status', 'open');
+      document.getElementById('editor').innerHTML = ''
+      filesTab.style.display = 'flex';
+        const el = document.getElementsByClassName('selected')[0].innerText
+      const lang = DetectFileType(el)
+      monaco(lang, localStorage.getItem(el))
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const selectedFile = document.getElementsByClassName('selected')[0];
+    const fileName = selectedFile.textContent.trim();
+    const lang = DetectFileType(fileName);
+    const code = localStorage.getItem(fileName) || 'console.log("Hello, World!");';
+    monaco(lang, code);
+});
+
+function autoSave() {
+  const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
+  if (!isAutoSaveEnabled) return;
+
+  const selectedEl = document.getElementsByClassName('selected')[0];
+  if (!selectedEl || !window.editorInstance) return;
+
+  const fileName = selectedEl.innerText.trim();
+  const value = window.editorInstance.getValue();
+
+  if (value !== localStorage.getItem(fileName)) {
+    localStorage.setItem(fileName, value);
+    console.log(`Auto-saved ${fileName}`);
+  }
+}
+
+setInterval(autoSave, 2000)
+
+document.querySelectorAll('.true').forEach((o) => {
+    o.innerHTML = '<i class="codicon codicon-check"></i>'
+})
+
+document.getElementById('File').addEventListener('click', () => {
+    document.querySelector('.fileBtnOptions').classList.toggle('active');
+});
+
+document.querySelector('.fileBtnOptions').addEventListener('mouseleave', () => {
+    document.querySelector('.fileBtnOptions').classList.remove('active');
+});
+
+document.getElementById('autosave').addEventListener('click', () => {
+    const checkEl = document.getElementById('autosave-check');
+    const current = localStorage.getItem('autosave') === 'true';
+
+    localStorage.setItem('autosave', (!current).toString());
+
+    if (current) {
+        checkEl.classList.remove('true');
+    } else {
+        checkEl.classList.add('true');
+    }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('autosave') === 'true') {
+        document.getElementById('autosave-check').classList.add('true');
+    }
+    if (!localStorage.getItem('autosave')) {
+        localStorage.setItem('autosave', 'true')
     }
 });

@@ -3,30 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lexius - Website</title>
+    <title>Lexius - Javascript</title>
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../assets/styles/theme.css">
     <link rel="stylesheet" href="../../assets/styles/langs.css">
+    <link rel="stylesheet" href="../../node_modules\@vscode\codicons\dist\codicon.css">
 </head>
 <body>
+    <div class='extras'>
+        <div class="fileBtnOptions">
+            <div class="option" id="openFile">
+                Open File
+            </div>
+            <div class="option" id="openFolder">
+                Open Folder
+            </div>
+            <div class="option" id="autosave">
+                AutoSave
+                <div class="true" id='autosave-check'></div>
+            </div>
+        </div>
+    </div>
     <nav class="nav-bar">
-        <div class="logo">
-            <img src="../../assets/images/favicon.svg" alt="Lexius Logo">
-            <h1>Lexius</h1>
+        <div class="options">
+            <div class="logo">
+                <img src="../../assets/images/favicon.svg" alt="Lexius Logo">
+            </div>
+            <div class="option">
+                <button id="File">
+                    File
+                </button>
+            </div>
         </div>
         <div class="theme-toggle">
             <button id="toggle"><img src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
         </div>
     </nav>
-    <div class="files">
-        <div class="file">
-            <div class="fileIcon"><img src="" alt=""></div>
-            <div class="fileName">
-                index.js
+    <main>
+        <div class="sideBar" id="sideBar">
+            <i class="codicon codicon-files" id="closeBtn"></i>
+        </div>
+        <div class="files-tab" id="files-tab">
+            <div class="fileMenu">
+                
+            </div>
+            <div class="files">
+                <div class="file selected">
+                    <div class="fileIcon"><img src="" alt=""></div>
+                    <div class="fileName">
+                        index.js
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <div id="editor"></div>
+    </main>
     <script src="../../assets/scripts/theme.js"></script>
-    <script src="../../assets/scripts/langs.js.js"></script>
+    <script type="module" src="../../assets/scripts/langs.js.js"></script>
+    <script type="module" src="../../assets/scripts/monaco.js"></script>
 </body>
 </html>
