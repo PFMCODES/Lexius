@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexius - Javascript</title>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../assets/styles/theme.css">
@@ -11,9 +12,15 @@
     <link rel="stylesheet" href="../../node_modules\@vscode\codicons\dist\codicon.css">
 </head>
 <body>
+    <div class="prompt" align="center">
+        <div class="window" align="center">
+            <h3>Please name your JavaScript project</h3>
+            <div><input type="text" name="project-name" id="project-name"> <button><i class="codicon codicon-check"></i></button></div>
+        </div>
+    </div>
     <div class='extras'>
         <div class="fileBtnOptions">
-            <div class="option" id="openFile">
+            <div class="option" id="open-File">
                 Open File
             </div>
             <div class="option" id="openFolder">
@@ -46,21 +53,30 @@
         </div>
         <div class="files-tab" id="files-tab">
             <div class="fileMenu">
-                
+                <p class="project-name"></p>
+                <div id="menu">
+                    <i class="codicon codicon-new-file"></i>
+                    <i class="codicon codicon-new-folder"></i>
+                    <i class="codicon codicon-refresh"></i>
+                </div>
             </div>
             <div class="files">
-                <div class="file selected">
-                    <div class="fileIcon"><img src="" alt=""></div>
-                    <div class="fileName">
-                        index.js
-                    </div>
-                </div>
+                
             </div>
         </div>
         <div id="editor"></div>
     </main>
-    <script src="../../assets/scripts/theme.js"></script>
+    <div class="right-click-menu" id="rightClickMenu">
+        <div class="menu-item" id="newFile">📄 New File</div>
+        <div class="menu-item" id="newFolder">📁 New Folder</div>
+        <div class="menu-item" id="renameFile">✏️ Rename</div>
+        <div class="menu-item" id="deleteFile">🗑️ Delete</div>
+        <div class="menu-item" id="openFile">📝 Open in Editor</div>
+        <div class="menu-item" id="downloadProject">Donwload Project</div>
+    </div>
     <script type="module" src="../../assets/scripts/langs.js.js"></script>
     <script type="module" src="../../assets/scripts/monaco.js"></script>
+    <script type="module" src="../../assets/scripts/db.js"></script>
+    <script type="module" src="../../assets/scripts/zip-export.js"></script>
 </body>
 </html>

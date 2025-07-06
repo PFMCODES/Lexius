@@ -1,4 +1,5 @@
 import { monaco } from './monaco.js';
+import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME } from './db.js';
 
 function DetectFileType(f) {
     f = f.toLowerCase();
@@ -70,7 +71,7 @@ function DetectFileType(f) {
 
 function returnFileIcon(f) {
     const type = DetectFileType(f);
-    const base = "../../assets/images/";
+    const base = "../../assets/images/langs/";
     const map = {
         javascript: "js.svg",
         typescript: "ts.svg",
@@ -138,7 +139,6 @@ function returnFileIcon(f) {
 }
 
 const filesContainer = document.getElementsByClassName("files")[0];
-const filesTab = document.getElementsByClassName('files-tab')[0];
 
 document.addEventListener("DOMContentLoaded", () => {
     if (!filesContainer) return;
@@ -186,14 +186,10 @@ document.getElementById('closeBtn').addEventListener('click', () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    const selectedFile = document.getElementsByClassName('selected')[0];
-    const fileName = selectedFile.textContent.trim();
-    const lang = DetectFileType(fileName);
-    const code = localStorage.getItem(fileName) || 'console.log("Hello, World!");';
-    monaco(lang, code);
+    layout()
 });
 
-function autoSave() {
+async function autoSave() {
   const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
   if (!isAutoSaveEnabled) return;
 
@@ -205,6 +201,7 @@ function autoSave() {
 
   if (value !== localStorage.getItem(fileName)) {
     localStorage.setItem(fileName, value);
+    await saveFile(fileName, value); // 🔄 keep in sync
     console.log(`Auto-saved ${fileName}`);
   }
 }
@@ -244,3 +241,248 @@ window.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('autosave', 'true')
     }
 });
+
+window.addEventListener('DOMContentLoaded', () => {
+    
+})
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const toggleBtn = document.getElementById("toggle");
+  const toggleImg = toggleBtn?.querySelector("img"); // optional chaining safety
+
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const savedTheme = localStorage.getItem("theme");
+
+  const theme = savedTheme || (prefersDark ? "dark" : "light");
+
+  document.body.classList.remove("light", "dark");
+  document.body.classList.add(theme);
+  updateToggleIcon(theme);
+
+  // Respond to OS changes if no manual override
+  if (!savedTheme) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
+      const newTheme = e.matches ? "dark" : "light";
+      document.body.classList.remove("light", "dark");
+      document.body.classList.add(newTheme);
+      updateToggleIcon(newTheme);
+      layout()
+    });
+  }
+
+  toggleBtn?.addEventListener("click", () => {
+    const isDark = document.body.classList.contains("dark");
+    const newTheme = isDark ? "light" : "dark";
+    document.body.classList.remove("dark", "light");
+    document.body.classList.add(newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateToggleIcon(newTheme);
+    layout()
+  });
+
+  function updateToggleIcon(theme) {
+    if (!toggleImg) return;
+    toggleImg.src = theme === "dark"
+      ? "../../assets/images/dark.svg"
+      : "../../assets/images/light.svg";
+    toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
+  }
+});
+
+async function layout(lang1, code1, theme1) {
+  const selectedFile = document.getElementsByClassName('selected')[0];
+  if (!selectedFile) return;
+
+  const fileName = selectedFile.textContent.trim();
+  const lang = lang1 || DetectFileType(fileName);
+  const code = code1 || localStorage.getItem(fileName) || 'console.log("Hello, World!");';
+  const container = document.getElementById('editor');
+  const theme = theme1 || localStorage.getItem('theme') || 'dark';
+    
+  container.innerHTML = '';
+  // ✅ Dispose previous editor instance if exists
+    //   if (window.editorInstance) {
+    //     window.editorInstance.dispose();
+    //     window.editorInstance = null;
+    //   }
+
+  // ✅ Create new editor
+  monaco(lang, code, theme);
+}
+
+const filesTab = document.querySelector('#files-tab');
+const rightClickMenu = document.getElementById('rightClickMenu');
+let clickedFileEl = null;
+
+// Show context menu
+filesTab.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  const fileEl = e.target.closest('.file');
+  if (fileEl) {
+    clickedFileEl = fileEl;
+    rightClickMenu.style.display = 'block';
+    rightClickMenu.style.top = `${e.pageY}px`;
+    rightClickMenu.style.left = `${e.pageX}px`;
+  }
+});
+
+// Hide on click elsewhere
+document.addEventListener('click', () => {
+  rightClickMenu.style.display = 'none';
+  clickedFileEl = null;
+});
+
+// Helper to create new file elements
+function createFile(name) {
+  const file = document.createElement('div');
+  file.classList.add('file');
+  file.innerHTML = `
+    <div class="fileIcon"><img src="" alt=""></div>
+    <div class="fileName">${name}</div>
+  `;
+  filesTab.querySelector('.files').appendChild(file);
+  return file;
+}
+
+// Add functionality
+document.getElementById('newFile').addEventListener('click', async () => {
+  const name = prompt('Enter new file name', 'newfile.js');
+  if (name) {
+    const newFile = createFile(name);
+    const icon = returnFileIcon(name);
+    newFile.querySelector('img').src = icon;
+    newFile.querySelector('img').alt = `Icon for ${name}`;
+    
+    localStorage.setItem(name, '');
+    await saveFile(name, ''); // ✅ Save to IndexedDB too
+  }
+});
+
+document.getElementById('renameFile').addEventListener('click', async () => {
+  if (clickedFileEl) {
+    const oldName = clickedFileEl.querySelector('.fileName').textContent.trim();
+    const newName = prompt('Rename file to:', oldName);
+    if (newName && newName !== oldName) {
+      // Update DOM
+      clickedFileEl.querySelector('.fileName').textContent = newName;
+      // Update icon
+      clickedFileEl.querySelector('img').src = returnFileIcon(newName);
+      // Move content in localStorage
+        const content = localStorage.getItem(oldName) || '';
+        localStorage.setItem(newName, content);
+        localStorage.removeItem(oldName);
+
+        await saveFile(newName, content);
+        await deleteFile(oldName);
+
+    }
+  }
+});
+
+document.getElementById('deleteFile').addEventListener('click', async () => {
+  if (clickedFileEl) {
+    const name = clickedFileEl.querySelector('.fileName').textContent.trim();
+    if (confirm(`Delete "${name}"?`)) {
+      localStorage.removeItem(name);
+    await deleteFile(name);
+    clickedFileEl.remove();
+    }
+  }
+});
+
+document.getElementById('newFolder').addEventListener('click', () => {
+  const name = prompt('Enter new folder name', 'NewFolder');
+  if (name) {
+    const folder = document.createElement('div');
+    folder.classList.add('file', 'close'); // Add both 'file' and 'close' classes
+
+    folder.innerHTML = `
+      <div class="fileIcon"><i class="codicon codicon-chevron-right"></i></div>
+      <div class="fileName">${name}</div>
+    `;
+
+    // Optional: add click to toggle open/close icon
+    folder.addEventListener('click', () => {
+      const icon = folder.querySelector('i');
+      const isOpen = folder.classList.toggle('open');
+      folder.classList.toggle('close', !isOpen);
+      icon.classList.toggle('codicon-chevron-right', !isOpen);
+      icon.classList.toggle('codicon-chevron-up', isOpen);
+    });
+
+    filesTab.querySelector('.files').appendChild(folder);
+  }
+});
+
+document.querySelector('.files').addEventListener('click', (e) => {
+  const fileEl = e.target.closest('.file');
+  if (!fileEl) return;
+
+  const name = fileEl.querySelector('.fileName')?.textContent?.trim();
+  if (!name) return;
+
+  const lang = DetectFileType(name);
+  const value = localStorage.getItem(name) || '';
+
+  document.querySelectorAll('.file').forEach(f => f.classList.remove('selected'));
+  fileEl.classList.add('selected');
+
+  document.getElementById('editor').innerHTML = '';
+  const theme = localStorage.getItem('theme');
+  layout(lang, value, theme);
+});
+
+document.getElementById('openFile').addEventListener('click', () => {
+  if (clickedFileEl) {
+    // Get file name
+    const name = clickedFileEl.querySelector('.fileName')?.textContent?.trim();
+    if (!name) return;
+
+    // Get language from extension
+    const lang = DetectFileType(name);
+
+    // Get value from storage or default fallback
+    const value = localStorage.getItem(name) || '';
+
+    // Highlight selected file
+    document.querySelectorAll('.file').forEach(f => f.classList.remove('selected'));
+    clickedFileEl.classList.add('selected');
+
+    // Clear editor container before re-creating Monaco
+    const editorEl = document.getElementById('editor');
+    editorEl.innerHTML = ''; // 🚨 force reset container
+    const theme = localStorage.getItem('theme')
+    // Load Monaco again
+    layout(lang, value, theme);
+  }
+});
+
+const params = new URLSearchParams(window.location.search);
+if (params.has('projectName')) {
+    document.getElementsByClassName('prompt')[0].style.display = 'none';
+    document.querySelector('.project-name').innerText = params.get('projectName').toUpperCase()
+}
+
+import { exportAsZip } from "./zip-export.js";
+
+document.getElementById('downloadProject').addEventListener('click', () => {
+    exportAsZip();
+})
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const allFiles = await getAllFiles();
+
+  for (const { path, content } of allFiles) {
+    const file = createFile(path);
+    const icon = returnFileIcon(path);
+    file.querySelector('img').src = icon;
+    file.querySelector('img').alt = `Icon for ${path}`;
+    localStorage.setItem(path, content); // Also sync into memory
+  }
+
+  layout(); // then load editor with default file
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+    saveFile('index.js', "console.log('Hello, World!');")
+})
