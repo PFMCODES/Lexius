@@ -3,11 +3,16 @@
 body.dark {
   --nav-bg: #222;
     --nav-text: #e0e0e0;
+    --files-bg: #272626;
+    --selcted-file-bg: #7E57C2;
+    --sideBar-bg: #232323;
 }
 
 body.light {
   --nav-bg: #fff;
   --nav-text: #333;
+  --files-bg: #e4e2e2;
+    --selcted-file-bg: #945df3;
 }
 
 body {
@@ -28,8 +33,9 @@ nav.nav-bar .logo {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
-  height: 60px;
+  padding: 5px 10px;
+  width: 10px;
+  height: 30px;
 }
 
 nav.nav-bar {
@@ -40,21 +46,30 @@ nav.nav-bar {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-  height: 60px;
+  padding-left: 0;
+  font-size: 15px;
+  height: 40px;
+  border-bottom: #333 solid 1px;
 }
 
 #toggle img {
     margin-top: 20px;
 }
 
-.files {
+.files-tab {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 10px;
+  width: 20vw;
+  background-color: var(--files-bg);
+  height: calc(100vh - 40px);
+  border-left: #333 solid 1px;
 }
 
 .file {
     display: flex;
+    gap: 0;
+    margin: 0;
     flex-direction: row;
     align-items: center;
     padding: 10px;
@@ -69,4 +84,109 @@ nav.nav-bar {
     max-width: 20px;
     height: 20px;
     max-height: 20px;
+}
+
+.file.selected {
+    background-color: var(--selcted-file-bg);
+    color: #fff;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  gap: 0;
+}
+
+#editor {
+  flex: 1;
+  margin: 0;
+  gap: 0;
+  height: calc(100vh - 40px);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-left: #333 solid 1px;
+}
+
+.sideBar {
+  width: 80px;
+  height: 100vh;
+  background: var(--sideBar-bg);
+  color: #fff;
+  display: flex;
+  flex-direction: column !important;
+  /* align-items: center; */
+}
+
+i {
+  font-size: 37px !important;
+}
+
+.sideBar i {
+  cursor: pointer;
+  margin: 10px;
+  margin-top: 20px;
+}
+
+.extras {
+  z-index: 100;
+  position: absolute;
+  pointer-events: auto;
+}
+
+.extras .option {
+    display: flex;
+    align-items: center;  
+    gap: 13px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.extras .fileBtnOptions {
+  display: none;
+  background-color: var(--files-bg);
+  width: 100px;
+  border-radius: 3px;
+  margin-left: 50px;
+  margin-top: 28px;
+  border: #333 solid 1px;
+}
+
+.fileBtnOptions.active {
+  display: block;
+}
+
+.codicon-check {
+  font-size: 15px !important;
+}
+
+.monaco-editor .mtk8 {
+  color: #BBBBBB !important; /* token type for 'console' in many themes */
+}
+
+.files-tab[data-status="close"] {
+  visibility: hidden;
+  width: 0;
+  transition: width 0.3s ease;
+}
+.files-tab[data-status="open"] {
+  visibility: visible;
+  width: 20vw;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.options .option button {
+  background-color: transparent;
+  color: var(--nav-text);
+}
+
+button {
+  border: none;
+  outline: none;
 }
