@@ -1,13 +1,14 @@
 let editorInstance = null;
 
 export function monaco(lang, eValue, theme) {
-  // Load Monaco paths
-  require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@latest/min/vs' } });
+  const Monaco = window.monaco;
+  if (!Monaco || !window.monacoReady) {
+    console.warn("Monaco is not ready yet");
+    return;
+  }
 
-  require(['vs/editor/editor.main'], function () {
-    const Monaco = window.monaco;
-
-    // Define custom theme
+  // Define themes (do this once or use a flag)
+  if (!window.__lexiusThemesDefined) {
     Monaco.editor.defineTheme("lexius-dark", {
       base: "vs-dark",
       inherit: true,
@@ -45,16 +46,17 @@ export function monaco(lang, eValue, theme) {
       }
     });
 
-    // Create editor
-    editorInstance = Monaco.editor.create(document.getElementById('editor'), {
-      value: eValue,
-      language: lang,
-      theme: document.body.classList.contains('dark') ? 'lexius-dark' : 'lexius-light',
-      fontSize: 14,
-      automaticLayout: true,
-    });
+    window.__lexiusThemesDefined = true;
+  }
 
-    // Expose instance globally
-    window.editorInstance = editorInstance;
+  // Create editor instance
+  editorInstance = Monaco.editor.create(document.getElementById('editor'), {
+    value: eValue,
+    language: lang,
+    theme: theme === "dark" ? "lexius-dark" : "lexius-light",
+    fontSize: 14,
+    automaticLayout: true,
   });
+
+  window.editorInstance = editorInstance;
 }
