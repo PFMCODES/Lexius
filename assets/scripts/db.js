@@ -26,14 +26,28 @@ export async function saveFile(path, content) {
 }
 
 export async function getAllFiles() {
-  const db = await openDB();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-    const request = store.getAll();
+    const request = indexedDB.open(params.get('projectName'), 1);
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = function () {
+      const db = request.result;
+      const tx = db.transaction("files", "readonly");
+      const store = tx.objectStore("files");
+
+      const getAllRequest = store.getAll();
+
+      getAllRequest.onsuccess = function () {
+        resolve(getAllRequest.result); // Should be an array of { name, content }
+      };
+
+      getAllRequest.onerror = function () {
+        reject("Failed to get files");
+      };
+    };
+
+    request.onerror = function () {
+      reject("IndexedDB open error");
+    };
   });
 }
 
@@ -43,4 +57,26 @@ export async function deleteFile(path) {
   const store = tx.objectStore(STORE_NAME);
   store.delete(path);
   return tx.complete;
+}
+
+export function isIndexedDBEmpty() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME);
+
+    request.onerror = () => reject("Failed to open DB");
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const store = tx.objectStore(STORE_NAME);
+      const countRequest = store.count();
+
+      countRequest.onsuccess = () => {
+        resolve(countRequest.result === 0); // true if empty
+      };
+
+      countRequest.onerror = () => {
+        reject("Count failed");
+      };
+    };
+  });
 }

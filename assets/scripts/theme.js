@@ -30,11 +30,20 @@ window.addEventListener("DOMContentLoaded", () => {
     updateToggleIcon(newTheme);
   });
 
+  function getRIghtSvgPath(u, name) {
+    const url = window.location.href
+    if (!url.includes('/langs/')) {
+      return "../../assets/images/" + name + ".svg"
+    }
+  }
+  
+
   function updateToggleIcon(theme) {
     if (!toggleImg) return;
     toggleImg.src = theme === "dark"
-      ? "https://lexius.onrender.com/assets/images/dark.svg"
-      : "https://lexius.onrender.com/assets/images/light.svg";
+      ? getRIghtSvgPath("assets/images/dark.svg", 'dark')
+      : getRIghtSvgPath("assets/images/dark.svg", 'light')
     toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
   }
 });
+

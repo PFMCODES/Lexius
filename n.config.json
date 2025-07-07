@@ -1,0 +1,7 @@
+{
+    "name": "",
+    "build": "",
+    "scripts": {
+        "commit": "git add . && git commit -m '.' && git push origin main"
+    }
+}
