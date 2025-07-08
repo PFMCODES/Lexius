@@ -7,7 +7,13 @@ export function monaco(lang, eValue, theme) {
     return;
   }
 
-  // Define themes (do this once or use a flag)
+  // Dispose previous instance (important!)
+  if (window.editorInstance) {
+    window.editorInstance.dispose();
+    document.getElementById('editor').innerHTML = ''; // clear container
+  }
+
+  // Define themes (only once)
   if (!window.__lexiusThemesDefined) {
     Monaco.editor.defineTheme("lexius-dark", {
       base: "vs-dark",
@@ -49,11 +55,15 @@ export function monaco(lang, eValue, theme) {
     window.__lexiusThemesDefined = true;
   }
 
+  // Always set the theme before creation (not just inside config)
+  const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
+  Monaco.editor.setTheme(monacoTheme); // must be before create
+
   // Create editor instance
   editorInstance = Monaco.editor.create(document.getElementById('editor'), {
     value: eValue,
     language: lang,
-    theme: theme === "dark" ? "lexius-dark" : "lexius-light",
+    theme: monacoTheme,
     fontSize: 14,
     automaticLayout: true,
   });
