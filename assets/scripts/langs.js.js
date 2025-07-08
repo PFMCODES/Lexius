@@ -1,4 +1,6 @@
 import { monaco } from './monaco.js';
+import { sendMessage } from './indu.js'
+import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME, isIndexedDBEmpty } from './db.js';
 
 require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
@@ -6,17 +8,49 @@ require(['vs/editor/editor.main'], () => {
   window.monacoReady = true;
 });
 
+const toggleBtn = document.getElementById("toggle");
+const toggleImg = toggleBtn?.querySelector("img");
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const savedTheme = localStorage.getItem("theme");
+const theme = savedTheme || (prefersDark ? "dark" : "light");
+
 window.addEventListener('DOMContentLoaded', async () => {
   await new Promise(resolve => {
     const wait = () => window.monacoReady ? resolve() : setTimeout(wait, 50);
     wait();
   });
-
+  lucide.createIcons();
   if (isIndexedDBEmpty) {
-    saveFile('index.js', 'console.log("Hello, World!")')
-    monaco('javascript',  'console.log("Hello, World!")', localStorage.getItem('theme'))
+    await saveFile('index.js', 'console.log("Hello, World!")')
+    monaco('javascript',  'console.log("Hello, World!")', theme)
   }
+  const induInput = document.getElementById('induInput');
+const chatDiv = document.getElementById("chat");
 
+induInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const message = induInput.value.trim();
+    if (!message) return;
+
+    // Clear input
+    induInput.value = '';
+
+    // Show thinking indicator
+    const thinkingEl = document.createElement('div');
+    thinkingEl.classList.add('message', 'indu', 'typing');
+    thinkingEl.innerHTML = 'Indu is thinking...';
+    chatDiv.appendChild(thinkingEl);
+
+    sendMessage(message).then((res) => {
+      res = res.replace(/<think>.*?<\/think>/gs, "");
+      const html = marked.parse(res || "Sorry, I didn’t understand that.");
+      thinkingEl.outerHTML = `<div class="message indu">${html}</div>`;
+    }).catch((err) => {
+      thinkingEl.outerHTML = `<div class="message indu error">Error: ${err.message}</div>`;
+    });
+  }
+});
   const allFiles = await getAllFiles();
   for (const { path, content } of allFiles) {
     const file = createFile(path);
@@ -27,13 +61,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem(path, content);
   }
 
-  layout(DetectFileType(document.querySelector('.selected').innerText) ,localStorage.getItem(document.querySelector('.selected').innerText), localStorage.getItem('theme'));
+  layout(DetectFileType(document.querySelector('.selected').innerText), localStorage.getItem(document.querySelector('.selected').innerText), localStorage.getItem('theme'));
 
-  const toggleBtn = document.getElementById("toggle");
-  const toggleImg = toggleBtn?.querySelector("img");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (prefersDark ? "dark" : "light");
   document.body.classList.remove("light", "dark");
   document.body.classList.add(theme);
   updateToggleIcon(theme);
@@ -47,6 +76,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       layout();
     });
   }
+
+
 
   toggleBtn?.addEventListener("click", () => {
     const isDark = document.body.classList.contains("dark");
@@ -80,17 +111,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!filesContainer) return;
   filesTab.setAttribute('data-status', "open");
   const fileElements = filesContainer.getElementsByClassName("file");
-  for (let i = 0; i < fileElements.length; i++) {
-    const file = fileElements[i];
-    const fileNameEl = file.getElementsByClassName("fileName")[0];
-    const iconImg = file.getElementsByClassName("fileIcon")[0]?.getElementsByTagName("img")[0];
-    if (fileNameEl && iconImg) {
-      const fileName = fileNameEl.textContent.trim();
-      const iconUrl = returnFileIcon(fileName);
-      iconImg.src = iconUrl;
-      iconImg.alt = `Icon for ${fileName}`;
+  if (filesContainer.getElementsByClassName) {
+      
     }
-  }
+  
 });
 
 document.getElementById('closeBtn').addEventListener('click', () => {
@@ -103,10 +127,7 @@ document.getElementById('closeBtn').addEventListener('click', () => {
     filesTab.style.display = 'block';
     requestAnimationFrame(() => {
       filesTab.setAttribute('data-status', 'open');
-      document.getElementById('editor').innerHTML = '';
-      const el = document.getElementsByClassName('selected')[0].innerText;
-      const lang = DetectFileType(el);
-      monaco(lang, localStorage.getItem(el));
+      layout()
     });
   }
 });
@@ -142,20 +163,21 @@ async function autoSave() {
 
 setInterval(autoSave, 2000);
 
-async function layout(lang1, code1, theme1) {
+async function layout(lang1, code1) {
   const selectedFile = document.querySelector('.selected');
   if (!selectedFile) return;
   const fileName = selectedFile.textContent.trim();
-  const lang = lang1 || DetectFileType(fileName);
+  const lang = lang1 ?? DetectFileType(fileName);
   const code = code1 ?? localStorage.getItem(fileName);
-  const theme = theme1 || localStorage.getItem('theme');
-  if (window.editorInstance?.layout) {
-    window.editorInstance.layout();
+  const theme = localStorage.getItem('theme');
+  if (window.editorInstance) {
+  window.editorInstance.dispose();
   }
+  monaco(lang, code, theme)
 }
 
 const filesContainer = document.getElementsByClassName("files")[0];
-const filesTab = document.querySelector('#files-tab');
+const filesTab = document.querySelector('.files-tab');
 const rightClickMenu = document.getElementById('rightClickMenu');
 let clickedFileEl = null;
 
@@ -182,7 +204,7 @@ function createFile(name) {
     <div class="fileIcon"><img src="" alt=""></div>
     <div class="fileName">${name}</div>
   `;
-  filesTab.querySelector('.files').appendChild(file);
+ filesTab.appendChild(file); // ✅ FIXED LINE
   return file;
 }
 
@@ -200,17 +222,36 @@ document.getElementById('newFile').addEventListener('click', async () => {
 
 document.getElementById('renameFile').addEventListener('click', async () => {
   if (clickedFileEl) {
-    const oldName = clickedFileEl.querySelector('.fileName').textContent.trim();
-    const newName = prompt('Rename file to:', oldName);
-    if (newName && newName !== oldName) {
-      clickedFileEl.querySelector('.fileName').textContent = newName;
-      clickedFileEl.querySelector('img').src = returnFileIcon(newName);
-      const content = localStorage.getItem(oldName) || '';
-      localStorage.setItem(newName, content);
-      localStorage.removeItem(oldName);
-      await saveFile(newName, content);
-      await deleteFile(oldName);
-    }
+    const fileNameEl = clickedFileEl.querySelector('.fileName');
+    const oldName = fileNameEl.textContent.trim();
+
+    fileNameEl.innerHTML = `<input type='text' id='fileNameInput' value="${oldName}" />`;
+
+    const input = fileNameEl.querySelector('#fileNameInput');
+    input.focus();
+    input.select();
+
+    input.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const newName = input.value.trim() || 'Untitled';
+        const content = localStorage.getItem(oldName) || '';
+
+        if (newName !== oldName) {
+          localStorage.setItem(newName, content);
+          localStorage.removeItem(oldName);
+          await saveFile(newName, content);
+          await deleteFile(oldName);
+        }
+
+        fileNameEl.innerHTML = newName;
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        fileNameEl.innerHTML = oldName;
+      }
+    });
   }
 });
 
@@ -229,7 +270,7 @@ document.getElementById('newFolder').addEventListener('click', () => {
   const name = prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
-    folder.classList.add('file', 'close');
+    folder.classList.add('folder', 'close');
     folder.innerHTML = `
       <div class="fileIcon"><i class="codicon codicon-chevron-right"></i></div>
       <div class="fileName">${name}</div>
@@ -248,6 +289,7 @@ document.getElementById('newFolder').addEventListener('click', () => {
 document.querySelector('.files').addEventListener('click', (e) => {
   const fileEl = e.target.closest('.file');
   if (!fileEl) return;
+  if (fileEl.classList.contains('selected')) return;
   const name = fileEl.querySelector('.fileName')?.textContent?.trim();
   if (!name) return;
   const lang = DetectFileType(name);

@@ -11,16 +11,18 @@ body.dark {
 body.light {
   --nav-bg: #fff;
   --nav-text: #333;
-  --files-bg: #e4e2e2;
-    --selcted-file-bg: #efefef;
+  --files-bg: #fff;
+    --selcted-file-bg: rgb(250, 250, 245);
+    --sideBar-bg: rgb(250, 250, 245);
 }
 
 body {
   height: 100vh; 
+  max-height: 100vh; 
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
-  overflow-x: hidden;
+  /* overflow: hidden; */
 }
 
 * {
@@ -29,8 +31,8 @@ body {
   gap: 0;
   user-select: none;
   box-sizing: border-box;
-  max-width: 100vw;
-  max-height: 100vh;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -295,4 +297,87 @@ body.light .files-tab .fileMenu i {
 .right-click-menu .menu-item:hover {
   background-color: var(--selcted-file-bg);
   color: white;
+}
+
+input {
+    outline: #7e56c2;
+    background-color: var(--files-bg);
+    color: var(--nav-text);
+
+}
+
+.indu {
+  background-color: var(--files-bg);
+  width: 26vw;
+  height: calc(100vh - 40px);
+  font-weight: bolder;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: #333 solid 1px;
+}
+
+.indu .header div {
+  display: flex;
+  justify-content: center;
+}
+
+.indu div img {
+    width: 150px;
+}
+
+.indu .input {
+  display: flex;
+  flex-direction: row;
+  width: calc(100% - 40px);
+  margin: 20px;
+  border: #7e56c2 2px solid;
+  padding: 15px;
+  border-radius: 20px;
+}
+
+.indu .input #induInput {
+    border: none;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.indu .input button {
+  background-color: transparent;
+  color: var(--nav-text);
+}
+
+button {
+  cursor: pointer;
+}
+
+.indu.message {
+    font-weight: 500;
+}
+
+think {
+    display: none;
+}
+
+#chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.message {
+  max-width: 100%;
+  width: fit-content;
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  background: #2a2a2a;
+  color: white;
+  border-radius: 8px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.4;
 }
