@@ -111,21 +111,18 @@ induInput.addEventListener('keydown', (e) => {
   }
 });
 
-document.querySelectorAll('pre').forEach((c) => {
-    c.addEventListener('mouseleave', () => {
-        document.querySelectorAll('.copy-code-btn').forEach((e) => {
-            e.style.display = 'none'
-        })
-    })
-})
+document.querySelectorAll('pre').forEach((pre) => {
+  pre.addEventListener('mouseenter', () => {
+    const btn = pre.querySelector('.copy-code-btn');
+    if (btn) btn.style.display = 'block';
+  });
 
-document.querySelectorAll('pre').forEach((c) => {
-    c.addEventListener('mouseenter', () => {
-        document.querySelectorAll('.copy-code-btn').forEach((e) => {
-            e.style.display = 'block'
-        })
-    })
-})
+  pre.addEventListener('mouseleave', () => {
+    const btn = pre.querySelector('.copy-code-btn');
+    if (btn) btn.style.display = 'none';
+  });
+});
+
   const allFiles = await getAllFiles();
   for (const { path, content } of allFiles) {
     const file = createFile(path);
