@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexius - Javascript</title>
     <script src="https://unpkg.com/lucide"></script>
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../assets/styles/theme.css">
     <link rel="stylesheet" href="../../assets/styles/langs.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="../../node_modules\@vscode\codicons\dist\codicon.css">
+    <link rel="stylesheet" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css">
 </head>
 <body>
     <div class="prompt" align="center">
         <div class="window" align="center">
             <h3>Please name your JavaScript project</h3>
-            <div><input type="text" name="project-name" id="project-name"> <button><i class="codicon codicon-check"></i></button></div>
+            <div><input type="text" name="project-name" id="projectNameInput"> <button id="projectNameButton"><i class="codicon codicon-check"></i></button></div>
         </div>
     </div>
     <div class='extras'>
@@ -52,6 +53,7 @@
     <main>
         <div class="sideBar" id="sideBar">
             <i class="codicon codicon-files" id="closeBtn"></i>
+            <i style="font-size: 37px !important;" id="activateIndu" class="codicon codicon-chat-sparkle"></i>
         </div>
         <div class="files-tab" id="files-tab">
             <div class="fileMenu">
@@ -86,7 +88,6 @@
         <div class="menu-item" id="renameFile"><i style="font-size: 20px !important;" data-lucide="pencil"></i> Rename</div>
         <div class="menu-item" id="deleteFile"><i style="font-size: 20px !important;" data-lucide="trash"></i> Delete</div>
         <div class="menu-item" id="openFile"><i style="font-size: 20px !important;" data-lucide="square-arrow-out-up-right"></i> Open in Editor</div>
-        <div class="menu-item" id="downloadProject"><i style="font-size: 20px !important;" data-lucide="download"></i> Donwload Project</div>
     </div>
     <script type="module" src="../../assets/scripts/langs.js.js"></script>
     <script type="module" src="../../assets/scripts/monaco.js"></script>

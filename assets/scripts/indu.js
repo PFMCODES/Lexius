@@ -1,24 +1,44 @@
-export async function sendMessage(message) {
+// No system message here — handled by backend
+const conversationHistory = [];
+
+export async function sendMessage(newMessage) {
+  conversationHistory.push({ role: "user", content: newMessage });
+
+  const combinedMessage = conversationHistory.map(msg => {
+    const prefix = msg.role === "user" ? "User" :
+                   msg.role === "assistant" ? "Indu" : "";
+    return prefix ? `${prefix}: ${msg.content}` : msg.content;
+  }).join("\n");
+
   try {
     const response = await fetch("https://indu-backend.onrender.com/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-secret": "TmlnZ2Vy"  // Your secret header key
+        "x-secret": "TmlnZ2Vy"
       },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message: combinedMessage })
     });
 
-    const data = await response.json();
-
-    if (response.ok && data.response) {
-      return data.response;
-    } else {
-      console.error("Server error:", data);
-      return "<h1>There was an error sending your message to Indu. Please try again.</h1>";
+    if (!response.body) {
+      throw new Error("No response body");
     }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let result = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      result += decoder.decode(value, { stream: true });
+    }
+
+    conversationHistory.push({ role: "assistant", content: result });
+    return result;
+
   } catch (err) {
-    console.error("Network error:", err);
-    return "<h1>Network error. Please check your connection and try again.</h1>";
+    console.error("Streaming error:", err);
+    return "<h1>Error talking to Indu. Please try again.</h1>";
   }
 }

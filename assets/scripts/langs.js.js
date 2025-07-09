@@ -2,17 +2,33 @@ import { monaco } from './monaco.js';
 import { sendMessage } from './indu.js'
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME, isIndexedDBEmpty } from './db.js';
+const toggleBtn = document.getElementById("toggle");
+const toggleImg = toggleBtn?.querySelector("img");
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const savedTheme = localStorage.getItem("theme");
+const theme = savedTheme || (prefersDark ? "dark" : "light");
+const induInput = document.getElementById('activateIndu')
+const induWindow = document.querySelector('.indu')
 
 require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
 require(['vs/editor/editor.main'], () => {
   window.monacoReady = true;
 });
 
-const toggleBtn = document.getElementById("toggle");
-const toggleImg = toggleBtn?.querySelector("img");
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-const savedTheme = localStorage.getItem("theme");
-const theme = savedTheme || (prefersDark ? "dark" : "light");
+induInput.addEventListener('click', () => {
+    if (!induWindow) return;
+  const induWindowStatus = induWindow.getAttribute('data-status');
+  if (induWindowStatus == "open") {
+    induWindow.setAttribute('data-status', 'close');
+    induWindow.style.display = "none";
+  } else {
+    induWindow.style.display = 'flex';
+    requestAnimationFrame(() => {
+      induWindow.setAttribute('data-status', 'open');
+      layout()
+    });
+  }
+})
 
 window.addEventListener('DOMContentLoaded', async () => {
   await new Promise(resolve => {
@@ -31,6 +47,11 @@ induInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     const message = induInput.value.trim();
+    const userMessage = document.createElement('div')
+    userMessage.classList.add('message', 'user')
+    userMessage.innerHTML = message
+    document.querySelector('.header').style.display = 'none'
+    chatDiv.appendChild(userMessage)
     if (!message) return;
 
     // Clear input
@@ -39,18 +60,72 @@ induInput.addEventListener('keydown', (e) => {
     // Show thinking indicator
     const thinkingEl = document.createElement('div');
     thinkingEl.classList.add('message', 'indu', 'typing');
-    thinkingEl.innerHTML = 'Indu is thinking...';
+    const InduProfilePic = document.createElement('div')
+    InduProfilePic.classList.add('indu-icon')
+    const induProfilePicIMG = document.createElement('img')
+    induProfilePicIMG.classList.add('indu-icon-img')
+    induProfilePicIMG.src = '../../assets/images/indu.png'
+    InduProfilePic.appendChild(induProfilePicIMG)
+    const thinkingMessageEl = document.createElement('div')
+    thinkingMessageEl.innerHTML = 'Indu is thinking...';
     chatDiv.appendChild(thinkingEl);
+    thinkingEl.appendChild(InduProfilePic)
+    thinkingEl.appendChild(thinkingMessageEl)
 
     sendMessage(message).then((res) => {
       res = res.replace(/<think>.*?<\/think>/gs, "");
+      res = res.replace(/<p><\/p>/, "");
       const html = marked.parse(res || "Sorry, I didn’t understand that.");
-      thinkingEl.outerHTML = `<div class="message indu">${html}</div>`;
+      thinkingMessageEl.innerHTML = html;
+      // Highlight code blocks and add copy buttons
+      hljs.highlightAll();
+      thinkingMessageEl.querySelectorAll('pre code').forEach((block) => {
+        const pre = block.parentElement;
+
+        // Create the copy button
+        const copyBtn = document.createElement('button');
+        copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
+        copyBtn.className = 'copy-code-btn';
+
+        // Add relative positioning to <pre>
+        pre.style.position = 'relative';
+
+        // Copy logic
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(block.innerText).then(() => {
+            copyBtn.innerHTML = '<i data-lucide="check"></i> copied';
+            lucide.createIcons();
+            setTimeout(() => {copyBtn.innerHTML = '<i data-lucide="copy"></i> copy'
+                            lucide.createIcons()}, 2000);
+          });
+        });
+
+        // Append button to <pre>
+        pre.appendChild(copyBtn);
+      }); 
+      hljs.highlightAll(); // Re-highlight
+      lucide.createIcons();
     }).catch((err) => {
-      thinkingEl.outerHTML = `<div class="message indu error">Error: ${err.message}</div>`;
+      thinkingMessageEl.innerHTML = err.message;
     });
   }
 });
+
+document.querySelectorAll('pre').forEach((c) => {
+    c.addEventListener('mouseleave', () => {
+        document.querySelectorAll('.copy-code-btn').forEach((e) => {
+            e.style.display = 'none'
+        })
+    })
+})
+
+document.querySelectorAll('pre').forEach((c) => {
+    c.addEventListener('mouseenter', () => {
+        document.querySelectorAll('.copy-code-btn').forEach((e) => {
+            e.style.display = 'block'
+        })
+    })
+})
   const allFiles = await getAllFiles();
   for (const { path, content } of allFiles) {
     const file = createFile(path);
@@ -174,6 +249,7 @@ async function layout(lang1, code1) {
   window.editorInstance.dispose();
   }
   monaco(lang, code, theme)
+  hljs.highlightAll(); // Re-highlight
 }
 
 const filesContainer = document.getElementsByClassName("files")[0];
@@ -266,6 +342,17 @@ document.getElementById('deleteFile').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('projectNameInput').addEventListener('keydown', (e) => {
+    e.preventDefault()
+    if (e.key == "Enter") {
+        window.location.href = `?projectName=${document.getElementById('projectNameInput').value}`
+    }
+})
+
+document.getElementById('projectNameButton').addEventListener('click', () => {
+    window.location.href = `?projectName=${document.getElementById('projectNameInput').value}`
+})
+
 document.getElementById('newFolder').addEventListener('click', () => {
   const name = prompt('Enter new folder name', 'NewFolder');
   if (name) {
@@ -320,11 +407,6 @@ if (params.has('projectName')) {
   document.getElementsByClassName('prompt')[0].style.display = 'none';
   document.querySelector('.project-name').innerText = params.get('projectName').toUpperCase();
 }
-
-import { exportAsZip } from "./zip-export.js";
-document.getElementById('downloadProject').addEventListener('click', () => {
-  exportAsZip();
-});
 
 function DetectFileType(f) {
     f = f.toLowerCase();
