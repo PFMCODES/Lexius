@@ -967,9 +967,8 @@ pre code.hljs {
 }
 
 .custom-pointer {
-  cursor: url('https://lexius.onrender.com/assets/images/cursor/pointer.png') 4 4, pointer !important;
+  cursor: url('../images/cursor/pointer.png') 4 4, pointer !important;
 }
-
 
 /* Optional: Use pointer cursor for buttons, links etc */
 #editor {
