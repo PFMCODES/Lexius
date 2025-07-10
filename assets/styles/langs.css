@@ -1,5 +1,4 @@
 @import url('./theme.css');
-
 body.dark {
   --nav-bg: #222;
     --nav-text: #e0e0e0;
@@ -7,7 +6,6 @@ body.dark {
     --selceeted-file-bg: #5b5b5b;
     --sideBar-bg: #232323;
 }
-
 body.light {
   --nav-bg: #fff;
   --nav-text: #333;
@@ -15,26 +13,22 @@ body.light {
     --selceted-file-bg: rgb(250, 250, 245);
     --sideBar-bg: rgb(250, 250, 245);
 }
-
 body {
   height: 100vh; 
   max-height: 100vh; 
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
-  overflow: hidden;
 }
-
 * {
   margin: 0;
   padding: 0;
   gap: 0;
   box-sizing: border-box;
   max-width: 100vw !important;
-  max-height: 100vh !important;
+  
   font-family: "Segoe UI", sans-serif;
 }
-
 nav.nav-bar .logo {
   display: flex;
   flex-direction: row;
@@ -44,7 +38,6 @@ nav.nav-bar .logo {
   width: 10px;
   height: 30px;
 }
-
 nav.nav-bar {
   user-select: none;
     background-color: var(--nav-bg);
@@ -59,11 +52,9 @@ nav.nav-bar {
   height: 40px;
   border-bottom: #333 solid 1px;
 }
-
 #toggle img {
     margin-top: 20px;
 }
-
 .files-tab {
   user-select: none;
   display: flex;
@@ -73,7 +64,6 @@ nav.nav-bar {
   height: calc(100vh - 40px);
   border-left: #333 solid 1px;
 }
-
 .file {
     display: flex;
     gap: 0;
@@ -86,26 +76,22 @@ nav.nav-bar {
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
 }
-
 .fileIcon {
     width: 20px;
     max-width: 20px;
     height: 20px;
     max-height: 20px;
 }
-
 .file.selected {
     background-color: var(--selceted-file-bg);
     color: var(--text-color);
 }
-
 main {
   display: flex;
   flex-direction: row;
   height: 100vh;
   gap: 0;
 }
-
 #editor {
   flex: 1;
   margin: 0;
@@ -117,7 +103,6 @@ main {
   border-left: #333 solid 1px;
   max-height: calc(100vh - 40px);
 }
-
 .sideBar {
   width: 80px;
   max-height: calc(100vh - 40px);
@@ -128,23 +113,19 @@ main {
   flex-direction: column !important;
   /* align-items: center; */
 }
-
 i {
   font-size: 37px !important;
 }
-
 .sideBar i {
   cursor: pointer;
   margin: 10px;
   margin-top: 20px;
 }
-
 .extras {
   z-index: 100;
   position: absolute;
   pointer-events: auto;
 }
-
 .extras .option {
     display: flex;
     align-items: center;  
@@ -152,7 +133,6 @@ i {
     padding: 5px;
     cursor: pointer;
 }
-
 .extras .fileBtnOptions {
   display: none;
   background-color: var(--files-bg);
@@ -162,19 +142,15 @@ i {
   margin-top: 28px;
   border: #333 solid 1px;
 }
-
 .fileBtnOptions.active {
   display: block;
 }
-
 .codicon-check {
   font-size: 15px !important;
 }
-
 .monaco-editor .mtk8 {
   color: #BBBBBB !important; /* token type for 'console' in many themes */
 }
-
 .files-tab[data-status="close"] {
   visibility: hidden;
   width: 0;
@@ -184,40 +160,32 @@ i {
   visibility: visible;
   width: 20vw;
 }
-
 .files-tab {
   max-height: calc(100vh - 40px);
 }
-
 .options {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 30px;
 }
-
 .sideBar {
   color: var(--nav-text);
 }
-
 .options .option button {
   background-color: transparent;
   color: var(--nav-text);
 }
-
 button {
   border: none;
   outline: none;
 }
-
 .files-tab i {
     font-size: 15px !important;
 }
-
 .fileIcon i{
       font-size: 20px !important;
 }
-
 .files-tab .fileMenu {
     display: flex;
     align-items: center;
@@ -225,16 +193,13 @@ button {
     margin-right: 10px;
     margin-left: 10px;
 }
-
 .files-tab .fileMenu p {
   font-weight: bolder;
   font-size: 13px;
 }
-
 body.light .files-tab .fileMenu i {
     font-weight: bolder !important;
 }
-
 .prompt {
   color: var(--nav-text);
   position: fixed;
@@ -248,7 +213,6 @@ body.light .files-tab .fileMenu i {
   align-items: center;
   z-index: 1000; /* or higher if needed */
 }
-
 .window {
   background: var(--nav-bg);
   padding: 20px 30px;
@@ -256,7 +220,6 @@ body.light .files-tab .fileMenu i {
   text-align: center;
   width: 50vw;
 }
-
 .window input {
   width: 75%;
   padding: 10px;
@@ -264,20 +227,16 @@ body.light .files-tab .fileMenu i {
   border: none;
   outline: none;
 }
-
 .window button {
     padding: 10px;
 }
-
 .window button i {
     font-size: 16px !important;
     font-weight: bolder;
 }
-
 ::selection {
   background-color: #7e56c280;
 }
-
 .right-click-menu {
   position: absolute;
   display: none;
@@ -288,25 +247,21 @@ body.light .files-tab .fileMenu i {
   min-width: 120px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
-
 .right-click-menu .menu-item {
   padding: 8px 12px;
   cursor: pointer;
   color: var(--nav-text);
 }
-
 .right-click-menu .menu-item:hover {
   background-color: var(--selceted-file-bg);
   color: var(--nav-text);
 }
-
 input {
     outline: #7e56c2;
     background-color: var(--files-bg);
     color: var(--nav-text);
 
 }
-
 .indu {
   background-color: var(--files-bg);
   width: 26vw;
@@ -317,16 +272,13 @@ input {
   justify-content: space-between;
   border-left: #333 solid 1px;
 }
-
 .indu .header div {
   display: flex;
   justify-content: center;
 }
-
 .indu div img {
     width: 150px;
 }
-
 .indu .input {
   display: flex;
   flex-direction: row;
@@ -336,33 +288,27 @@ input {
   padding: 15px;
   border-radius: 20px;
 }
-
 .indu .input #induInput {
     border: none;
     width: 100%;
     font-size: 16px;
     font-weight: 700;
 }
-
 .indu .input button {
   background-color: transparent;
   color: var(--nav-text);
 }
-
 button {
   cursor: pointer;
 }
-
 .indu.message {
     font-weight: 500;
     display: flex;
     justify-content: center;
 }
-
 think {
     display: none;
 }
-
 #chat {
   display: flex;
   flex-direction: column;
@@ -372,7 +318,6 @@ think {
   overflow-y: scroll;
   user-select: auto;
 }
-
 .message {
   max-width: 100%;
   height: fit-content;
@@ -388,22 +333,18 @@ think {
   white-space: pre-wrap;
   line-height: 1.4;
 }
-
 .message.user {
   margin-left: auto;
   background-color: #7e56c2;
   user-select: auto;
 }
-
 .message.indu .indu-icon .indu-icon-img {
     width: 30px;
   user-select: auto;
 }
-
 .message.indu div {
     user-select: auto;
 }
-
 .copy-code-btn {
   position: absolute;
   top: 8px;
@@ -420,8 +361,6 @@ think {
 .copy-code-btn:hover {
   background: #444;
 }
-
-@import url('./theme.css');
 
 body.dark {
   --nav-bg: #222;
@@ -441,7 +380,7 @@ body.light {
 
 body {
   height: 100vh; 
-  max-height: 100vh; 
+  max-height: 100%;
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
@@ -455,7 +394,7 @@ body {
   user-select: none;
   box-sizing: border-box;
   max-width: 100vw !important;
-  max-height: 100vh !important;
+  
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -532,12 +471,12 @@ main {
   flex: 1;
   margin: 0;
   gap: 0;
+  overflow: auto; /* let Monaco manage internal scroll */
   max-width: 100vw;
   height: calc(100vh - 40px);
   background-color: var(--background-color);
   color: var(--text-color);
   border-left: #333 solid 1px;
-  max-height: calc(100vh - 40px);
 }
 
 .sideBar {
@@ -966,11 +905,41 @@ pre code.hljs {
   cursor: url('../images/cursor/normal.png') 4 4, default;
 }
 
-.custom-pointer {
+.pointer {
   cursor: url('../images/cursor/pointer.png') 4 4, pointer !important;
 }
 
-/* Optional: Use pointer cursor for buttons, links etc */
-#editor {
-  cursor: url('../images/cursor/writer.png') 4 4, text;
+#editor * {
+  cursor: url('../images/cursor/writer.svg') 16 16, text !important; /* center of image */
+}
+
+.drag-bar {
+  width: 5px;
+  background-color: var(--files-bg);
+  cursor: ew-resize;
+  z-index: 1000;
+}
+.drag-bar:hover {
+  background-color: var(--files-bg);
+}
+
+.terminal {
+    position: absolute;
+    z-index: 10000;
+    display: none;
+    top: 59.5vh;
+    background-color: var(--nav-bg);
+    border-top: #333 solid 1px;
+    width: 100vw;
+    height: 40vh;
+}
+
+.command-input-section {
+  display: flex;
+  align-items: center;
+}
+
+input {
+    border: none;
+    background-color: transparent;
 }

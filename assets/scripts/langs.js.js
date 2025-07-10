@@ -8,7 +8,8 @@ const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const savedTheme = localStorage.getItem("theme");
 const theme = savedTheme || (prefersDark ? "dark" : "light");
 const induInput = document.getElementById('activateIndu')
-const induWindow = document.querySelector('.indu')
+const terminalWindow = document.querySelector('.terminal')
+const activateTerminalButton = document.getElementById('activate-terminal')
 
 require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
 require(['vs/editor/editor.main'], () => {
@@ -16,18 +17,20 @@ require(['vs/editor/editor.main'], () => {
 });
 
 induInput.addEventListener('click', async () => {
-    if (!induWindow) return;
-  const induWindowStatus = induWindow.getAttribute('data-status');
-  if (induWindowStatus == "open") {
-    induWindow.setAttribute('data-status', 'close');
-    induWindow.style.display = "none";
-  } else {
-    induWindow.style.display = 'flex';
-    requestAnimationFrame(() => {
-      induWindow.setAttribute('data-status', 'open');
-      layout()
-    });
-  }
+  document.querySelectorAll('.indu').forEach((induWindow) => {
+      if (!induWindow) return;
+      const induWindowStatus = induWindow.getAttribute('data-status');
+      if (induWindowStatus == "open") {
+        induWindow.setAttribute('data-status', 'close');
+        induWindow.style.display = "none";
+      } else {
+        induWindow.style.display = 'flex';
+        requestAnimationFrame(() => {
+          induWindow.setAttribute('data-status', 'open');
+          layout()
+        });
+      }
+    })
 })
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -114,6 +117,66 @@ window.addEventListener('DOMContentLoaded', async () => {
       thinkingMessageEl.innerHTML = err.message;
     });
   }
+});
+
+activateTerminalButton.addEventListener('click', () => {
+    if (!terminalWindow) return;
+    const terminalWindowStatus = terminalWindow.getAttribute('data-status');
+    if (terminalWindowStatus == "open") {
+      terminalWindow.setAttribute('data-status', 'close');
+      terminalWindow.style.display = "none";
+    } else {
+      terminalWindow.style.display = 'block';
+      requestAnimationFrame(() => {
+        terminalWindow.setAttribute('data-status', 'open');
+      });
+    }
+})
+
+const dragBars = document.querySelectorAll('.drag-bar');
+
+let isDragging = false;
+let startX = 0;
+let prevEl, nextEl;
+let startPrevWidth, startNextWidth;
+
+dragBars.forEach(bar => {
+  bar.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+
+    isDragging = true;
+    startX = e.clientX;
+
+    prevEl = bar.previousElementSibling;
+    nextEl = bar.nextElementSibling;
+
+    startPrevWidth = prevEl.offsetWidth;
+    startNextWidth = nextEl ? nextEl.offsetWidth : 0;
+
+    document.body.style.cursor = 'ew-resize';
+  });
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+
+  const dx = e.clientX - startX;
+
+  // Resize only horizontal layout components (side-by-side)
+  if (prevEl && prevEl.classList.contains('resizable')) {
+    const newWidth = startPrevWidth + dx;
+    prevEl.style.width = `${newWidth}px`;
+
+    // Optional: shrink next sibling if needed
+    if (nextEl && nextEl.classList.contains('resizable')) {
+      nextEl.style.width = `${startNextWidth - dx}px`;
+    }
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  document.body.style.cursor = 'default';
 });
 
   const allFiles = await getAllFiles();
@@ -538,6 +601,6 @@ function returnFileIcon(f) {
 document.addEventListener('mouseover', e => {
   const cursor = window.getComputedStyle(e.target).cursor;
   if (cursor === 'pointer') {
-    e.target.classList.add('custom-pointer');
+    e.target.classList.add('pointer');
   }
 });
