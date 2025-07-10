@@ -10,7 +10,6 @@ export function monaco(lang, eValue, theme) {
   // Dispose previous instance (important!)
   if (window.editorInstance) {
     window.editorInstance.dispose();
-    document.getElementById('editor').innerHTML = ''; // clear container
   }
 
   // Define themes (only once)
@@ -39,16 +38,16 @@ export function monaco(lang, eValue, theme) {
       inherit: true,
       semanticHighlighting: true,
       rules: [
-        { token: "identifier", foreground: "82AAFF" },
-        { token: "string", foreground: "FF9E64" },
-        { token: "number", foreground: "F78C6C" },
-        { token: "comment", foreground: "546E7A", fontStyle: "italic" },
-        { token: "keyword", foreground: "82AAFF" },
+        { token: "identifier", foreground: "#CF9831" },
+        { token: "string", foreground: "#4CBBD1" },
+        { token: "number", foreground: "#4CBBD1" },
+        { token: "comment", foreground: "#999999", fontStyle: "italic" },
+        { token: "keyword", foreground: "#CF9831" }
       ],
       colors: {
         "editorLineNumber.foreground": "#4B526D",
         "editorCursor.foreground": "#FFCC00",
-        "editor.selectionBackground": "#7e56c2",
+        "editor.selectionBackground": "#7e56c2"
       }
     });
 

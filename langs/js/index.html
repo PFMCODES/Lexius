@@ -6,6 +6,7 @@
     <title>Lexius - Javascript</title>
     <script src="https://unpkg.com/lucide"></script>
     <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+    <script src="https://kit.fontawesome.com/1460605c6c.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../assets/styles/theme.css">
@@ -46,15 +47,16 @@
             </div>
         </div>
         <div class="theme-toggle">
-            <button id="toggle"><img src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
+            <button class="pointer" id="toggle"><img class="pointer" src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
         </div>
     </nav>
     <main>
         <div class="sideBar" id="sideBar">
             <i class="codicon codicon-files" id="closeBtn"></i>
             <i style="font-size: 37px !important;" id="activateIndu" class="codicon codicon-chat-sparkle"></i>
+            <i style="font-size: 24px !important; margin-left: 20px;" id="activate-terminal" class="fa-solid fa-terminal"></i>
         </div>
-        <div class="files-tab" id="files-tab">
+        <div class="files-tab resizable" id="files-tab">
             <div class="fileMenu">
                 <p class="project-name"></p>
                 <div id="menu">
@@ -67,8 +69,10 @@
                 
             </div>
         </div>
-        <div id="editor"></div>
-        <div class="indu" id="indu">
+        <div class="drag-bar" data-direction="horizontal"></div>
+        <div class="resizable" id="editor"></div>
+        <div class="indu drag-bar" data-direction="horizontal"></div>
+        <div class="indu resizable" id="indu">
             <div class="header">
                 <div>
                     <img src="../../assets/images/indu.png">
@@ -81,6 +85,12 @@
             </div>
         </div>
     </main>
+      <div class="drag-bar" data-direction="vertical"></div>
+    <div class="terminal resizable" data-status="close">
+        <div class="main">
+            <div class="command-input-section"><div style="margin-right: 10px;">$</div><input id="commandInput" type="text" placeholder="here"></div>
+        </div>
+    </div>
     <div class="right-click-menu" id="rightClickMenu">
         <div class="menu-item" id="newFile"><i style="font-size: 20px !important;" class="codicon codicon-new-file"></i> New File</div>
         <div class="menu-item" id="newFolder"><i style="font-size: 20px !important;" class="codicon codicon-new-folder"></i> New Folder</div>
