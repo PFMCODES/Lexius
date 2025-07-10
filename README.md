@@ -8,13 +8,12 @@
 - 🧠 Built-in syntax highlighting (Monaco-based)
 - ⚡ Extenson Support (coming soon)
 - 🧩 Plugin support (coming soon)
-- 🖥️ For Desktop & Mobile
 
 ## Want to build your version of **Lexius**?
 ### **Lexius** is free & Open Source that means you can build your version of **Lexius**
 
-Clone the repository:
-
+Make your own version of **Lexius**:
 ```bash
 git clone https://github.com/pfmjs/Lexius.git
 cd Lexius
+code .
