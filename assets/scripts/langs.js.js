@@ -15,7 +15,7 @@ require(['vs/editor/editor.main'], () => {
   window.monacoReady = true;
 });
 
-induInput.addEventListener('click', () => {
+induInput.addEventListener('click', async () => {
     if (!induWindow) return;
   const induWindowStatus = induWindow.getAttribute('data-status');
   if (induWindowStatus == "open") {
@@ -41,86 +41,79 @@ window.addEventListener('DOMContentLoaded', async () => {
     monaco('javascript',  'console.log("Hello, World!")', theme)
   }
   const induInput = document.getElementById('induInput');
-const chatDiv = document.getElementById("chat");
-
-induInput.addEventListener('keydown', (e) => {
+  const chatDiv = document.getElementById("chat");
+  induInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     const message = induInput.value.trim();
-    const userMessage = document.createElement('div')
-    userMessage.classList.add('message', 'user')
-    userMessage.innerHTML = message
-    document.querySelector('.header').style.display = 'none'
-    chatDiv.appendChild(userMessage)
     if (!message) return;
 
-    // Clear input
+    // Hide header and add user message
+    document.querySelector('.header').style.display = 'none';
+    const userMessage = document.createElement('div');
+    userMessage.classList.add('message', 'user');
+    userMessage.innerText = message;
+    chatDiv.appendChild(userMessage);
     induInput.value = '';
 
-    // Show thinking indicator
+    // Add thinking message
     const thinkingEl = document.createElement('div');
     thinkingEl.classList.add('message', 'indu', 'typing');
-    const InduProfilePic = document.createElement('div')
-    InduProfilePic.classList.add('indu-icon')
-    const induProfilePicIMG = document.createElement('img')
-    induProfilePicIMG.classList.add('indu-icon-img')
-    induProfilePicIMG.src = '../../assets/images/indu.png'
-    InduProfilePic.appendChild(induProfilePicIMG)
-    const thinkingMessageEl = document.createElement('div')
+    
+    const InduProfilePic = document.createElement('div');
+    InduProfilePic.classList.add('indu-icon');
+    
+    const induProfilePicIMG = document.createElement('img');
+    induProfilePicIMG.classList.add('indu-icon-img');
+    induProfilePicIMG.src = '../../assets/images/indu.png';
+    
+    InduProfilePic.appendChild(induProfilePicIMG);
+    
+    const thinkingMessageEl = document.createElement('div');
     thinkingMessageEl.innerHTML = 'Indu is thinking...';
-    chatDiv.appendChild(thinkingEl);
-    thinkingEl.appendChild(InduProfilePic)
-    thinkingEl.appendChild(thinkingMessageEl)
 
-    sendMessage(message).then((res) => {
-      res = res.replace(/<think>.*?<\/think>/gs, "");
-      res = res.replace(/<p><\/p>/, "");
+    thinkingEl.appendChild(InduProfilePic);
+    thinkingEl.appendChild(thinkingMessageEl);
+    chatDiv.appendChild(thinkingEl);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    const files = await getAllFiles();
+    // Fetch and display response
+    sendMessage(message, files).then((res) => {
+      res = res.replace(/<think>.*?<\/think>/gs, "").replace(/<p><\/p>/, "");
       const html = marked.parse(res || "Sorry, I didn’t understand that.");
       thinkingMessageEl.innerHTML = html;
-      // Highlight code blocks and add copy buttons
-      hljs.highlightAll();
+
+      hljs.highlightAll(); // Syntax highlight
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+      // Add copy button to all code blocks
       thinkingMessageEl.querySelectorAll('pre code').forEach((block) => {
         const pre = block.parentElement;
-
-        // Create the copy button
-        const copyBtn = document.createElement('button');
-        copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
-        copyBtn.className = 'copy-code-btn';
-
-        // Add relative positioning to <pre>
         pre.style.position = 'relative';
 
-        // Copy logic
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-code-btn';
+        copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
+
+        // Add copy logic
         copyBtn.addEventListener('click', () => {
           navigator.clipboard.writeText(block.innerText).then(() => {
             copyBtn.innerHTML = '<i data-lucide="check"></i> copied';
             lucide.createIcons();
-            setTimeout(() => {copyBtn.innerHTML = '<i data-lucide="copy"></i> copy'
-                            lucide.createIcons()}, 2000);
+            setTimeout(() => {
+              copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
+              lucide.createIcons();
+            }, 2000);
           });
         });
 
-        // Append button to <pre>
         pre.appendChild(copyBtn);
-      }); 
-      hljs.highlightAll(); // Re-highlight
-      lucide.createIcons();
+      });
+
+      lucide.createIcons(); // Render new icons
     }).catch((err) => {
       thinkingMessageEl.innerHTML = err.message;
     });
   }
-});
-
-document.querySelectorAll('pre').forEach((pre) => {
-  pre.addEventListener('mouseenter', () => {
-    const btn = pre.querySelector('.copy-code-btn');
-    if (btn) btn.style.display = 'block';
-  });
-
-  pre.addEventListener('mouseleave', () => {
-    const btn = pre.querySelector('.copy-code-btn');
-    if (btn) btn.style.display = 'none';
-  });
 });
 
   const allFiles = await getAllFiles();
@@ -541,3 +534,10 @@ function returnFileIcon(f) {
 
     return base + (map[type] || "file.svg");
 }
+
+document.addEventListener('mouseover', e => {
+  const cursor = window.getComputedStyle(e.target).cursor;
+  if (cursor === 'pointer') {
+    e.target.classList.add('custom-pointer');
+  }
+});
