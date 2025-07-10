@@ -1,14 +1,7 @@
-// No system message here — handled by backend
 const conversationHistory = [];
 
-export async function sendMessage(newMessage) {
+export async function sendMessage(newMessage, files) {
   conversationHistory.push({ role: "user", content: newMessage });
-
-  const combinedMessage = conversationHistory.map(msg => {
-    const prefix = msg.role === "user" ? "User" :
-                   msg.role === "assistant" ? "Indu" : "";
-    return prefix ? `${prefix}: ${msg.content}` : msg.content;
-  }).join("\n");
 
   try {
     const response = await fetch("https://indu-backend.onrender.com/chat", {
@@ -17,7 +10,10 @@ export async function sendMessage(newMessage) {
         "Content-Type": "application/json",
         "x-secret": "TmlnZ2Vy"
       },
-      body: JSON.stringify({ message: combinedMessage })
+      body: JSON.stringify({
+        messages: conversationHistory,
+        files: files || []
+      })
     });
 
     if (!response.body) {

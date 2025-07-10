@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexius - Javascript</title>
     <script src="https://unpkg.com/lucide"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <link rel="icon" href="../../assets/images/favicon.svg" type="image/svg+xml">
@@ -18,18 +17,18 @@
     <div class="prompt" align="center">
         <div class="window" align="center">
             <h3>Please name your JavaScript project</h3>
-            <div><input type="text" name="project-name" id="projectNameInput"> <button id="projectNameButton"><i class="codicon codicon-check"></i></button></div>
+            <div><input type="text" name="project-name" id="projectNameInput"> <button class="clickable" id="projectNameButton"><i class="codicon codicon-check"></i></button></div>
         </div>
     </div>
     <div class='extras'>
         <div class="fileBtnOptions">
-            <div class="option" id="open-File">
+            <div class="clickable" class="option" id="open-File">
                 Open File
             </div>
-            <div class="option" id="open-folder">
+            <div class="clickable" class="option" id="open-folder">
                 Open Folder
             </div>
-            <div class="option" id="autosave">
+            <div class="clickable" class="option" id="autosave">
                 AutoSave
                 <div class="true" id='autosave-check'></div>
             </div>
@@ -41,7 +40,7 @@
                 <img src="../../assets/images/favicon.svg" alt="Lexius Logo">
             </div>
             <div class="option">
-                <button id="File">
+                <button class="clickable" id="File">
                     File
                 </button>
             </div>
@@ -92,6 +91,5 @@
     <script type="module" src="../../assets/scripts/langs.js.js"></script>
     <script type="module" src="../../assets/scripts/monaco.js"></script>
     <script type="module" src="../../assets/scripts/db.js"></script>
-    <script type="module" src="../../assets/scripts/zip-export.js"></script>
 </body>
 </html>
