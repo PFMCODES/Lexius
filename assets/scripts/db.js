@@ -51,11 +51,36 @@ export async function getAllFiles() {
   });
 }
 
+export function getFile(filename) {
+  return new Promise((resolve, reject) => {
+    const request = openDB(); // Make sure openDB() returns an IDBOpenDBRequest
+
+    request.onerror = () => reject("Failed to open DB");
+
+    request.onsuccess = () => {
+      const db = request.result;
+      const tx = db.transaction('files', 'readonly');
+      const store = tx.objectStore('files');
+
+      const getRequest = store.get(filename);
+
+      getRequest.onsuccess = () => {
+        resolve(getRequest.result); // Returns file or undefined
+      };
+
+      getRequest.onerror = () => {
+        reject("Failed to get file");
+      };
+    };
+  });
+}
+
 export async function deleteFile(path) {
   const db = await openDB();
   const tx = db.transaction(STORE_NAME, 'readwrite');
   const store = tx.objectStore(STORE_NAME);
   store.delete(path);
+  
   return tx.complete;
 }
 

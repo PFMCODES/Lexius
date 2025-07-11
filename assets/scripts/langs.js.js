@@ -34,15 +34,51 @@ induInput.addEventListener('click', async () => {
 })
 
 window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      if (await isIndexedDBEmpty()) {
+        console.log("IndexedDB is empty. Saving default file...");
+        await saveFile('index.js', 'console.log("Hello, World!")');
+        monaco('javascript', 'console.log("Hello, World!")', theme);
+      } else {
+        console.log("IndexedDB already has files. Skipping default.");
+      }
+    } catch (err) {
+      console.error("Failed to check or initialize IndexedDB:", err);
+    }
+})
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const allFiles = await getAllFiles();
+
+  for (const { path, content } of allFiles) {
+    const file = createFile(path); // creates and returns the file element
+    const icon = returnFileIcon(path);
+
+    file.id = path;
+    file.querySelector('img').src = icon;
+    file.querySelector('img').alt = `Icon for ${path}`;
+
+    if (path === 'index.js') file.classList.add('selected');
+
+    localStorage.setItem(path, content); // Optional
+  }
+
+  // ✅ Ensure at least one file is selected
+  if (!document.querySelector('.selected') && allFiles.length > 0) {
+    const first = allFiles[0];
+    const firstFileEl = document.getElementById(first.path);
+    if (firstFileEl) {
+      firstFileEl.classList.add('selected');
+    }
+  }
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
   await new Promise(resolve => {
     const wait = () => window.monacoReady ? resolve() : setTimeout(wait, 50);
     wait();
   });
   lucide.createIcons();
-  if (isIndexedDBEmpty) {
-    await saveFile('index.js', 'console.log("Hello, World!")')
-    monaco('javascript',  'console.log("Hello, World!")', theme)
-  }
   const induInput = document.getElementById('induInput');
   const chatDiv = document.getElementById("chat");
   induInput.addEventListener('keydown', async (e) => {
@@ -178,16 +214,6 @@ window.addEventListener('mouseup', () => {
   isDragging = false;
   document.body.style.cursor = 'default';
 });
-
-  const allFiles = await getAllFiles();
-  for (const { path, content } of allFiles) {
-    const file = createFile(path);
-    const icon = returnFileIcon(path);
-    file.querySelector('img').src = icon;
-    file.querySelector('img').alt = `Icon for ${path}`;
-    if (file.innerText === 'index.js') file.classList.add('selected')
-    localStorage.setItem(path, content);
-  }
 
   layout(DetectFileType(document.querySelector('.selected').innerText), localStorage.getItem(document.querySelector('.selected').innerText), localStorage.getItem('theme'));
 
@@ -338,7 +364,7 @@ function createFile(name) {
 }
 
 document.getElementById('newFile').addEventListener('click', async () => {
-  const name = prompt('Enter new file name', 'newfile.js');
+  const name = prompt('Enter new file name', '');
   if (name) {
     const newFile = createFile(name);
     const icon = returnFileIcon(name);
