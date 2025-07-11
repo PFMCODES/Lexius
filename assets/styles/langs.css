@@ -905,7 +905,7 @@ pre code.hljs {
   cursor: url('../images/cursor/normal.png') 4 4, default;
 }
 
-.pointer {
+.pointer, .file, .file * {
   cursor: url('../images/cursor/pointer.png') 4 4, pointer !important;
 }
 
@@ -921,25 +921,4 @@ pre code.hljs {
 }
 .drag-bar:hover {
   background-color: var(--files-bg);
-}
-
-.terminal {
-    position: absolute;
-    z-index: 10000;
-    display: none;
-    top: 59.5vh;
-    background-color: var(--nav-bg);
-    border-top: #333 solid 1px;
-    width: 100vw;
-    height: 40vh;
-}
-
-.command-input-section {
-  display: flex;
-  align-items: center;
-}
-
-input {
-    border: none;
-    background-color: transparent;
 }
