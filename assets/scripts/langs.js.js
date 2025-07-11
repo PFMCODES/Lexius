@@ -33,20 +33,14 @@ induInput.addEventListener('click', async () => {
     })
 })
 
-window.addEventListener('DOMContentLoaded', async () => {
-    try {
-      if (await isIndexedDBEmpty()) {
-        console.log("IndexedDB is empty. Saving default file...");
-        await saveFile('index.js', 'console.log("Hello, World!")');
-        monaco('javascript', 'console.log("Hello, World!")', theme);
-      } else {
-        console.log("IndexedDB already has files. Skipping default.");
-      }
-    } catch (err) {
-      console.error("Failed to check or initialize IndexedDB:", err);
+isIndexedDBEmpty().then((result) => {
+    if (result) {
+        saveFile('index.js', 'console.log("Hello, World!");')
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('#index.js').classList.add('selected')
+        })
     }
 })
-
 window.addEventListener('DOMContentLoaded', async () => {
   const allFiles = await getAllFiles();
 
@@ -154,20 +148,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
-
-activateTerminalButton.addEventListener('click', () => {
-    if (!terminalWindow) return;
-    const terminalWindowStatus = terminalWindow.getAttribute('data-status');
-    if (terminalWindowStatus == "open") {
-      terminalWindow.setAttribute('data-status', 'close');
-      terminalWindow.style.display = "none";
-    } else {
-      terminalWindow.style.display = 'block';
-      requestAnimationFrame(() => {
-        terminalWindow.setAttribute('data-status', 'open');
-      });
-    }
-})
 
 const dragBars = document.querySelectorAll('.drag-bar');
 
