@@ -1,385 +1,36 @@
 @import url('./theme.css');
+
+/* CSS Custom Properties (Variables) */
 body.dark {
   --nav-bg: #222;
-    --nav-text: #e0e0e0;
-    --files-bg: #272626;
-    --selceeted-file-bg: #5b5b5b;
-    --sideBar-bg: #232323;
+  --nav-text: #e0e0e0;
+  --files-bg: #272626;
+  --selceted-file-bg: #5b5b5b;
+  --sideBar-bg: #232323;
 }
+
 body.light {
   --nav-bg: #fff;
   --nav-text: #333;
   --files-bg: #fff;
-    --selceted-file-bg: rgb(250, 250, 245);
-    --sideBar-bg: rgb(250, 250, 245);
+  --selceted-file-bg: rgb(250, 250, 245);
+  --sideBar-bg: rgb(250, 250, 245);
 }
-body {
-  height: 100vh; 
-  max-height: 100vh; 
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color 0.3s, color 0.3s;
-}
+
+/* Global Styles */
 * {
   margin: 0;
   padding: 0;
   gap: 0;
+  user-select: none;
   box-sizing: border-box;
   max-width: 100vw !important;
-  
   font-family: "Segoe UI", sans-serif;
-}
-nav.nav-bar .logo {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 10px;
-  width: 10px;
-  height: 30px;
-}
-nav.nav-bar {
-  user-select: none;
-    background-color: var(--nav-bg);
-    color: var(--nav-text);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  padding-left: 0;
-  font-size: 15px;
-  height: 40px;
-  border-bottom: #333 solid 1px;
-}
-#toggle img {
-    margin-top: 20px;
-}
-.files-tab {
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-  width: calc(20vw + 20px);
-  background-color: var(--files-bg);
-  height: calc(100vh - 40px);
-  border-left: #333 solid 1px;
-}
-.file {
-    display: flex;
-    gap: 0;
-    margin: 0;
-    flex-direction: row;
-    align-items: center;  
-    padding: 10px;
-    border-radius: 5px;
-    background-color: var(--file-bg);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
-}
-.fileIcon {
-    width: 20px;
-    max-width: 20px;
-    height: 20px;
-    max-height: 20px;
-}
-.file.selected {
-    background-color: var(--selceted-file-bg);
-    color: var(--text-color);
-}
-main {
-  display: flex;
-  flex-direction: row;
-  height: 100vh;
-  gap: 0;
-}
-#editor {
-  flex: 1;
-  margin: 0;
-  gap: 0;
-  max-width: 100vw;
-  height: calc(100vh - 40px);
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border-left: #333 solid 1px;
-  max-height: calc(100vh - 40px);
-}
-.sideBar {
-  width: 80px;
-  max-height: calc(100vh - 40px);
-  height: calc(100vh - 40px);
-  background: var(--sideBar-bg);
-  color: #fff;
-  display: flex;
-  flex-direction: column !important;
-  /* align-items: center; */
-}
-i {
-  font-size: 37px !important;
-}
-.sideBar i {
-  cursor: pointer;
-  margin: 10px;
-  margin-top: 20px;
-}
-.extras {
-  z-index: 100;
-  position: absolute;
-  pointer-events: auto;
-}
-.extras .option {
-    display: flex;
-    align-items: center;  
-    gap: 13px;
-    padding: 5px;
-    cursor: pointer;
-}
-.extras .fileBtnOptions {
-  display: none;
-  background-color: var(--files-bg);
-  width: 100px;
-  border-radius: 3px;
-  margin-left: 50px;
-  margin-top: 28px;
-  border: #333 solid 1px;
-}
-.fileBtnOptions.active {
-  display: block;
-}
-.codicon-check {
-  font-size: 15px !important;
-}
-.monaco-editor .mtk8 {
-  color: #BBBBBB !important; /* token type for 'console' in many themes */
-}
-.files-tab[data-status="close"] {
-  visibility: hidden;
-  width: 0;
-  transition: width 0.3s ease;
-}
-.files-tab[data-status="open"] {
-  visibility: visible;
-  width: 20vw;
-}
-.files-tab {
-  max-height: calc(100vh - 40px);
-}
-.options {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-}
-.sideBar {
-  color: var(--nav-text);
-}
-.options .option button {
-  background-color: transparent;
-  color: var(--nav-text);
-}
-button {
-  border: none;
-  outline: none;
-}
-.files-tab i {
-    font-size: 15px !important;
-}
-.fileIcon i{
-      font-size: 20px !important;
-}
-.files-tab .fileMenu {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-right: 10px;
-    margin-left: 10px;
-}
-.files-tab .fileMenu p {
-  font-weight: bolder;
-  font-size: 13px;
-}
-body.light .files-tab .fileMenu i {
-    font-weight: bolder !important;
-}
-.prompt {
-  color: var(--nav-text);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* optional dim background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* or higher if needed */
-}
-.window {
-  background: var(--nav-bg);
-  padding: 20px 30px;
-  border-radius: 10px;
-  text-align: center;
-  width: 50vw;
-}
-.window input {
-  width: 75%;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-}
-.window button {
-    padding: 10px;
-}
-.window button i {
-    font-size: 16px !important;
-    font-weight: bolder;
-}
-::selection {
-  background-color: #7e56c280;
-}
-.right-click-menu {
-  position: absolute;
-  display: none;
-  background-color: var(--files-bg);
-  border: 1px solid #333;
-  border-radius: 4px;
-  z-index: 1000;
-  min-width: 120px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-.right-click-menu .menu-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: var(--nav-text);
-}
-.right-click-menu .menu-item:hover {
-  background-color: var(--selceted-file-bg);
-  color: var(--nav-text);
-}
-input {
-    outline: #7e56c2;
-    background-color: var(--files-bg);
-    color: var(--nav-text);
-
-}
-.indu {
-  background-color: var(--files-bg);
-  width: 26vw;
-  height: calc(100vh - 40px);
-  font-weight: bolder;
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  border-left: #333 solid 1px;
-}
-.indu .header div {
-  display: flex;
-  justify-content: center;
-}
-.indu div img {
-    width: 150px;
-}
-.indu .input {
-  display: flex;
-  flex-direction: row;
-  width: calc(100% - 40px);
-  margin: 20px;
-  border: #7e56c2 2px solid;
-  padding: 15px;
-  border-radius: 20px;
-}
-.indu .input #induInput {
-    border: none;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 700;
-}
-.indu .input button {
-  background-color: transparent;
-  color: var(--nav-text);
-}
-button {
-  cursor: pointer;
-}
-.indu.message {
-    font-weight: 500;
-    display: flex;
-    justify-content: center;
-}
-think {
-    display: none;
-}
-#chat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  max-height: 100%;
-  overflow-y: scroll;
-  user-select: auto;
-}
-.message {
-  max-width: 100%;
-  height: fit-content;
-  max-height: 100%;
-  width: fit-content;
-  margin: 0;
-  padding: 0.4rem 0.75rem;
-  user-select: auto;
-  color: var(--nav-text);
-  background-color: var(--sideBar-bg);
-  border-radius: 8px;
-  word-break: break-word;
-  white-space: pre-wrap;
-  line-height: 1.4;
-}
-.message.user {
-  margin-left: auto;
-  background-color: #7e56c2;
-  user-select: auto;
-}
-.message.indu .indu-icon .indu-icon-img {
-    width: 30px;
-  user-select: auto;
-}
-.message.indu div {
-    user-select: auto;
-}
-.copy-code-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  background: #333;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  z-index: 10;
-}
-.copy-code-btn:hover {
-  background: #444;
-}
-
-body.dark {
-  --nav-bg: #222;
-    --nav-text: #e0e0e0;
-    --files-bg: #272626;
-    --selceted-file-bg: #5b5b5b;
-    --sideBar-bg: #232323;
-}
-
-body.light {
-  --nav-bg: #fff;
-  --nav-text: #333;
-  --files-bg: #fff;
-    --selceted-file-bg: rgb(250, 250, 245);
-    --sideBar-bg: rgb(250, 250, 245);
+  cursor: url('../images/cursor/normal.png') 4 4, default;
 }
 
 body {
-  height: 100vh; 
+  height: 100vh;
   max-height: 100%;
   background-color: var(--background-color);
   color: var(--text-color);
@@ -387,15 +38,39 @@ body {
   overflow: hidden;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  gap: 0;
-  user-select: none;
-  box-sizing: border-box;
-  max-width: 100vw !important;
-  
-  font-family: "Segoe UI", sans-serif;
+button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+input {
+  outline: #7e56c2;
+  background-color: var(--files-bg);
+  color: var(--nav-text);
+}
+
+i {
+  font-size: 37px !important;
+}
+
+::selection {
+  background-color: #7e56c280;
+}
+
+/* Navigation Bar */
+nav.nav-bar {
+  background-color: var(--nav-bg);
+  color: var(--nav-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  padding-left: 0;
+  font-size: 15px;
+  height: 40px;
+  border-bottom: #333 solid 1px;
 }
 
 nav.nav-bar .logo {
@@ -408,58 +83,23 @@ nav.nav-bar .logo {
   height: 30px;
 }
 
-nav.nav-bar {
-    background-color: var(--nav-bg);
-    color: var(--nav-text);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  padding-left: 0;
-  font-size: 15px;
-  height: 40px;
-  border-bottom: #333 solid 1px;
-}
-
 #toggle img {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
-.files-tab {
+.options {
   display: flex;
-  flex-direction: column;
-  width: calc(20vw + 20px);
-  background-color: var(--files-bg);
-  height: calc(100vh - 40px);
-  border-left: #333 solid 1px;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
 }
 
-.file {
-    display: flex;
-    gap: 0;
-    margin: 0;
-    flex-direction: row;
-    align-items: center;  
-    padding: 10px;
-    border-radius: 5px;
-    background-color: var(--file-bg);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
+.options .option button {
+  background-color: transparent;
+  color: var(--nav-text);
 }
 
-.fileIcon {
-    width: 20px;
-    max-width: 20px;
-    height: 20px;
-    max-height: 20px;
-}
-
-.file.selected {
-    background-color: var(--selceted-file-bg);
-    color: var(--text-color);
-}
-
+/* Main Layout */
 main {
   display: flex;
   flex-direction: row;
@@ -467,31 +107,15 @@ main {
   gap: 0;
 }
 
-#editor {
-  flex: 1;
-  margin: 0;
-  gap: 0;
-  overflow: auto; /* let Monaco manage internal scroll */
-  max-width: 100vw;
-  height: calc(100vh - 40px);
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border-left: #333 solid 1px;
-}
-
+/* Sidebar */
 .sideBar {
   width: 80px;
   max-height: calc(100vh - 40px);
   height: calc(100vh - 40px);
   background: var(--sideBar-bg);
-  color: #fff;
+  color: var(--nav-text);
   display: flex;
   flex-direction: column !important;
-  /* align-items: center; */
-}
-
-i {
-  font-size: 37px !important;
 }
 
 .sideBar i {
@@ -500,6 +124,109 @@ i {
   margin-top: 20px;
 }
 
+/* Files Tab */
+.files-tab {
+  display: flex;
+  flex-direction: column;
+  width: calc(20vw + 20px);
+  background-color: var(--files-bg);
+  height: calc(100vh - 40px);
+  max-height: calc(100vh - 40px);
+  border-left: #333 solid 1px;
+}
+
+.files-tab[data-status="close"] {
+  visibility: hidden;
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.files-tab[data-status="open"] {
+  visibility: visible;
+  width: 20vw;
+}
+
+.files-tab i {
+  font-size: 15px !important;
+}
+
+.files-tab .fileMenu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.files-tab .fileMenu p {
+  font-weight: bolder;
+  font-size: 13px;
+}
+
+body.light .files-tab .fileMenu i {
+  font-weight: bolder !important;
+}
+
+/* File Items */
+.file {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: var(--file-bg);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.file.selected {
+  background-color: var(--selceted-file-bg);
+  color: var(--text-color);
+}
+
+.fileIcon {
+  width: 20px;
+  max-width: 20px;
+  height: 20px;
+  max-height: 20px;
+}
+
+.fileIcon i {
+  font-size: 20px !important;
+}
+
+/* Editor */
+#editor {
+  flex: 1;
+  margin: 0;
+  gap: 0;
+  overflow: auto;
+  max-width: 100vw;
+  height: calc(100vh - 40px);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-left: #333 solid 1px;
+}
+
+#editor * {
+  cursor: url('../images/cursor/writer.svg') 16 16, text !important;
+}
+
+/* Drag Bar */
+.drag-bar {
+  width: 5px;
+  background-color: var(--files-bg);
+  cursor: ew-resize;
+  z-index: 1000;
+}
+
+.drag-bar:hover {
+  background-color: var(--files-bg);
+}
+
+/* Extras and File Options */
 .extras {
   z-index: 100;
   position: absolute;
@@ -507,11 +234,11 @@ i {
 }
 
 .extras .option {
-    display: flex;
-    align-items: center;  
-    gap: 13px;
-    padding: 5px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 5px;
+  cursor: pointer;
 }
 
 .extras .fileBtnOptions {
@@ -528,74 +255,30 @@ i {
   display: block;
 }
 
-.codicon-check {
-  font-size: 15px !important;
+/* Right Click Menu */
+.right-click-menu {
+  position: absolute;
+  display: none;
+  background-color: var(--files-bg);
+  border: 1px solid #333;
+  border-radius: 4px;
+  z-index: 1000;
+  min-width: 120px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.monaco-editor .mtk8 {
-  color: #BBBBBB !important; /* token type for 'console' in many themes */
-}
-
-.files-tab[data-status="close"] {
-  visibility: hidden;
-  width: 0;
-  transition: width 0.3s ease;
-}
-.files-tab[data-status="open"] {
-  visibility: visible;
-  width: 20vw;
-}
-
-.files-tab {
-  max-height: calc(100vh - 40px);
-}
-
-.options {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-}
-
-.sideBar {
+.right-click-menu .menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
   color: var(--nav-text);
 }
 
-.options .option button {
-  background-color: transparent;
+.right-click-menu .menu-item:hover {
+  background-color: var(--selceted-file-bg);
   color: var(--nav-text);
 }
 
-button {
-  border: none;
-  outline: none;
-}
-
-.files-tab i {
-    font-size: 15px !important;
-}
-
-.fileIcon i{
-      font-size: 20px !important;
-}
-
-.files-tab .fileMenu {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-right: 10px;
-    margin-left: 10px;
-}
-
-.files-tab .fileMenu p {
-  font-weight: bolder;
-  font-size: 13px;
-}
-
-body.light .files-tab .fileMenu i {
-    font-weight: bolder !important;
-}
-
+/* Prompt/Modal */
 .prompt {
   color: var(--nav-text);
   position: fixed;
@@ -603,11 +286,11 @@ body.light .files-tab .fileMenu i {
   left: 0;
   width: 100vw;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* optional dim background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* or higher if needed */
+  z-index: 1000;
 }
 
 .window {
@@ -627,47 +310,15 @@ body.light .files-tab .fileMenu i {
 }
 
 .window button {
-    padding: 10px;
+  padding: 10px;
 }
 
 .window button i {
-    font-size: 16px !important;
-    font-weight: bolder;
+  font-size: 16px !important;
+  font-weight: bolder;
 }
 
-::selection {
-  background-color: #7e56c280;
-}
-
-.right-click-menu {
-  position: absolute;
-  display: none;
-  background-color: var(--files-bg);
-  border: 1px solid #333;
-  border-radius: 4px;
-  z-index: 1000;
-  min-width: 120px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-.right-click-menu .menu-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: var(--nav-text);
-}
-
-.right-click-menu .menu-item:hover {
-  background-color: var(--selceted-file-bg);
-  color: var(--nav-text);
-}
-
-input {
-    outline: #7e56c2;
-    background-color: var(--files-bg);
-    color: var(--nav-text);
-
-}
-
+/* Indu Chat Panel */
 .indu {
   background-color: var(--files-bg);
   width: 26vw;
@@ -685,7 +336,7 @@ input {
 }
 
 .indu div img {
-    width: 150px;
+  width: 150px;
 }
 
 .indu .input {
@@ -699,10 +350,10 @@ input {
 }
 
 .indu .input #induInput {
-    border: none;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 700;
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .indu .input button {
@@ -710,25 +361,18 @@ input {
   color: var(--nav-text);
 }
 
-button {
-  cursor: pointer;
-}
-
 .indu.message {
-    font-weight: 500;
-    display: flex;
-    justify-content: center;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
 }
 
-think {
-    display: none;
-}
-
+/* Chat Messages */
 #chat {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* or center/right as needed */
-  gap: 0.5rem; /* space between messages */
+  align-items: flex-start;
+  gap: 0.5rem;
   overflow-y: auto;
   user-select: auto;
 }
@@ -736,7 +380,7 @@ think {
 .message {
   max-width: 26vw;
   width: fit-content;
-  height: auto; /* ← fixes the underlap */
+  height: auto;
   margin: 0;
   padding: 0.4rem 0.75rem;
   user-select: auto;
@@ -748,7 +392,7 @@ think {
   line-height: 1.4;
   display: inline-block;
   vertical-align: top;
-  margin-bottom: 0.75rem; /* ✅ adds spacing between messages */
+  margin-bottom: 0.75rem;
 }
 
 .message.user {
@@ -758,14 +402,29 @@ think {
 }
 
 .message.indu .indu-icon .indu-icon-img {
-    width: 30px;
+  width: 30px;
   user-select: auto;
 }
 
 .message.indu div {
-    user-select: auto;
+  user-select: auto;
 }
 
+.message.indu pre {
+  overflow-y: scroll;
+}
+
+.message.indu pre,
+.message.indu pre code,
+.message.indu pre.hljs {
+  background-color: var(--background-color) !important;
+}
+
+.message.indu pre:hover .copy-code-btn {
+  opacity: 1;
+}
+
+/* Code Block Copy Button */
 .copy-code-btn {
   transition: opacity 0.2s ease-in-out;
   position: absolute;
@@ -781,27 +440,19 @@ think {
   z-index: 10;
   opacity: 0;
 }
+
 .copy-code-btn:hover {
   background: #444;
 }
 
 .copy-code-btn svg {
-    width: 12px;
-    height: 12px;
+  width: 12px;
+  height: 12px;
 }
 
-.message.indu pre {
-    overflow-y: scroll;
-}
-
-.message.indu pre,
-.message.indu pre code,
-.message.indu pre.hljs {
-  background-color: var(--background-color) !important;
-}
-
+/* Syntax Highlighting */
 .hljs {
-  background: #272626; /* editor.background */
+  background: #272626;
   color: #d4d4d4;
   font-family: 'Fira Code', monospace;
   font-size: 14px;
@@ -812,7 +463,6 @@ think {
   white-space: pre;
 }
 
-/* Tokens based on your Monaco.theme rules */
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-meta .hljs-keyword {
@@ -858,7 +508,6 @@ think {
   color: #9CDCFE;
 }
 
-/* Misc */
 .hljs-emphasis {
   font-style: italic;
 }
@@ -867,10 +516,7 @@ think {
   font-weight: bold;
 }
 
-::selection {
-  background-color: #7e56c280; /* same as monaco selectionBackground */
-}
-
+/* Theme-specific Syntax Highlighting */
 body.dark .hljs {
   background: #272626;
   color: #d4d4d4;
@@ -881,7 +527,6 @@ body.light .hljs {
   color: #333;
 }
 
-/* override color rules for light theme if needed */
 body.light .hljs-comment {
   color: #999;
   font-style: italic;
@@ -896,29 +541,23 @@ pre code.hljs {
   white-space: pre;
 }
 
-.message.indu pre:hover .copy-code-btn {
-  opacity: 1;
+/* Monaco Editor Specific */
+.codicon-check {
+  font-size: 15px !important;
 }
 
-/* Use normal cursor globally */
-* {
-  cursor: url('../images/cursor/normal.png') 4 4, default;
+.monaco-editor .mtk8 {
+  color: #BBBBBB !important;
 }
 
-.pointer, .file, .file * {
+/* Cursor Styles */
+.pointer,
+.file,
+.file * {
   cursor: url('../images/cursor/pointer.png') 4 4, pointer !important;
 }
 
-#editor * {
-  cursor: url('../images/cursor/writer.svg') 16 16, text !important; /* center of image */
-}
-
-.drag-bar {
-  width: 5px;
-  background-color: var(--files-bg);
-  cursor: ew-resize;
-  z-index: 1000;
-}
-.drag-bar:hover {
-  background-color: var(--files-bg);
+/* Hidden Elements */
+think {
+  display: none;
 }
