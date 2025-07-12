@@ -8,8 +8,9 @@ export function monaco(lang, eValue, theme) {
   }
 
   // Dispose previous instance (important!)
-  if (window.editorInstance) {
-    window.editorInstance.dispose();
+  if (editorInstance) {
+    editorInstance.dispose();
+    editorInstance = null;
   }
 
   // Define themes (only once)
@@ -54,18 +55,72 @@ export function monaco(lang, eValue, theme) {
     window.__lexiusThemesDefined = true;
   }
 
-  // Always set the theme before creation (not just inside config)
-  const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
-  Monaco.editor.setTheme(monacoTheme); // must be before create
-
+  // Determine theme
+  // const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
+  theme = theme === "dark" ? "vs-dark" : "vs"
+  
   // Create editor instance
   editorInstance = Monaco.editor.create(document.getElementById('editor'), {
     value: eValue,
     language: lang,
-    theme: monacoTheme,
+    theme: theme,
     fontSize: 14,
     automaticLayout: true,
+    wordWrap: 'on',
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false
   });
 
+  // Store reference globally
   window.editorInstance = editorInstance;
+  
+  // Auto-format on creation if it's JavaScript
+  if (lang === 'javascript' && eValue.trim()) {
+    setTimeout(() => {
+      prettifyCode();
+    }, 500); // Increased timeout to ensure prettier loads
+  }
 }
+
+const prettierParsers = {
+  javascript: "babel",
+  js: "babel",
+  html: "html",
+  typescript: "typescript",
+  ts: "typescript",
+  css: "css",
+};
+
+function prettifyCode() {
+  if (!editorInstance) return;
+  
+  const code = editorInstance.getValue();
+  const lang = editorInstance.getModel().getLanguageId();
+
+  if (!code.trim()) return;
+  if (lang !== 'javascript') return;
+
+  try {
+    // Check if prettier is available
+    if (typeof prettier === 'undefined') {
+      console.warn("Prettier not loaded");
+      return;
+    }
+
+    // Use prettier with parser directly - no plugins needed for v2.8.8
+    const formatted = prettier.format(code, {
+      parser: 'babel',
+      semi: true,
+      singleQuote: true,
+      tabWidth: 2,
+      trailingComma: 'es5'
+    });
+
+    editorInstance.setValue(formatted);
+  } catch (err) {
+    console.warn("Prettier failed:", err.message);
+  }
+}
+
+// Export prettifyCode function for external use
+export { prettifyCode };
