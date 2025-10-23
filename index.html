@@ -4,27 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexius</title>
+    <link rel="stylesheet" type="text/css" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css">
     <link rel="shortcut icon" href="assets/images/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="assets/styles/index.css">
-    <link rel="stylesheet" href="./assets/styles/theme.css">
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <img src="assets/images/favicon.svg" alt="Lexius Logo">
-            <h1>Lexius</h1>
-        </div>
-        <div class="theme-toggle">
-            <button id="toggle"><img src="./assets/images/dark.svg" alt=""></button>
+    <nav>
+        <a href="http://lexius.onrender.com/">
+            <div class="logo">
+                <div class="logo-image">
+                    <img src="./assets/images/favicon.svg" alt="">
+                </div>
+                <div class="logo-name">
+                    <strong>
+                        Lexius
+                    </strong>   
+                </div>
+            </div>
+        </a>
+        <button class="Download"><img class="os"> Download For <span class="os-name"></span></button>
+    </nav>
+    <div class="hero" id="hero">
+        <div class="hero-bg">
+            <dib class="hero-secondary-bg">
+                <div class="hero-main">
+                    <strong>
+                        <p>
+                            Code. Create. Conquer.
+                        </p>
+                    </strong>
+                    <button class="Download">
+                        <img class="os">
+                        <span class="spain" align="center">
+                            Download For 
+                        </span>
+                        <span class="os-name">
+                        </span>
+                    </button>
+                </div>
+            </dib>
         </div>
     </div>
-    <div class="container">
-        <button class="langauge" id="web">Website</button>
-        <button class="langauge" id="js">JavaScript</button>
-        <button class="langauge" id="ts">TypeScript</button>
-        <button class="langauge" id="php">PHP</button>
-        <button class="langauge" id="rust">Rust</button>
-    </div>
+    <div class="card-section">
+        <div class="card" id="card">
+            <div class="card-title">
+                <div class="card-logo">
+                    <svg width="50" viewBox="-2 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ff0000" stroke="#ff0000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>lightning [#1262]</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Dribbble-Light-Preview" transform="translate(-62.000000, -2559.000000)" fill="#dbb700"> <g id="icons" transform="translate(56.000000, 160.000000)"> <polygon id="lightning-[#1262]" points="14 2419 14 2411 6 2411 14 2399 14 2407 22 2407"> </polygon> </g> </g> </g> </g></svg>
+                </div>
+                <strong>
+                    <h2>
+                        Lightning Fast 
+                    </h2>
+                </strong>
+            </div>
+            <div class="card-description">
+                <p>
+                    Start in seconds, code without lag.
+                </p>
+            </div>
+            <div class="card-gif">
+                <img src="./assets/images/card1.gif" alt="">
+            </div>
+        </div>
+        <div class="card" id="card">
+            <div class="card-title">
+                <div class="card-logo">
+                    <i class="codicon codicon-broadcast" style="font-size: 55px; color: white;" aria-hidden="true"></i>
+                </div>
+                <strong>
+                    <h2>
+                        Live Server
+                    </h2>
+                </strong>
+            </div>
+            <div class="card-description">
+                <p>
+                    Auto-refreshs your browser as you code.
+                </p>
+            </div>
+            <div class="card-gif">
+                <img src="./assets/images/card1.gif" alt="">
+            </div>
+        </div>
+        <div class="card" id="card">
+            <div class="card-title">
+                <div class="card-logo">
+                    <svg width="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect width="20" height="20" fill="none"></rect> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.29291 14.2929C6.90238 14.6834 6.90238 15.3166 7.29291 15.7071C7.68343 16.0976 8.31659 16.0976 8.70712 15.7071L11.2071 13.2071C11.8738 12.5404 11.8738 11.4596 11.2071 10.7929L8.70712 8.29289C8.3166 7.90237 7.68343 7.90237 7.29291 8.29289C6.90238 8.68342 6.90238 9.31658 7.29291 9.70711L9.5858 12L7.29291 14.2929ZM13 14C12.4477 14 12 14.4477 12 15C12 15.5523 12.4477 16 13 16H16C16.5523 16 17 15.5523 17 15C17 14.4477 16.5523 14 16 14H13ZM22 7.93418C22 7.95604 22 7.97799 22 8.00001L22 16.0658C22.0001 16.9523 22.0001 17.7161 21.9179 18.3278C21.8297 18.9833 21.631 19.6117 21.1213 20.1213C20.6117 20.631 19.9833 20.8297 19.3278 20.9179C18.7161 21.0001 17.9523 21.0001 17.0658 21L6.9342 21C6.0477 21.0001 5.28388 21.0001 4.67222 20.9179C4.0167 20.8297 3.38835 20.631 2.87869 20.1213C2.36902 19.6117 2.17028 18.9833 2.08215 18.3278C1.99991 17.7161 1.99995 16.9523 2 16.0658L2 7.9342C1.99995 7.0477 1.99991 6.28388 2.08215 5.67221C2.17028 5.0167 2.36902 4.38835 2.87869 3.87868C3.38835 3.36902 4.0167 3.17028 4.67222 3.08215C5.28388 2.99991 6.04769 2.99995 6.93418 3L17 3.00001C17.022 3.00001 17.044 3 17.0658 3C17.9523 2.99995 18.7161 2.99991 19.3278 3.08215C19.9833 3.17028 20.6117 3.36902 21.1213 3.87869C21.631 4.38835 21.8297 5.0167 21.9179 5.67221C22.0001 6.28387 22.0001 7.04769 22 7.93418Z" fill="#7e56c2"></path> </g></svg>
+                </div>
+                <strong>
+                    <h2>
+                        Built-In Terminal
+                    </h2>
+                </strong>
+            </div>
+            <div class="card-description">
+                <p>
+                    Run commands without leaving Lexius.
+                </p>
+            </div>
+            <div class="card-gif">
+                <img src="./assets/images/card1.gif" alt="">
+            </div>
+        </div>
     <script src="assets/scripts/index.js"></script>
     <script src="./assets/scripts/theme.js"></script>
 </body>

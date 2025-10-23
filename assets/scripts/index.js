@@ -1,26 +1,31 @@
-const web = document.getElementById('web');
-const js = document.getElementById('js');
-const ts = document.getElementById('ts');
-const php = document.getElementById('php');
-const rust = document.getElementById('rust');
+let os = "Unknown OS";
 
-web.addEventListener('click', () => {
-    window.location.href = './langs/web/';
-});
+if (navigator.userAgentData) {
+  const platform = navigator.userAgentData.platform.toLowerCase();
+  if (platform.includes("windows")) os = "Windows";
+  else if (platform.includes("linux")) os = "Linux";
+  else { os = "Windows" }
+}
 
-js.addEventListener('click', () => {
-    window.location.href = './langs/js/';
-});
+const osSvg = document.getElementsByClassName("os")[0]
+const osName = document.getElementsByClassName("os-name")[0]
+const osSvg1 = document.getElementsByClassName("os")[1]
+const osName1 = document.getElementsByClassName("os-name")[1]
 
-ts.addEventListener('click', () => {
-    window.location.href = './langs/ts/';
-});
+window.onload(reload())
 
-php.addEventListener('click', () => {
-    window.location.href = './langs/php/';
-});
+function reload() {
+    if ("Windows" == os) {
+        osSvg.src = "./assets/images/windows.svg";
+        osName.innerText = os;
+        osSvg1.src = "./assets/images/windows.svg";
+        osName1.innerText = os;
+    }
 
-rust.addEventListener('click', () => {
-    window.location.href = './langs/rust/';
-});
-
+    if ("Linux" == os) {
+        osSvg.src = "./assets/images/linux.svg";
+        osName.innerText = os;
+        osSvg1.src = "./assets/images/linux.svg";
+        osName1.innerText = os;
+    }
+}
