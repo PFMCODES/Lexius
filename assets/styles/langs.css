@@ -329,6 +329,9 @@ body.light .files-tab .fileMenu i {
   justify-content: space-between;
   border-left: #333 solid 1px;
 }
+.indu.drag-bar {
+  width: 5px;
+}
 
 .indu .header div {
   display: flex;
