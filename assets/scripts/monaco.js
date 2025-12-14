@@ -57,7 +57,7 @@ export function monaco(lang, eValue, theme) {
 
   // Determine theme
   // const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
-  theme = theme === "dark" ? "vs-dark" : "vs"
+  theme = theme === "dark" ? "vs-dark" : "vs";
   
   // Create editor instance
   editorInstance = Monaco.editor.create(document.getElementById('editor'), {

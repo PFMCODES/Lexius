@@ -38,3 +38,6 @@ export async function sendMessage(newMessage, files) {
     return "<h1>Error talking to Indu. Please try again.</h1>";
   }
 }
+document.onload = () => {
+  layout();
+};
