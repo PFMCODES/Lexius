@@ -1,4 +1,5 @@
 import { monaco } from './monaco.js';
+import { loadMonaco } from './monacoLoader.js';
 import { sendMessage } from './indu.js';
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
 import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME, isIndexedDBEmpty } from './db.js';
@@ -7,11 +8,11 @@ import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME, isIndexedDBEmpt
 const toggleBtn = document.getElementById("toggle");
 const toggleImg = toggleBtn?.querySelector("img");
 const induInput = document.getElementById('activateIndu');
-const terminalWindow = document.querySelector('.terminal');
-const activateTerminalButton = document.getElementById('activate-terminal');
 const filesContainer = document.getElementsByClassName("files")[0];
 const filesTab = document.querySelector('.files-tab');
 const rightClickMenu = document.getElementById('rightClickMenu');
+const files = document.querySelectorAll(".file");
+let i = 0;
 
 // Global variables
 let clickedFileEl = null;
@@ -36,6 +37,42 @@ document.body.classList.remove("light", "dark");
 document.body.classList.add(theme);
 updateToggleIcon(theme);
 
+async function initEditor(lang, value, theme) {
+  await loadMonaco();
+
+  const editorEl = document.getElementById('editor');
+  if (!editorEl) {
+    console.error('Editor element not found!');
+    return;
+  }
+
+  monaco(lang, value, theme);
+}
+
+window.onload = () => {
+  Welcome();
+}
+
+function openFile() {
+  const fileEl = document.querySelector('.file.selected');
+  if (!fileEl) {
+      Welcome();
+  }
+  else {
+    const name = fileEl.querySelector('.fileName')?.textContent?.trim();
+    if (!name) return;
+
+    const lang = DetectFileType(name);
+    const value = localStorage.getItem(name) || '';
+
+    const editor = document.getElementById('editor');
+    if (editor) editor.innerHTML = '';
+
+    const currentTheme = localStorage.getItem('theme');
+    initEditor(lang, value, currentTheme);
+  }
+}
+
 // Indu activation
 induInput.addEventListener('click', async () => {
   document.querySelectorAll('.indu').forEach((induWindow) => {
@@ -44,11 +81,15 @@ induInput.addEventListener('click', async () => {
     if (induWindowStatus === "open") {
       induWindow.setAttribute('data-status', 'close');
       induWindow.style.display = "none";
+       document.getElementById('editor').style.minWidth = 'calc(100% - (15vw + 20px))';
     } else {
       induWindow.style.display = 'flex';
+      document.getElementById('editor').style.minWidth = 'calc(100% - (15vw + 20px) - 300px)';
       requestAnimationFrame(() => {
         induWindow.setAttribute('data-status', 'open');
-        layout();
+        document.addEventListener('DOMContentLoaded', () => {
+          layout();
+        });
       });
     }
   });
@@ -66,6 +107,35 @@ isIndexedDBEmpty().then((result) => {
     });
   }
 });
+
+filesContainer.addEventListener('click', (e) => {
+    const fileEl = e.target.closest('.file');
+    if (!fileEl) return;
+
+    openSelectedFile(fileEl);
+});
+
+function openSelectedFile(fileEl) {
+  const name = fileEl.querySelector('.fileName')?.textContent?.trim();
+  if (!fileEl) {
+      Welcome();
+  }
+    else {
+      if (!name) return;
+
+      document.querySelectorAll('.file').forEach(f => f.classList.remove('selected'));
+      fileEl.classList.add('selected');
+
+      const lang = DetectFileType(name);
+      const value = localStorage.getItem(name) || '';
+
+      const editor = document.getElementById('editor');
+      if (editor) editor.innerHTML = '';
+
+      const theme = localStorage.getItem('theme');
+      initEditor(lang, value, theme);
+     }
+}
 
 // Load files on DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
@@ -223,6 +293,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       layout(fileType, content, currentTheme);
     }
   }, 3000);
+  openFile();
 });
 
 // Drag and resize functionality
@@ -274,7 +345,9 @@ if (!savedTheme) {
     document.body.classList.remove("light", "dark");
     document.body.classList.add(newTheme);
     updateToggleIcon(newTheme);
-    layout();
+    document.addEventListener('DOMContentLoaded', () => {
+      layout();
+    });
   });
 }
 
@@ -285,14 +358,16 @@ toggleBtn?.addEventListener("click", () => {
   document.body.classList.add(newTheme);
   localStorage.setItem("theme", newTheme);
   updateToggleIcon(newTheme);
-  layout();
+  document.addEventListener('DOMContentLoaded', () => {
+    layout();
+  });
 });
 
 function updateToggleIcon(theme) {
   if (!toggleImg) return;
   toggleImg.src = theme === "dark"
-    ? "../../assets/images/dark.svg"
-    : "../../assets/images/light.svg";
+    ? "./assets/images/dark.svg"
+    : "./assets/images/light.svg";
   toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
 }
 
@@ -307,7 +382,9 @@ document.getElementById('closeBtn')?.addEventListener('click', () => {
     filesTab.style.display = 'block';
     requestAnimationFrame(() => {
       filesTab.setAttribute('data-status', 'open');
-      layout();
+      document.addEventListener('DOMContentLoaded', () => {
+        layout();
+      });
     });
   }
 });
@@ -369,7 +446,7 @@ async function layout(lang1, code1, theme1) {
     window.editorInstance.dispose();
   }
 
-  monaco(lang, code, currentTheme);
+  initEditor(lang, code, currentTheme);
   hljs.highlightAll();
 }
 
@@ -407,6 +484,19 @@ function createFile(name) {
 }
 
 // New file creation
+document.getElementById('newFileCtx')?.addEventListener('click', async () => {
+  const name = prompt('Enter new file name', '');
+  if (name) {
+    const newFile = createFile(name);
+    const icon = returnFileIcon(name);
+    newFile.querySelector('img').src = icon;
+    newFile.querySelector('img').alt = `Icon for ${name}`;
+    localStorage.setItem(name, '');
+    await saveFile(name, '');
+  }
+});
+
+// New file creation
 document.getElementById('newFile')?.addEventListener('click', async () => {
   const name = prompt('Enter new file name', '');
   if (name) {
@@ -421,38 +511,57 @@ document.getElementById('newFile')?.addEventListener('click', async () => {
 
 // File renaming
 document.getElementById('renameFile')?.addEventListener('click', async () => {
-  if (clickedFileEl) {
-    const fileNameEl = clickedFileEl.querySelector('.fileName');
-    const oldName = fileNameEl.textContent.trim();
+  if (!clickedFileEl) return;
 
-    fileNameEl.innerHTML = `<input type='text' id='fileNameInput' value="${oldName}" />`;
+  const fileNameEl = clickedFileEl.querySelector('.fileName');
+  const oldName = fileNameEl.textContent.trim();
 
-    const input = fileNameEl.querySelector('#fileNameInput');
-    input.focus();
-    input.select();
+  fileNameEl.innerHTML = `<input type="text" class="rename-input" value="${oldName}" />`;
 
-    input.addEventListener('keydown', async (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const newName = input.value.trim() || 'Untitled';
-        const content = localStorage.getItem(oldName) || '';
+  const input = fileNameEl.querySelector('input');
+  input.focus();
+  input.select();
 
-        if (newName !== oldName) {
-          localStorage.setItem(newName, content);
-          localStorage.removeItem(oldName);
-          await saveFile(newName, content);
-          await deleteFile(oldName);
-        }
-
-        fileNameEl.innerHTML = newName;
-      }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        fileNameEl.innerHTML = oldName;
-      }
-    });
+  function outsideClickHandler(event) {
+    if (!fileNameEl.contains(event.target)) {
+      cleanup(oldName);
+    }
   }
+
+  function cleanup(nameToRestore) {
+    document.removeEventListener('mousedown', outsideClickHandler);
+    fileNameEl.textContent = nameToRestore;
+  }
+
+  document.addEventListener('mousedown', outsideClickHandler);
+
+  input.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      const newName = input.value.trim() || 'Untitled';
+      const content = localStorage.getItem(oldName) || '';
+
+      if (newName !== oldName) {
+        localStorage.setItem(newName, content);
+        localStorage.removeItem(oldName);
+        await saveFile(newName, content);
+        await deleteFile(oldName);
+      }
+
+      document.removeEventListener('mousedown', outsideClickHandler);
+      fileNameEl.textContent = newName;
+      const img = filesContainer.querySelector('.file .fileIcon img');
+      if (img) {
+        img.src = returnFileIcon(newName);
+      }
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cleanup(oldName);
+    }
+  });
 });
 
 // File deletion
@@ -461,8 +570,9 @@ document.getElementById('deleteFile')?.addEventListener('click', async () => {
     const name = clickedFileEl.querySelector('.fileName').textContent.trim();
     if (confirm(`Delete "${name}"?`)) {
       localStorage.removeItem(name);
-      await deleteFile(name);
-      clickedFileEl.remove();
+      deleteFile(name);
+      console.log(clickedFileEl);
+      clickedFileEl.style.display = 'none';
     }
   }
 });
@@ -482,6 +592,30 @@ document.getElementById('projectNameButton')?.addEventListener('click', () => {
 
 // New folder creation
 document.getElementById('newFolder')?.addEventListener('click', () => {
+  const name = prompt('Enter new folder name', 'NewFolder');
+  if (name) {
+    const folder = document.createElement('div');
+    folder.classList.add('folder', 'close');
+    folder.innerHTML = `
+      <div class="fileIcon"><i class="codicon codicon-chevron-right"></i></div>
+      <div class="fileName">${name}</div>
+    `;
+    folder.addEventListener('click', () => {
+      const icon = folder.querySelector('i');
+      const isOpen = folder.classList.toggle('open');
+      folder.classList.toggle('close', !isOpen);
+      icon.classList.toggle('codicon-chevron-right', !isOpen);
+      icon.classList.toggle('codicon-chevron-up', isOpen);
+    });
+    const filesContainer = filesTab?.querySelector('.files');
+    if (filesContainer) {
+      filesContainer.appendChild(folder);
+    }
+  }
+});
+
+// New folder creation
+document.getElementById('newFolderCtx')?.addEventListener('click', () => {
   const name = prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
@@ -525,7 +659,7 @@ document.querySelector('.files')?.addEventListener('click', (e) => {
   }
 
   const currentTheme = localStorage.getItem('theme');
-  monaco(lang, value, currentTheme);
+  initEditor(lang, value, currentTheme);
 });
 
 // Open file from context menu
@@ -546,9 +680,38 @@ document.getElementById('openFile')?.addEventListener('click', () => {
     }
 
     const currentTheme = localStorage.getItem('theme');
-    monaco(lang, value, currentTheme);
+    initEditor(lang, value, currentTheme);
   }
 });
+
+function Welcome() {
+  const megaEditor = document.getElementById('megaEditor');
+  if (!megaEditor) return;
+
+  // Remove existing welcome message if any
+  const oldWelcome = document.getElementById('welcomeMessage');
+  if (oldWelcome) oldWelcome.remove();
+
+  // Create welcome message
+  const welcomeEl = document.createElement('div');
+  welcomeEl.id = 'welcomeMessage';
+  welcomeEl.className = 'welcome-message';
+  welcomeEl.innerHTML = `
+    <h1>Welcome to Lexius!</h1>
+    <p>Create or open a file to get started.</p>
+  `;
+
+  // Apply theme color
+  const theme = localStorage.getItem('theme') === 'dark' ? '#fff' : '#000';
+  welcomeEl.style.color = theme;
+
+  // Append instead of replacing
+  megaEditor.appendChild(welcomeEl);
+}
+
+function Prompt() {
+  filesContainer
+}
 
 // Project name handling
 const params = new URLSearchParams(window.location.search);
@@ -635,7 +798,7 @@ function DetectFileType(f) {
 // File icon mapping
 function returnFileIcon(f) {
   const type = DetectFileType(f);
-  const base = "../../assets/images/langs/";
+  const base = "./assets/images/langs/";
   const map = {
     javascript: "js.svg",
     typescript: "ts.svg",

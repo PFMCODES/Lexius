@@ -1,12 +1,12 @@
 body.dark {
-  --background-color: #121212;
+  --background-color: #431c5c;
   --text-color: #e0e0e0;
   --text-color-inverted: #333;
 }
 
 body.light {
-  --background-color: #0a0a0a;
-  --text-color: #333;
+  --background-color: #a47ad1;
+  --text-color: #fff;
   --text-color-inverted: #f0f0f0;
 }
 

@@ -2,19 +2,19 @@
 
 /* CSS Custom Properties (Variables) */
 body.dark {
-  --nav-bg: #222;
+  --nav-bg: #250b35;
   --nav-text: #e0e0e0;
-  --files-bg: #272626;
-  --selceted-file-bg: #5b5b5b;
-  --sideBar-bg: #232323;
+  --files-bg: #321743;
+  --selceted-file-bg: #51276b;
+  --sideBar-bg: #291039;
 }
 
 body.light {
-  --nav-bg: #fff;
-  --nav-text: #333;
-  --files-bg: #fff;
-  --selceted-file-bg: rgb(250, 250, 245);
-  --sideBar-bg: rgb(250, 250, 245);
+  --nav-bg: #8355b4;
+  --nav-text: #fff;
+  --files-bg: #986dc6;
+  --selceted-file-bg: #ba97df;
+  --sideBar-bg: #8752c0;
 }
 
 /* Global Styles */
@@ -45,7 +45,9 @@ button {
 }
 
 input {
+  border: 1px solid var(--nav-text);
   outline: #7e56c2;
+  font-size: 15px;
   background-color: var(--files-bg);
   color: var(--nav-text);
 }
@@ -129,6 +131,7 @@ main {
   display: flex;
   flex-direction: column;
   width: calc(20vw + 20px);
+  min-width: calc(15vw + 20px);
   background-color: var(--files-bg);
   height: calc(100vh - 40px);
   max-height: calc(100vh - 40px);
@@ -199,11 +202,14 @@ body.light .files-tab .fileMenu i {
 
 /* Editor */
 #editor {
-  flex: 1;
+  flex: 1 !important;
   margin: 0;
   gap: 0;
   overflow: auto;
-  max-width: 100vw;
+  width: calc(100vw - 200px) !important;
+  flex-direction: column !important;
+  min-width: calc(100% - (15vw + 20px)) !important;
+  max-width: calc(100vw - 200px) !important;
   height: calc(100vh - 40px);
   background-color: var(--background-color);
   color: var(--text-color);
@@ -216,7 +222,7 @@ body.light .files-tab .fileMenu i {
 
 /* Drag Bar */
 .drag-bar {
-  width: 5px;
+  width: 5px !important;
   background-color: var(--files-bg);
   cursor: ew-resize;
   z-index: 1000;
@@ -280,6 +286,7 @@ body.light .files-tab .fileMenu i {
 
 /* Prompt/Modal */
 .prompt {
+  display: none;
   color: var(--nav-text);
   position: fixed;
   top: 0;
@@ -287,7 +294,6 @@ body.light .files-tab .fileMenu i {
   width: 100vw;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -321,7 +327,8 @@ body.light .files-tab .fileMenu i {
 /* Indu Chat Panel */
 .indu {
   background-color: var(--files-bg);
-  width: 26vw;
+  max-width: 300px;
+  min-width: 300px;
   height: calc(100vh - 40px);
   font-weight: bolder;
   display: none;
@@ -359,6 +366,15 @@ body.light .files-tab .fileMenu i {
 .indu .input button {
   background-color: transparent;
   color: var(--nav-text);
+}
+
+.indu.drag-bar {
+  width: 5px !important;
+  min-width: 5px !important;
+  background-color: var(--files-bg);
+  cursor: ew-resize;
+  z-index: 1000;
+  display: none;
 }
 
 .indu.message {
@@ -514,6 +530,30 @@ body.light .files-tab .fileMenu i {
 
 .hljs-strong {
   font-weight: bold;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center; /* vertically center all items */
+  gap: 10px;            /* space between text and button */
+  margin-top: 10px;
+}
+
+.theme-toggle p {
+  margin-top: 5px;           /* remove default margin */
+  font-size: 20px;
+  line-height: 1;      /* prevent extra spacing */
+  color: #fff;
+}
+
+.theme-toggle button {
+  display: flex;
+  align-items: center; /* vertical center icon inside button */
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 30px;
 }
 
 /* Theme-specific Syntax Highlighting */
