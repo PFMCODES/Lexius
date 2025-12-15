@@ -57,15 +57,21 @@
                 </button>
             </div>
         </div>
-        <div class="theme-toggle">
-            <p style="color: #fff;">Dark Mode:</p>
-            <button class="pointer" id="toggle"><img class="pointer" src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
+        <div class="right-side">
+            <div class="runBtn" id="runCode">
+                <button style="font-size: 18px !important;"><i data-lucide="play"></i>Run</button>
+            </div>
+            <div class="theme-toggle">
+                <p style="color: #fff;">Dark Mode:</p>
+                <button class="pointer" id="toggle"><img class="pointer" src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
+        </div>
         </div>
     </nav>
     <main>
         <div class="sideBar" id="sideBar">
             <i class="codicon codicon-files" id="closeBtn"></i>
             <i style="font-size: 37px !important;" id="activateIndu" class="codicon codicon-chat-sparkle"></i>
+            <i style="font-size: 37px !important;" id="activateTerminal" class="codicon codicon-terminal-cmd"></i>
             
         </div>
         <div class="files-tab resizable" id="files-tab">
@@ -96,6 +102,16 @@
             <div id="chat"></div>
             <div class="input">
                 <input type="text" id="induInput"> <button id="induSendBtn"><i style="font-size: 10px" data-lucide="arrow-right"></i></button>
+            </div>
+        </div>
+        <div class="terminal">
+            <div class="nav-terminal">
+                <div>
+                    <i data-lucide="x" id="terminalX"></i>
+                </div>
+            </div>
+            <div class="terminal-display">
+
             </div>
         </div>
     </main>
