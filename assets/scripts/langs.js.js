@@ -37,40 +37,8 @@ document.body.classList.remove("light", "dark");
 document.body.classList.add(theme);
 updateToggleIcon(theme);
 
-async function initEditor(lang, value, theme) {
-  await loadMonaco();
-
-  const editorEl = document.getElementById('editor');
-  if (!editorEl) {
-    console.error('Editor element not found!');
-    return;
-  }
-
-  monaco(lang, value, theme);
-}
-
 window.onload = () => {
   Welcome();
-}
-
-function openFile() {
-  const fileEl = document.querySelector('.file.selected');
-  if (!fileEl) {
-      Welcome();
-  }
-  else {
-    const name = fileEl.querySelector('.fileName')?.textContent?.trim();
-    if (!name) return;
-
-    const lang = DetectFileType(name);
-    const value = localStorage.getItem(name) || '';
-
-    const editor = document.getElementById('editor');
-    if (editor) editor.innerHTML = '';
-
-    const currentTheme = localStorage.getItem('theme');
-    initEditor(lang, value, currentTheme);
-  }
 }
 
 // Indu activation
@@ -115,27 +83,7 @@ filesContainer.addEventListener('click', (e) => {
     openSelectedFile(fileEl);
 });
 
-function openSelectedFile(fileEl) {
-  const name = fileEl.querySelector('.fileName')?.textContent?.trim();
-  if (!fileEl) {
-      Welcome();
-  }
-    else {
-      if (!name) return;
 
-      document.querySelectorAll('.file').forEach(f => f.classList.remove('selected'));
-      fileEl.classList.add('selected');
-
-      const lang = DetectFileType(name);
-      const value = localStorage.getItem(name) || '';
-
-      const editor = document.getElementById('editor');
-      if (editor) editor.innerHTML = '';
-
-      const theme = localStorage.getItem('theme');
-      initEditor(lang, value, theme);
-     }
-}
 
 // Load files on DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
@@ -289,6 +237,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       const fileName = selectedFile.innerText;
       const fileType = DetectFileType(fileName);
       const content = localStorage.getItem(fileName);
+      deleteFile(fileName);
+      saveFile(fileName, content);
       const currentTheme = localStorage.getItem('theme');
       layout(fileType, content, currentTheme);
     }
@@ -333,6 +283,20 @@ window.addEventListener('mousemove', (e) => {
   }
 });
 
+document.getElementById('activateTerminal').addEventListener('click', () => {
+  if (!document.querySelector('.terminal')) return;
+  if (document.querySelector('.terminal').style.display === 'none') {
+    document.querySelector('.terminal').style.display = 'block';
+  } else {
+    document.querySelector('.terminal').style.display = 'none';
+  }
+});
+
+document.getElementById('terminalX').addEventListener('click', () => {
+  if (!document.querySelector('.terminal')) return;
+  document.querySelector('.terminal').style.display = 'none';
+});
+
 window.addEventListener('mouseup', () => {
   isDragging = false;
   document.body.style.cursor = 'default';
@@ -363,13 +327,7 @@ toggleBtn?.addEventListener("click", () => {
   });
 });
 
-function updateToggleIcon(theme) {
-  if (!toggleImg) return;
-  toggleImg.src = theme === "dark"
-    ? "./assets/images/dark.svg"
-    : "./assets/images/light.svg";
-  toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
-}
+
 
 // File management event listeners
 document.getElementById('closeBtn')?.addEventListener('click', () => {
@@ -412,43 +370,11 @@ document.getElementById('autosave')?.addEventListener('click', () => {
   }
 });
 
-// Auto-save functionality
-async function autoSave() {
-  const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
-  if (!isAutoSaveEnabled) return;
 
-  const selectedEl = document.getElementsByClassName('selected')[0];
-  if (!selectedEl || !window.editorInstance) return;
-
-  const fileName = selectedEl.innerText.trim();
-  const value = window.editorInstance.getValue();
-
-  if (value !== localStorage.getItem(fileName)) {
-    localStorage.setItem(fileName, value);
-    await saveFile(fileName, value);
-    console.log(`Auto-saved ${fileName}`);
-  }
-}
 
 setInterval(autoSave, 2000);
 
-// Layout function
-async function layout(lang1, code1, theme1) {
-  const selectedFile = document.querySelector('.selected');
-  if (!selectedFile) return;
 
-  const fileName = selectedFile.textContent.trim();
-  const lang = lang1 ?? DetectFileType(fileName);
-  const code = code1 ?? localStorage.getItem(fileName);
-  const currentTheme = theme1 ?? localStorage.getItem('theme');
-
-  if (window.editorInstance) {
-    window.editorInstance.dispose();
-  }
-
-  initEditor(lang, code, currentTheme);
-  hljs.highlightAll();
-}
 
 // Context menu functionality
 filesTab?.addEventListener('contextmenu', (e) => {
@@ -469,23 +395,9 @@ document.addEventListener('click', () => {
   clickedFileEl = null;
 });
 
-// File creation
-function createFile(name) {
-  const file = document.createElement('div');
-  file.classList.add('file');
-  file.innerHTML = `
-    <div class="fileIcon"><img src="" alt=""></div>
-    <div class="fileName">${name}</div>
-  `;
-  if (filesTab) {
-    filesTab.appendChild(file);
-  }
-  return file;
-}
-
 // New file creation
 document.getElementById('newFileCtx')?.addEventListener('click', async () => {
-  const name = prompt('Enter new file name', '');
+  const name = Prompt('Enter new file name', '');
   if (name) {
     const newFile = createFile(name);
     const icon = returnFileIcon(name);
@@ -498,7 +410,7 @@ document.getElementById('newFileCtx')?.addEventListener('click', async () => {
 
 // New file creation
 document.getElementById('newFile')?.addEventListener('click', async () => {
-  const name = prompt('Enter new file name', '');
+  const name = Prompt('Enter new file name', '');
   if (name) {
     const newFile = createFile(name);
     const icon = returnFileIcon(name);
@@ -538,7 +450,9 @@ document.getElementById('renameFile')?.addEventListener('click', async () => {
   input.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-
+      if (getAllFiles().includes(fileName)) {
+        warn('error', 'A file with that name already exists.');
+      }
       const newName = input.value.trim() || 'Untitled';
       const content = localStorage.getItem(oldName) || '';
 
@@ -592,7 +506,7 @@ document.getElementById('projectNameButton')?.addEventListener('click', () => {
 
 // New folder creation
 document.getElementById('newFolder')?.addEventListener('click', () => {
-  const name = prompt('Enter new folder name', 'NewFolder');
+  const name = Prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
     folder.classList.add('folder', 'close');
@@ -616,7 +530,7 @@ document.getElementById('newFolder')?.addEventListener('click', () => {
 
 // New folder creation
 document.getElementById('newFolderCtx')?.addEventListener('click', () => {
-  const name = prompt('Enter new folder name', 'NewFolder');
+  const name = Prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
     folder.classList.add('folder', 'close');
@@ -684,6 +598,21 @@ document.getElementById('openFile')?.addEventListener('click', () => {
   }
 });
 
+// Project name handling
+const params = new URLSearchParams(window.location.search);
+if (params.has('projectName')) {
+  const promptEl = document.getElementsByClassName('prompt')[0];
+  if (promptEl) {
+    promptEl.style.display = 'none';
+  }
+  const projectNameEl = document.querySelector('.project-name');
+  if (projectNameEl) {
+    projectNameEl.innerText = params.get('projectName').toUpperCase();
+  }
+}
+
+/* @Functions  */
+
 function Welcome() {
   const megaEditor = document.getElementById('megaEditor');
   if (!megaEditor) return;
@@ -709,21 +638,206 @@ function Welcome() {
   megaEditor.appendChild(welcomeEl);
 }
 
-function Prompt() {
-  filesContainer
+function warn(type, message) {
+  const messageBox = document.getElementById('prompt');
+  const messageBoxMessage = document.createElement('div');
+  const messageBoxIcon = document.createElement('div');
+  const messageBoxIconImage = document.createElement('img');
+
+  if (!messageBox) return;
+  if (messageBox) {
+    messageBox.style.display = 'block';
+
+    messageBox.appendChild(messageBoxMessage);
+    messageBox.appendChild(messageBoxIcon);
+    messageBoxIcon.appendChild(messageBoxIconImage);
+
+    messageBoxMessage.textContent = message;
+    switch (type) {
+      case 'error':
+        messageBoxIconImage.src = './assets/images/error.svg';
+      case 'info':
+        messageBoxIconImage.src = './assets/images/info.svg';
+      case 'warn':
+        messageBoxIconImage.src = './assets/images/warn.svg';
+    }
+  }
 }
 
-// Project name handling
-const params = new URLSearchParams(window.location.search);
-if (params.has('projectName')) {
-  const promptEl = document.getElementsByClassName('prompt')[0];
-  if (promptEl) {
-    promptEl.style.display = 'none';
+function Prompt() {
+  const promptInputEl = document.createElement("div");
+  const promptInputIcon = document.createElement("div");
+  const promptInputIconImage = document.createElement("img");
+  const promptInputElement = document.createElement("div");
+  const input = document.createElement("input");
+
+  promptInputEl.className = "file";
+  promptInputIcon.className = "fileIcon";
+  promptInputElement.className = "fileName";
+
+  filesContainer.appendChild(promptInputEl);
+  promptInputEl.appendChild(promptInputIcon);
+  promptInputEl.appendChild(promptInputElement);
+  promptInputElement.appendChild(input);
+  promptInputIcon.appendChild(promptInputIconImage);
+
+  input.focus();
+
+  function cleanup() {
+    document.removeEventListener("mousedown", outsideClickHandler);
+    promptInputEl.remove();
   }
-  const projectNameEl = document.querySelector('.project-name');
-  if (projectNameEl) {
-    projectNameEl.innerText = params.get('projectName').toUpperCase();
+
+  function outsideClickHandler(e) {
+    if (!promptInputEl.contains(e.target)) {
+      cleanup();
+    }
   }
+
+  document.addEventListener("mousedown", outsideClickHandler);
+
+  input.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      const fileName = input.value.trim() || "Untitled";
+
+      const files = await getAllFiles(); // ✅ await here
+
+      const exists = files.some(f => f.path === fileName);
+
+      if (exists) {
+        warn("error", "A file with that name already exists.");
+        return;
+      }
+
+      document.removeEventListener("mousedown", outsideClickHandler);
+
+      saveFile(fileName, "");
+      promptInputIconImage.src = returnFileIcon(fileName);
+
+      promptInputElement.textContent = fileName;
+    }
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      cleanup();
+    }
+  });
+}
+
+// File creation
+function createFile(name) {
+  const file = document.createElement('div');
+  file.classList.add('file');
+  file.innerHTML = `
+    <div class="fileIcon"><img src="" alt=""></div>
+    <div class="fileName">${name}</div>
+  `;
+  if (filesTab) {
+    filesTab.appendChild(file);
+  }
+  return file;
+}
+
+// Layout function
+async function layout(lang1, code1, theme1) {
+  const selectedFile = document.querySelector('.selected');
+  if (!selectedFile) return;
+
+  const fileName = selectedFile.textContent.trim();
+  const lang = lang1 ?? DetectFileType(fileName);
+  const code = code1 ?? localStorage.getItem(fileName);
+  const currentTheme = theme1 ?? localStorage.getItem('theme');
+
+  if (window.editorInstance) {
+    window.editorInstance.dispose();
+  }
+
+  initEditor(lang, code, currentTheme);
+  hljs.highlightAll();
+}
+
+// Auto-save functionality
+async function autoSave() {
+  const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
+  if (!isAutoSaveEnabled) return;
+
+  const selectedEl = document.getElementsByClassName('selected')[0];
+  if (!selectedEl || !window.editorInstance) return;
+
+  const fileName = selectedEl.innerText.trim();
+  const value = window.editorInstance.getValue();
+
+  if (value !== localStorage.getItem(fileName)) {
+    localStorage.setItem(fileName, value);
+    await saveFile(fileName, value);
+    console.log(`Auto-saved ${fileName}`);
+  }
+}
+
+function updateToggleIcon(theme) {
+  if (!toggleImg) return;
+  toggleImg.src = theme === "dark"
+    ? "./assets/images/dark.svg"
+    : "./assets/images/light.svg";
+  toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
+}
+
+function openSelectedFile(fileEl) {
+  const name = fileEl.querySelector('.fileName')?.textContent?.trim();
+  if (!fileEl) {
+      Welcome();
+  }
+    else {
+      if (!name) return;
+
+      document.querySelectorAll('.file').forEach(f => f.classList.remove('selected'));
+      fileEl.classList.add('selected');
+
+      const lang = DetectFileType(name);
+      const value = localStorage.getItem(name) || '';
+
+      const editor = document.getElementById('editor');
+      if (editor) editor.innerHTML = '';
+
+      const theme = localStorage.getItem('theme');
+      initEditor(lang, value, theme);
+     }
+}
+
+function openFile() {
+  const fileEl = document.querySelector('.file.selected');
+  if (!fileEl) {
+      Welcome();
+  }
+  else {
+    const name = fileEl.querySelector('.fileName')?.textContent?.trim();
+    if (!name) return;
+
+    const lang = DetectFileType(name);
+    const value = localStorage.getItem(name) || '';
+
+    const editor = document.getElementById('editor');
+    if (editor) editor.innerHTML = '';
+
+    const currentTheme = localStorage.getItem('theme');
+    initEditor(lang, value, currentTheme);
+  }
+}
+
+
+
+async function initEditor(lang, value, theme) {
+  await loadMonaco();
+
+  const editorEl = document.getElementById('editor');
+  if (!editorEl) {
+    console.error('Editor element not found!');
+    return;
+  }
+
+  monaco(lang, value, theme);
 }
 
 // File type detection

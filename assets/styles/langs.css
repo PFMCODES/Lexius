@@ -299,6 +299,26 @@ body.light .files-tab .fileMenu i {
   z-index: 1000;
 }
 
+.terminal {
+  display: none ;
+  position: absolute;
+  height: 40%;
+  background-color: #111;
+  width: calc(100vw - 269px);
+  top: 60%;
+  left: 269px;
+  border: #ebebeb solid 1px;
+  border-radius: 5px;
+}
+
+.nav-terminal {
+  background-color: #222;
+  height: 22px;
+  display: flex;
+  justify-content: right;
+  border: #ebebeb solid 1px;
+}
+
 .window {
   background: var(--nav-bg);
   padding: 20px 30px;
@@ -530,6 +550,27 @@ body.light .files-tab .fileMenu i {
 
 .hljs-strong {
   font-weight: bold;
+}
+
+.right-side {
+  display: flex;
+  align-items: center; /* vertically center all items */
+}
+
+.runBtn {
+  margin-right: 20px;
+  cursor: pointer;
+  border: 2.5px solid var(--selceted-file-bg);
+  border-radius: 10px;
+}
+
+.runBtn button {
+  display: flex;
+  align-items: center; /* vertical center icon inside button */
+  justify-content: center;
+  background: none;
+  color: var(--nav-text);
+  padding: 2.5px;
 }
 
 .theme-toggle {
