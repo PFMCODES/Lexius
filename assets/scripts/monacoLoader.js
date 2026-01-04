@@ -1,7 +1,7 @@
 // monacoLoader.js
 let isLoaded = false;
 
-export function loadMonaco() {
+export function loadMonaco(theme) {
   return new Promise((resolve, reject) => {
     if (window.monaco && isLoaded) return resolve(window.monaco);
 
@@ -10,7 +10,7 @@ export function loadMonaco() {
 
     require(['vs/editor/editor.main'], () => {
       isLoaded = true;
-      resolve(window.monaco);
+      window.monacoReady = true;
     }, reject);
   });
 }

@@ -2,7 +2,25 @@ import { monaco } from './monaco.js';
 import { loadMonaco } from './monacoLoader.js';
 import { sendMessage } from './indu.js';
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-import { saveFile, deleteFile, getAllFiles, DB_NAME, STORE_NAME, isIndexedDBEmpty } from './db.js';
+import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty } from './db.js';
+
+// from database or indexed DB
+const noFiles = isIndexedDBEmpty();
+
+// Electron
+export const isElectron = window.env?.isElectron === true;
+export class fs {
+  static writeFile(path, content) {
+    if (isElectron) {
+      return window.fs.writeFile(path, content);
+    }
+  }
+  static readFile(path) {
+    if (isElectron) {
+      return window.fs.readFile(path);
+      }
+    }
+  }
 
 // DOM Elements
 const toggleBtn = document.getElementById("toggle");
@@ -12,7 +30,8 @@ const filesContainer = document.getElementsByClassName("files")[0];
 const filesTab = document.querySelector('.files-tab');
 const rightClickMenu = document.getElementById('rightClickMenu');
 const files = document.querySelectorAll(".file");
-let i = 0;
+const editor = document.getElementById("editor");
+const megaEditor = document.getElementById("megaEditor");
 
 // Global variables
 let clickedFileEl = null;
@@ -35,7 +54,7 @@ require(['vs/editor/editor.main'], () => {
 // Initialize theme
 document.body.classList.remove("light", "dark");
 document.body.classList.add(theme);
-updateToggleIcon(theme);
+updateToggleIcon(null, null, theme);
 
 window.onload = () => {
   Welcome();
@@ -49,10 +68,10 @@ induInput.addEventListener('click', async () => {
     if (induWindowStatus === "open") {
       induWindow.setAttribute('data-status', 'close');
       induWindow.style.display = "none";
-       document.getElementById('editor').style.minWidth = 'calc(100% - (15vw + 20px))';
+       document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px))';
     } else {
       induWindow.style.display = 'flex';
-      document.getElementById('editor').style.minWidth = 'calc(100% - (15vw + 20px) - 300px)';
+      document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px) - 300px)';
       requestAnimationFrame(() => {
         induWindow.setAttribute('data-status', 'open');
         document.addEventListener('DOMContentLoaded', () => {
@@ -61,19 +80,6 @@ induInput.addEventListener('click', async () => {
       });
     }
   });
-});
-
-// Initialize default file if database is empty
-isIndexedDBEmpty().then((result) => {
-  if (result) {
-    saveFile('index.js', 'console.log("Hello, World!");');
-    window.addEventListener('DOMContentLoaded', () => {
-      const indexFile = document.querySelector('#index.js');
-      if (indexFile) {
-        indexFile.classList.add('selected');
-      }
-    });
-  }
 });
 
 filesContainer.addEventListener('click', (e) => {
@@ -112,109 +118,115 @@ window.addEventListener('DOMContentLoaded', async () => {
       firstFileEl.classList.add('selected');
     }
   }
-});
+  // // Wait for Monaco to be ready
+  // await new Promise(resolve => {
+  //   const wait = () => window.monacoReady ? resolve() : setTimeout(wait, 50);
+  //   wait();
+  // });
 
-// Main initialization
-window.addEventListener('DOMContentLoaded', async () => {
-  // Wait for Monaco to be ready
-  await new Promise(resolve => {
-    const wait = () => window.monacoReady ? resolve() : setTimeout(wait, 50);
-    wait();
-  });
+  // lucide.createIcons();
 
-  lucide.createIcons();
+  // const induInputField = document.getElementById('induInput');
+  // const chatDiv = document.getElementById("chat");
 
-  const induInputField = document.getElementById('induInput');
-  const chatDiv = document.getElementById("chat");
+  // // Chat functionality
+  // induInputField.addEventListener('keydown', async (e) => {
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault();
+  //     const message = induInputField.value.trim();
+  //     if (!message) return;
 
-  // Chat functionality
-  induInputField.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const message = induInputField.value.trim();
-      if (!message) return;
+  //     // Hide header and add user message
+  //     const header = document.querySelector('.header');
+  //     if (header) {
+  //       header.style.display = 'none';
+  //     }
 
-      // Hide header and add user message
-      const header = document.querySelector('.header');
-      if (header) {
-        header.style.display = 'none';
-      }
+  //     const userMessage = document.createElement('div');
+  //     userMessage.classList.add('message', 'user');
+  //     userMessage.innerText = message;
+  //     chatDiv.appendChild(userMessage);
+  //     induInputField.value = '';
 
-      const userMessage = document.createElement('div');
-      userMessage.classList.add('message', 'user');
-      userMessage.innerText = message;
-      chatDiv.appendChild(userMessage);
-      induInputField.value = '';
+  //     // Add thinking message
+  //     const thinkingEl = document.createElement('div');
+  //     thinkingEl.classList.add('message', 'indu', 'typing');
 
-      // Add thinking message
-      const thinkingEl = document.createElement('div');
-      thinkingEl.classList.add('message', 'indu', 'typing');
+  //     const induProfilePic = document.createElement('div');
+  //     induProfilePic.classList.add('indu-icon');
 
-      const induProfilePic = document.createElement('div');
-      induProfilePic.classList.add('indu-icon');
+  //     const induProfilePicImg = document.createElement('img');
+  //     induProfilePicImg.classList.add('indu-icon-img');
+  //     induProfilePicImg.src = '../../assets/images/indu.png';
 
-      const induProfilePicImg = document.createElement('img');
-      induProfilePicImg.classList.add('indu-icon-img');
-      induProfilePicImg.src = '../../assets/images/indu.png';
+  //     induProfilePic.appendChild(induProfilePicImg);
 
-      induProfilePic.appendChild(induProfilePicImg);
+  //     const thinkingMessageEl = document.createElement('div');
+  //     thinkingMessageEl.innerHTML = 'Indu is thinking...';
 
-      const thinkingMessageEl = document.createElement('div');
-      thinkingMessageEl.innerHTML = 'Indu is thinking...';
+  //     thinkingEl.appendChild(induProfilePic);
+  //     thinkingEl.appendChild(thinkingMessageEl);
+  //     chatDiv.appendChild(thinkingEl);
+  //     chatDiv.scrollTop = chatDiv.scrollHeight;
 
-      thinkingEl.appendChild(induProfilePic);
-      thinkingEl.appendChild(thinkingMessageEl);
-      chatDiv.appendChild(thinkingEl);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
+  //     const files = await getAllFiles();
 
-      const files = await getAllFiles();
+  //     // Fetch and display response
+  //     try {
+  //       const res = await sendMessage(message, files);
+  //       const cleanedRes = res.replace(/<think>.*?<\/think>/gs, "").replace(/<p><\/p>/, "");
+  //       const html = marked.parse(cleanedRes || "Sorry, I didn't understand that.");
+  //       thinkingMessageEl.innerHTML = html;
 
-      // Fetch and display response
-      try {
-        const res = await sendMessage(message, files);
-        const cleanedRes = res.replace(/<think>.*?<\/think>/gs, "").replace(/<p><\/p>/, "");
-        const html = marked.parse(cleanedRes || "Sorry, I didn't understand that.");
-        thinkingMessageEl.innerHTML = html;
+  //       hljs.highlightAll();
+  //       chatDiv.scrollTop = chatDiv.scrollHeight;
 
-        hljs.highlightAll();
-        chatDiv.scrollTop = chatDiv.scrollHeight;
+  //       // Add copy button to all code blocks
+  //       thinkingMessageEl.querySelectorAll('pre code').forEach((block) => {
+  //         const pre = block.parentElement;
+  //         pre.style.position = 'relative';
 
-        // Add copy button to all code blocks
-        thinkingMessageEl.querySelectorAll('pre code').forEach((block) => {
-          const pre = block.parentElement;
-          pre.style.position = 'relative';
+  //         const copyBtn = document.createElement('button');
+  //         copyBtn.className = 'copy-code-btn';
+  //         copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
 
-          const copyBtn = document.createElement('button');
-          copyBtn.className = 'copy-code-btn';
-          copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
+  //         // Add copy logic
+  //         copyBtn.addEventListener('click', () => {
+  //           navigator.clipboard.writeText(block.innerText).then(() => {
+  //             copyBtn.innerHTML = '<i data-lucide="check"></i> copied';
+  //             lucide.createIcons();
+  //             setTimeout(() => {
+  //               copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
+  //               lucide.createIcons();
+  //             }, 2000);
+  //           });
+  //         });
 
-          // Add copy logic
-          copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(block.innerText).then(() => {
-              copyBtn.innerHTML = '<i data-lucide="check"></i> copied';
-              lucide.createIcons();
-              setTimeout(() => {
-                copyBtn.innerHTML = '<i data-lucide="copy"></i> copy';
-                lucide.createIcons();
-              }, 2000);
-            });
-          });
+  //         pre.appendChild(copyBtn);
+  //       });
 
-          pre.appendChild(copyBtn);
-        });
-
-        lucide.createIcons();
-      } catch (err) {
-        thinkingMessageEl.innerHTML = err.message;
-      }
-    }
-  });
+  //       lucide.createIcons();
+  //     } catch (err) {
+  //       thinkingMessageEl.innerHTML = err.message;
+  //     }
+  //   }
+  // });
 
   // Initialize autosave
   if (localStorage.getItem('autosave') === 'true') {
     const autosaveCheck = document.getElementById('autosave-check');
     if (autosaveCheck) {
-      autosaveCheck.classList.add('true');
+      if (isElectron === true && filePermission === true) {
+        autosaveCheck.classList.add('false');
+        autosaveCheck.addEventListener('click', () => {
+          localStorage.setItem('autosave', 'true');
+          autosaveCheck.classList.remove('false');
+          autosaveCheck.classList.add('true');
+        });
+      }
+      else {
+        autosaveCheck.classList.add('true');
+      }
     }
   }
   if (!localStorage.getItem('autosave')) {
@@ -273,7 +285,7 @@ window.addEventListener('mousemove', (e) => {
 
   // Resize only horizontal layout components (side-by-side)
   if (prevEl && prevEl.classList.contains('resizable')) {
-    const newWidth = startPrevWidth + dx;
+    const newWidth = startPre%idth + dx;
     prevEl.style.width = `${newWidth}px`;
 
     // Optional: shrink next sibling if needed
@@ -308,7 +320,7 @@ if (!savedTheme) {
     const newTheme = e.matches ? "dark" : "light";
     document.body.classList.remove("light", "dark");
     document.body.classList.add(newTheme);
-    updateToggleIcon(newTheme);
+    updateToggleIcon(null, null, newTheme);
     document.addEventListener('DOMContentLoaded', () => {
       layout();
     });
@@ -321,7 +333,7 @@ toggleBtn?.addEventListener("click", () => {
   document.body.classList.remove("dark", "light");
   document.body.classList.add(newTheme);
   localStorage.setItem("theme", newTheme);
-  updateToggleIcon(newTheme);
+  updateToggleIcon(null, null, newTheme);
   document.addEventListener('DOMContentLoaded', () => {
     layout();
   });
@@ -358,6 +370,7 @@ document.querySelector('.fileBtnOptions')?.addEventListener('mouseleave', () => 
   const fileBtnOptions = document.querySelector('.fileBtnOptions');
   if (fileBtnOptions) {
     fileBtnOptions.classList.remove('active');
+    editor.style.width = 'calc(100% - 58px)';
   }
 });
 
@@ -613,9 +626,32 @@ if (params.has('projectName')) {
 
 /* @Functions  */
 
+async function navbar() {
+  if (!isElectron) console.error('Not running in Electron');
+  const windowBtns = document.getElementById('windowBtns');
+  if (!windowBtns) console.error('No window buttons container found');
+  windowBtns.style.display = 'block';
+  const minimize = document.getElementById("minimize");
+  const maximize = document.getElementById("maximize");
+  const close = document.getElementById("close");
+  maximize.addEventListener('click', () => {
+    window.env.maximize();
+  });
+  minimize.addEventListener('click', () => {
+    window.env.minimize();
+  });
+  close.addEventListener('click', () => {
+    window.env.close();
+  });
+}
+
 function Welcome() {
-  const megaEditor = document.getElementById('megaEditor');
+  const megaEditor = document.getElementById('editor');
   if (!megaEditor) return;
+  if (!noFiles) return;
+  if (getAllFiles().length > 0) return;
+  if (document.getElementById('welcomeMessage')) return;
+  if (megaEditor.children.length > 0) return;
 
   // Remove existing welcome message if any
   const oldWelcome = document.getElementById('welcomeMessage');
@@ -762,6 +798,7 @@ async function layout(lang1, code1, theme1) {
 async function autoSave() {
   const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
   if (!isAutoSaveEnabled) return;
+  
 
   const selectedEl = document.getElementsByClassName('selected')[0];
   if (!selectedEl || !window.editorInstance) return;
@@ -771,17 +808,24 @@ async function autoSave() {
 
   if (value !== localStorage.getItem(fileName)) {
     localStorage.setItem(fileName, value);
+    if (isElectron) {
+      await saveFile(fileName, value, filePath);
+      console.log(`Auto-saved ${fileName}`);
+    }
     await saveFile(fileName, value);
     console.log(`Auto-saved ${fileName}`);
   }
 }
 
-function updateToggleIcon(theme) {
+function updateToggleIcon(lang, value, theme) {
   if (!toggleImg) return;
   toggleImg.src = theme === "dark"
     ? "./assets/images/dark.svg"
     : "./assets/images/light.svg";
   toggleImg.alt = theme === "dark" ? "Light Mode Icon" : "Dark Mode Icon";
+  if (window?.editorInstance) {
+    layout(lang, value, theme);
+  }
 }
 
 function openSelectedFile(fileEl) {
@@ -837,7 +881,7 @@ async function initEditor(lang, value, theme) {
     return;
   }
 
-  monaco(lang, value, theme);
+  monaco(lang, value);
 }
 
 // File type detection

@@ -1,3 +1,5 @@
+import { isElectron, fs } from './langs.js.js';
+
 const params = new URLSearchParams(window.location.search);
 
 export const DB_NAME = params.get('projectName');
@@ -32,12 +34,20 @@ export function openDB(version = 1) {
   });
 }
 
-export async function saveFile(path, content) {
+export async function saveFile(path, content, filePath) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     store.put({ path, content });
+    if (isElectron && filePath) {
+      // In Electron, also save to filesystem
+      fs.writeFile(filePath, content, (err) => {
+        if (err) {
+          reject(`Failed to save file to disk: ${err.message}`);
+        }
+      });
+    }
 
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject("Save transaction failed");
