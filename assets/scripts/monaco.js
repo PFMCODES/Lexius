@@ -1,6 +1,6 @@
 let editorInstance = null;
 
-export function monaco(lang, eValue, theme) {
+async function monaco(lang, eValue) {
   const Monaco = window.monaco;
   if (!Monaco || !window.monacoReady) {
     console.warn("Monaco is not ready yet");
@@ -20,16 +20,16 @@ export function monaco(lang, eValue, theme) {
       inherit: true,
       semanticHighlighting: true,
       rules: [
-        { token: "identifier", foreground: "82AAFF" },
-        { token: "string", foreground: "FF9E64" },
-        { token: "number", foreground: "F78C6C" },
-        { token: "comment", foreground: "546E7A", fontStyle: "italic" },
-        { token: "keyword", foreground: "82AAFF" },
+        { token: "identifier", foreground: "#ffffff" },
+        { token: "string", foreground: "#FF9E64" },
+        { token: "number", foreground: "#F78C6C" },
+        { token: "comment", foreground: "#546E7A", fontStyle: "italic" },
+        { token: "keyword", foreground: "#d67eeeff" },
       ],
       colors: {
         "editor.background": "#272626",
         "editorLineNumber.foreground": "#4B526D",
-        "editorCursor.foreground": "#FFCC00",
+        "editorCursor.foreground": "#7b00ffff",
         "editor.selectionBackground": "#7e56c280",
       }
     });
@@ -40,7 +40,7 @@ export function monaco(lang, eValue, theme) {
       semanticHighlighting: true,
       rules: [
         { token: "identifier", foreground: "#CF9831" },
-        { token: "string", foreground: "#4CBBD1" },
+        { token: "string", foreground: "#ffffff" },
         { token: "number", foreground: "#4CBBD1" },
         { token: "comment", foreground: "#999999", fontStyle: "italic" },
         { token: "keyword", foreground: "#CF9831" }
@@ -57,7 +57,7 @@ export function monaco(lang, eValue, theme) {
 
   // Determine theme
   // const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
-  theme = theme === "dark" ? "vs-dark" : "vs";
+  let theme = localStorage.getItem("theme") === "dark" ? "lexius-dark" : "lexius-light";
   
   // Create editor instance
   editorInstance = Monaco.editor.create(document.getElementById('editor'), {
@@ -67,7 +67,7 @@ export function monaco(lang, eValue, theme) {
     fontSize: 14,
     automaticLayout: true,
     wordWrap: 'on',
-    minimap: { enabled: false },
+    minimap: { enabled: true },
     scrollBeyondLastLine: false
   });
 
@@ -123,4 +123,4 @@ function prettifyCode() {
 }
 
 // Export prettifyCode function for external use
-export { prettifyCode };
+export { prettifyCode, monaco };

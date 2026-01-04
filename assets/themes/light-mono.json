@@ -1,0 +1,68 @@
+{
+  "inherit": false,
+  "base": "vs-dark",
+  "colors": {
+    "editor.background": "#ffffff",
+    "editor.foreground": "#333333",
+    "editorLineNumber.foreground": "#4B526D",
+    "editorCursor.foreground": "#FFCC00",
+    "editor.selectionBackground": "#7e56c2"
+  },
+  "rules": [
+    {
+      "foreground": "#999999",
+      "fontStyle": "italic",
+      "token": "comment"
+    },
+    {
+      "foreground": "#999999",
+      "fontStyle": "italic",
+      "token": "punctuation.definition.comment"
+    },
+    {
+      "foreground": "#ffffff",
+      "token": "string"
+    },
+    {
+      "foreground": "#ffffff",
+      "token": "constant.other.symbol"
+    },
+    {
+      "foreground": "#4CBBD1",
+      "token": "constant.numeric"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "keyword"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "storage.type"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "storage.modifier"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "keyword.control"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "variable"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "variable.other"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "meta.definition.variable"
+    },
+    {
+      "foreground": "#CF9831",
+      "token": "entity.name.variable"
+    }
+  ],
+  "encodedTokensColors": []
+}

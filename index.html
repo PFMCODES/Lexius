@@ -64,7 +64,18 @@
             <div class="theme-toggle">
                 <p style="color: #fff;">Dark Mode:</p>
                 <button class="pointer" id="toggle"><img class="pointer" src="https://lexius.onrender.com/assets/images/dark.svg" alt=""></button>
-        </div>
+                <div id="windowBtns">
+                    <div class="minimize" id="minimize">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M6 12L18 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                    </div>
+                    <div class="maximize" id="maximize">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Shape / Square"> <path id="Vector" d="M3 6.2002V17.8002C3 18.9203 3 19.4796 3.21799 19.9074C3.40973 20.2837 3.71547 20.5905 4.0918 20.7822C4.5192 21 5.07899 21 6.19691 21H17.8031C18.921 21 19.48 21 19.9074 20.7822C20.2837 20.5905 20.5905 20.2837 20.7822 19.9074C21 19.48 21 18.921 21 17.8031V6.19691C21 5.07899 21 4.5192 20.7822 4.0918C20.5905 3.71547 20.2837 3.40973 19.9074 3.21799C19.4796 3 18.9203 3 17.8002 3H6.2002C5.08009 3 4.51962 3 4.0918 3.21799C3.71547 3.40973 3.40973 3.71547 3.21799 4.0918C3 4.51962 3 5.08009 3 6.2002Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+                    </div>
+                    <div class="close" id="close">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M6.99486 7.00636C6.60433 7.39689 6.60433 8.03005 6.99486 8.42058L10.58 12.0057L6.99486 15.5909C6.60433 15.9814 6.60433 16.6146 6.99486 17.0051C7.38538 17.3956 8.01855 17.3956 8.40907 17.0051L11.9942 13.4199L15.5794 17.0051C15.9699 17.3956 16.6031 17.3956 16.9936 17.0051C17.3841 16.6146 17.3841 15.9814 16.9936 15.5909L13.4084 12.0057L16.9936 8.42059C17.3841 8.03007 17.3841 7.3969 16.9936 7.00638C16.603 6.61585 15.9699 6.61585 15.5794 7.00638L11.9942 10.5915L8.40907 7.00636C8.01855 6.61584 7.38538 6.61584 6.99486 7.00636Z" fill="#0F0F0F"></path> </g></svg>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
     <main>
@@ -89,10 +100,12 @@
         </div>
         <div class="drag-bar" data-direction="horizontal"></div>
         <div id="megaEditor">
-            <div class="resizable" id="editor"></div>
+            <div class="resizable" id="editor">
+                
+            </div>
         </div>
-        <div class="indu drag-bar" data-direction="horizontal"></div>
-        <div class="indu resizable" id="indu">
+        <!-- <div class="indu drag-bar" data-direction="horizontal"></div> -->
+        <!-- <div class="indu resizable" id="indu">
             <div class="header">
                 <div>
                     <img src="./assets/images/indu.png">
@@ -103,7 +116,7 @@
             <div class="input">
                 <input type="text" id="induInput"> <button id="induSendBtn"><i style="font-size: 10px" data-lucide="arrow-right"></i></button>
             </div>
-        </div>
+        </div> -->
         <div class="terminal">
             <div class="nav-terminal">
                 <div>
@@ -111,7 +124,7 @@
                 </div>
             </div>
             <div class="terminal-display">
-
+                
             </div>
         </div>
     </main>
