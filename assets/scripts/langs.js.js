@@ -6,6 +6,7 @@ import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty } from './db.js';
 
 // from database or indexed DB
 const noFiles = isIndexedDBEmpty();
+let isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
 
 // Electron
 export const isElectron = window.env?.isElectron === true;
@@ -39,6 +40,8 @@ let isDragging = false;
 let startX = 0;
 let prevEl, nextEl;
 let startPrevWidth, startNextWidth;
+let isWelcomeMessageActive;
+let autosaveTimer;
 
 // Theme setup
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -74,7 +77,7 @@ induInput.addEventListener('click', async () => {
       document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px) - 300px)';
       requestAnimationFrame(() => {
         induWindow.setAttribute('data-status', 'open');
-        document.addEventListener('DOMContentLoaded', () => {
+        requestAnimationFrame(() => {
           layout();
         });
       });
@@ -89,10 +92,20 @@ filesContainer.addEventListener('click', (e) => {
     openSelectedFile(fileEl);
 });
 
-
-
 // Load files on DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
+  navbar()
+  setInterval(() => {
+  if (window.monacoReady === true && window.editorInstance) {
+    window.editorInstance.onDidChangeModelContent(() => {
+    if (!isAutoSaveEnabled) return;
+
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      autoSave();
+    }, 2000); // 2s debounce AFTER last change
+    });
+  }}, 50);
   const allFiles = await getAllFiles();
 
   for (const { path, content } of allFiles) {
@@ -243,16 +256,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Initialize layout with delay
-  setTimeout(() => {
+  setTimeout(async () => {
     const selectedFile = document.querySelector('.selected');
     if (selectedFile) {
       const fileName = selectedFile.innerText;
       const fileType = DetectFileType(fileName);
       const content = localStorage.getItem(fileName);
       deleteFile(fileName);
-      saveFile(fileName, content);
       const currentTheme = localStorage.getItem('theme');
-      layout(fileType, content, currentTheme);
+      window.editorInstance.setModel(window.editorInstance)
     }
   }, 3000);
   openFile();
@@ -285,7 +297,7 @@ window.addEventListener('mousemove', (e) => {
 
   // Resize only horizontal layout components (side-by-side)
   if (prevEl && prevEl.classList.contains('resizable')) {
-    const newWidth = startPre%idth + dx;
+    const newWidth = startPrevWidth + dx;
     prevEl.style.width = `${newWidth}px`;
 
     // Optional: shrink next sibling if needed
@@ -321,7 +333,7 @@ if (!savedTheme) {
     document.body.classList.remove("light", "dark");
     document.body.classList.add(newTheme);
     updateToggleIcon(null, null, newTheme);
-    document.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
       layout();
     });
   });
@@ -334,7 +346,7 @@ toggleBtn?.addEventListener("click", () => {
   document.body.classList.add(newTheme);
   localStorage.setItem("theme", newTheme);
   updateToggleIcon(null, null, newTheme);
-  document.addEventListener('DOMContentLoaded', () => {
+  requestAnimationFrame(() => {
     layout();
   });
 });
@@ -352,7 +364,7 @@ document.getElementById('closeBtn')?.addEventListener('click', () => {
     filesTab.style.display = 'block';
     requestAnimationFrame(() => {
       filesTab.setAttribute('data-status', 'open');
-      document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => {
         layout();
       });
     });
@@ -382,12 +394,6 @@ document.getElementById('autosave')?.addEventListener('click', () => {
     checkEl.classList.toggle('true', !current);
   }
 });
-
-
-
-setInterval(autoSave, 2000);
-
-
 
 // Context menu functionality
 filesTab?.addEventListener('contextmenu', (e) => {
@@ -463,7 +469,8 @@ document.getElementById('renameFile')?.addEventListener('click', async () => {
   input.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (getAllFiles().includes(fileName)) {
+      const files = await getAllFiles()
+      if (files.some(f => f.path === fileName)) {
         warn('error', 'A file with that name already exists.');
       }
       const newName = input.value.trim() || 'Untitled';
@@ -494,12 +501,26 @@ document.getElementById('renameFile')?.addEventListener('click', async () => {
 // File deletion
 document.getElementById('deleteFile')?.addEventListener('click', async () => {
   if (clickedFileEl) {
-    const name = clickedFileEl.querySelector('.fileName').textContent.trim();
-    if (confirm(`Delete "${name}"?`)) {
-      localStorage.removeItem(name);
-      deleteFile(name);
-      console.log(clickedFileEl);
-      clickedFileEl.style.display = 'none';
+    if (isAutoSaveEnabled === true) {
+      isAutoSaveEnabled = false
+      const name = clickedFileEl.querySelector('.fileName').textContent.trim();
+      if (confirm(`Delete "${name}"?`)) {
+        localStorage.removeItem(name);
+        deleteFile(name);
+        window.editorInstance.dispose();
+        clickedFileEl.style.display = 'none';
+        isAutoSaveEnabled = true
+      }
+    }
+    else {
+      const name = clickedFileEl.querySelector('.fileName').textContent.trim();
+      if (confirm(`Delete "${name}"?`)) {
+        localStorage.removeItem(name);
+        deleteFile(name);
+        window.editorInstance.dispose();
+        clickedFileEl.style.display = 'none';
+        isAutoSaveEnabled = true
+      }
     }
   }
 });
@@ -581,12 +602,11 @@ document.querySelector('.files')?.addEventListener('click', (e) => {
   fileEl.classList.add('selected');
 
   const editor = document.getElementById('editor');
-  if (editor) {
+  if (editor || isWelcomeMessageActive === false && editor) {
     editor.innerHTML = '';
+    const currentTheme = localStorage.getItem('theme');
+    initEditor(lang, value, currentTheme);
   }
-
-  const currentTheme = localStorage.getItem('theme');
-  initEditor(lang, value, currentTheme);
 });
 
 // Open file from context menu
@@ -602,12 +622,11 @@ document.getElementById('openFile')?.addEventListener('click', () => {
     clickedFileEl.classList.add('selected');
 
     const editor = document.getElementById('editor');
-    if (editor) {
+    if (editor || isWelcomeMessageActive === false && editor) {
       editor.innerHTML = '';
+      const currentTheme = localStorage.getItem('theme');
+      initEditor(lang, value, currentTheme);
     }
-
-    const currentTheme = localStorage.getItem('theme');
-    initEditor(lang, value, currentTheme);
   }
 });
 
@@ -626,10 +645,23 @@ if (params.has('projectName')) {
 
 /* @Functions  */
 
-async function navbar() {
-  if (!isElectron) console.error('Not running in Electron');
+function disposeEditor() {
+  if (!editorInstance) return;
+
+  const model = editorInstance.getModel();
+
+  editorInstance.setModel(null); // detach model
+  model?.dispose();              // dispose model
+  editorInstance.dispose();      // dispose editor
+
+  editorInstance = null;
+  window.editorInstance = null;
+}
+
+async function navbar() { 
+  if (!isElectron) console.warn('Not running in Electron');
   const windowBtns = document.getElementById('windowBtns');
-  if (!windowBtns) console.error('No window buttons container found');
+  if (!windowBtns) console.warn('No window buttons container found');
   windowBtns.style.display = 'block';
   const minimize = document.getElementById("minimize");
   const maximize = document.getElementById("maximize");
@@ -648,7 +680,7 @@ async function navbar() {
 function Welcome() {
   const megaEditor = document.getElementById('editor');
   if (!megaEditor) return;
-  if (!noFiles) return;
+  if (noFiles) return;
   if (getAllFiles().length > 0) return;
   if (document.getElementById('welcomeMessage')) return;
   if (megaEditor.children.length > 0) return;
@@ -667,11 +699,12 @@ function Welcome() {
   `;
 
   // Apply theme color
-  const theme = localStorage.getItem('theme') === 'dark' ? '#fff' : '#000';
+  const theme = localStorage.getItem('theme') === 'dark' ? '#fff' : '#fff';
   welcomeEl.style.color = theme;
 
   // Append instead of replacing
   megaEditor.appendChild(welcomeEl);
+  isWelcomeMessageActive = true;
 }
 
 function warn(type, message) {
@@ -796,9 +829,7 @@ async function layout(lang1, code1, theme1) {
 
 // Auto-save functionality
 async function autoSave() {
-  const isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
-  if (!isAutoSaveEnabled) return;
-  
+  if (isAutoSaveEnabled === false) return;
 
   const selectedEl = document.getElementsByClassName('selected')[0];
   if (!selectedEl || !window.editorInstance) return;
@@ -806,7 +837,9 @@ async function autoSave() {
   const fileName = selectedEl.innerText.trim();
   const value = window.editorInstance.getValue();
 
-  if (value !== localStorage.getItem(fileName)) {
+  const files = await getAllFiles()
+
+  if (value !== files.some(f => f.path === fileName) && null !== files.some(f => f.path === fileName)) {
     localStorage.setItem(fileName, value);
     if (isElectron) {
       await saveFile(fileName, value, filePath);
