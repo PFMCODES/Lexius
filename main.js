@@ -11,7 +11,7 @@ app.whenReady().then(() => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: false,
+      devTools: true,
     },
     icon: 'assets/images/lexius.png',
     autoHideMenuBar: true

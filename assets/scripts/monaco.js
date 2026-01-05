@@ -15,17 +15,19 @@ async function monaco(lang, eValue) {
 
   // Define themes (only once)
   if (!window.__lexiusThemesDefined) {
+
     Monaco.editor.defineTheme("lexius-dark", {
       base: "vs-dark",
       inherit: true,
       semanticHighlighting: true,
       rules: [
-        { token: "identifier", foreground: "#ffffff" },
         { token: "string", foreground: "#FF9E64" },
         { token: "number", foreground: "#F78C6C" },
         { token: "comment", foreground: "#546E7A", fontStyle: "italic" },
         { token: "keyword", foreground: "#d67eeeff" },
+        { token: "identifier", foreground: "#ffffffff" },
       ],
+
       colors: {
         "editor.background": "#272626",
         "editorLineNumber.foreground": "#4B526D",
@@ -39,8 +41,7 @@ async function monaco(lang, eValue) {
       inherit: true,
       semanticHighlighting: true,
       rules: [
-        { token: "identifier", foreground: "#CF9831" },
-        { token: "string", foreground: "#ffffff" },
+        { token: "string", foreground: "#FF9E64" },
         { token: "number", foreground: "#4CBBD1" },
         { token: "comment", foreground: "#999999", fontStyle: "italic" },
         { token: "keyword", foreground: "#CF9831" }
@@ -68,7 +69,8 @@ async function monaco(lang, eValue) {
     automaticLayout: true,
     wordWrap: 'on',
     minimap: { enabled: true },
-    scrollBeyondLastLine: false
+    scrollBeyondLastLine: false,
+    'semanticHighlighting.enabled': true,
   });
 
   // Store reference globally
