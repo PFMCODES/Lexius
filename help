@@ -1,0 +1,21 @@
+assets/images -> contains all the images/svgs/icons necessary for the project
+assets/scripts -> contains all the scripts required for the frontend tp run(both web and desktop)
+assets/styles -> contains all the css files
+assets/themes -> theme files for monaco
+
+assets/images/cursor -> contains custom cursor images
+assets/images/langs -> contains all the file icons
+
+assets/scripts/db.js -> helps store user file data
+assets/scripts/langs.js.js -> main file, handles ui chnages, saving files and etc.
+assets/scripts/monaco.js -> creates monaco editor and applys themes and syntax highlighting
+assets/scripts/monacoLoader.js -> loads monaco code before everything else
+assets/scripts/preload.js -> lets the renderer process access certain node modules and things
+assets/scripts/theme.js ->  just helps change theme nothing else
+
+
+build/ -> has .bmp files for required installer
+update-log.txt -> contains what's added in the new update
+version -> current version of the app
+web.js -> runs lexius code locally on the web
+package.json -> handles nsis installer settings, and app info

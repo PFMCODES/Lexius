@@ -1,7 +1,7 @@
 body.dark {
   --background-color: #431c5c;
   --text-color: #e0e0e0;
-  --text-color-inverted: #333;
+  --text-color-inerted: #333;
 }
 
 body.light {

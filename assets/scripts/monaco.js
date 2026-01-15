@@ -29,7 +29,7 @@ async function monaco(lang, eValue) {
       ],
 
       colors: {
-        "editor.background": "#272626",
+        "editor.background": "#291039",
         "editorLineNumber.foreground": "#4B526D",
         "editorCursor.foreground": "#7b00ffff",
         "editor.selectionBackground": "#7e56c280",
@@ -47,6 +47,7 @@ async function monaco(lang, eValue) {
         { token: "keyword", foreground: "#CF9831" }
       ],
       colors: {
+        "editor.background": "#8752C0",
         "editorLineNumber.foreground": "#4B526D",
         "editorCursor.foreground": "#FFCC00",
         "editor.selectionBackground": "#7e56c2"
@@ -77,7 +78,7 @@ async function monaco(lang, eValue) {
   window.editorInstance = editorInstance;
   
   // Auto-format on creation if it's JavaScript
-  if (lang === 'javascript' && eValue.trim()) {
+  if (lang === 'javascript' && eValue) {
     setTimeout(() => {
       prettifyCode();
     }, 500); // Increased timeout to ensure prettier loads
