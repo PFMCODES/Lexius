@@ -3,7 +3,7 @@
 
 ### ***Lexius** is a lightweight, fast, and customizable code editor built with web technologies. It includes features like syntax highlighting, live preview.*
 
-[![GitHub](https://img.shields.io/badge/v3.6.2-Lexius-8208FB?logo=https://raw.githubusercontent.com/PFMCODES/Lexius/052a1eb26dca6f4e921becee7a979f1bce67e87d/assets/images/favicon.svg&logoColor=ff0000)](https://github.com/PFMCODES/lexius/releases/download/Lexius-3.6.2/Lexius%20Setup%203.6.2.exe)
+[![GitHub](https://img.shields.io/badge/v3.6.2-Lexius-8208FB?logo=https://raw.githubusercontent.com/PFMCODES/Lexius/052a1eb26dca6f4e921becee7a979f1bce67e87d/assets/images/favicon.svg&logoColor=ff0000)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
 
 ## 🚀 Features
 
@@ -33,8 +33,8 @@
 
  ### 🖥️ Desktop:
  #### 🪟 windows
- - [Latest version(3.6.2)](https://github.com/PFMCODES/lexius/releases/download/Lexius-3.6.2/Lexius%20Setup%203.6.2.exe)
-  - [version 3.6.2](https://github.com/PFMCODES/lexius/releases/download/Lexius-3.6.2/Lexius%20Setup%203.6.2.exe)
+ - [Latest version(3.6.2)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
+  - [version 3.6.2](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
 
 ## Want to build your version of **Lexius**?
 ### **Lexius** is free & Open Source that means you can build your version of **Lexius**
