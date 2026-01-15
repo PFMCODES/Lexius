@@ -33,8 +33,17 @@ const rightClickMenu = document.getElementById('rightClickMenu');
 const files = document.querySelectorAll(".file");
 const editor = document.getElementById("editor");
 const megaEditor = document.getElementById("megaEditor");
+const terminalDisplay = document.getElementById("terminal-display");
 
 // Global variables
+const supportedLangs = [
+  "python",
+  "javascript", 
+  "typescript",
+  "html",
+  "markdown",
+  "svg"
+]
 let clickedFileEl = null;
 let isDragging = false;
 let startX = 0;
@@ -42,6 +51,10 @@ let prevEl, nextEl;
 let startPrevWidth, startNextWidth;
 let isWelcomeMessageActive;
 let autosaveTimer;
+let idLimit = 999;
+let min = 0;
+let runIds = [];
+let id;
 
 // Theme setup
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -94,6 +107,17 @@ filesContainer.addEventListener('click', (e) => {
 
 // Load files on DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
+  if (editor.innerHTML !== "" && editor.innerHTML !== `
+  <div class="welcome-message" id="welcomeMessage">
+      <h1>Welcome to Lexius!</h1>
+      <p>Create or open a file to get started.</p>
+  </div>
+  `) {
+    document.querySelector(".language").style.display = "block";
+  }
+  else {
+    document.querySelector(".language").style.display = "none";
+  }
   navbar()
   setInterval(() => {
   if (window.monacoReady === true && window.editorInstance) {
@@ -264,7 +288,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       const content = localStorage.getItem(fileName);
       deleteFile(fileName);
       const currentTheme = localStorage.getItem('theme');
-      window.editorInstance.setModel(window.editorInstance)
     }
   }, 3000);
   openFile();
@@ -316,9 +339,11 @@ document.getElementById('activateTerminal').addEventListener('click', () => {
   }
 });
 
-document.getElementById('terminalX').addEventListener('click', () => {
-  if (!document.querySelector('.terminal')) return;
-  document.querySelector('.terminal').style.display = 'none';
+document.getElementById("runCode").addEventListener("click", () => {
+  if (!window.editorInstance) return;
+  if (!window.editorInstance.getValue) return;
+  console.log(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
+  run(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
 });
 
 window.addEventListener('mouseup', () => {
@@ -507,7 +532,7 @@ document.getElementById('deleteFile')?.addEventListener('click', async () => {
       if (confirm(`Delete "${name}"?`)) {
         localStorage.removeItem(name);
         deleteFile(name);
-        window.editorInstance.dispose();
+        if (window.editorInstance) window.editorInstance.dispose();
         clickedFileEl.style.display = 'none';
         isAutoSaveEnabled = true
       }
@@ -645,17 +670,60 @@ if (params.has('projectName')) {
 
 /* @Functions  */
 
-function disposeEditor() {
-  if (!editorInstance) return;
+async function run(code, lang) {
+  function generateId() {
+    return Math.floor(Math.random() * (idLimit - min + 1)) + min;
+  }
+  id = generateId();
+  if (runIds.includes(id)) {
+    id = id * generateId();
+  }
+  console.log(`run id: ${id}`)
+  if (!Array.isArray(supportedLangs)) return;
 
-  const model = editorInstance.getModel();
+  if (!supportedLangs.includes(lang)) {
+    warn("language not supported yet, download the desktop version");
+    return;
+  }
 
-  editorInstance.setModel(null); // detach model
-  model?.dispose();              // dispose model
-  editorInstance.dispose();      // dispose editor
+  try {
+    const res = await fetch(
+      "https://lexius-transpiler.onrender.com/run",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code, lang }),
+      }
+    );
 
-  editorInstance = null;
-  window.editorInstance = null;
+    if (!res.ok) {
+      throw new Error(`Server error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    console.log(data, res);
+
+    const exec = data.result ?? {};
+
+    const stdout = exec.stdout ?? "";
+    const stderr = exec.stderr ?? "";
+    const result =
+      exec.result !== undefined && exec.result !== null
+        ? String(exec.result)
+        : "";
+
+    const output = [stdout, stderr, result]
+      .filter(Boolean)
+      .join("\n");
+
+    terminalDisplay.innerHTML += `lexius ${document.getElementsByClassName("selected")[0].textContent}<p id="run-${id}"></p> $`;
+    document.querySelector(`#run-${id}`).textContent = output;
+  } catch (err) {
+    terminalDisplay.textContent =
+      "Error: " + (err.message || err);
+  }
 }
 
 async function navbar() { 
@@ -678,32 +746,38 @@ async function navbar() {
 }
 
 function Welcome() {
-  const megaEditor = document.getElementById('editor');
-  if (!megaEditor) return;
+  if (!editor) return;
   if (noFiles) return;
   if (getAllFiles().length > 0) return;
   if (document.getElementById('welcomeMessage')) return;
-  if (megaEditor.children.length > 0) return;
+  if (editor.children.length > 0) return;
 
   // Remove existing welcome message if any
   const oldWelcome = document.getElementById('welcomeMessage');
   if (oldWelcome) oldWelcome.remove();
 
-  // Create welcome message
-  const welcomeEl = document.createElement('div');
-  welcomeEl.id = 'welcomeMessage';
-  welcomeEl.className = 'welcome-message';
-  welcomeEl.innerHTML = `
-    <h1>Welcome to Lexius!</h1>
-    <p>Create or open a file to get started.</p>
-  `;
+  editor.innerHTML = `
+  <div class="welcome-message" id="welcomeMessage">
+      <h1>Welcome to Lexius!</h1>
+      <p>Create or open a file to get started.</p>
+  </div>
+  `
+
+  // // Create welcome message
+  // const welcomeEl = document.createElement('div');
+  // welcomeEl.id = 'welcomeMessage';
+  // welcomeEl.className = 'welcome-message';
+  // welcomeEl.innerHTML = `
+  //   <h1>Welcome to Lexius!</h1>
+  //   <p>Create or open a file to get started.</p>
+  // `;
 
   // Apply theme color
   const theme = localStorage.getItem('theme') === 'dark' ? '#fff' : '#fff';
   welcomeEl.style.color = theme;
 
   // Append instead of replacing
-  megaEditor.appendChild(welcomeEl);
+  editor.appendChild(welcomeEl);
   isWelcomeMessageActive = true;
 }
 
@@ -909,6 +983,8 @@ async function initEditor(lang, value, theme) {
   await loadMonaco();
 
   const editorEl = document.getElementById('editor');
+  document.querySelector(".language").style.display = "block";
+  document.querySelector("#language").innerText = lang;
   if (!editorEl) {
     console.error('Editor element not found!');
     return;

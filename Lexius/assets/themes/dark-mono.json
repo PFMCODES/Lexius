@@ -1,0 +1,43 @@
+{
+  "inherit": false,
+  "base": "vs-dark",
+  "colors": {
+    "editor.background": "#272626",
+    "editor.foreground": "#ffffff",
+    "editorCursor.foreground": "#7700ff",
+    "editorLineNumber.foreground": "#4B526D",
+    "editor.selectionBackground": "#7e56c280"
+  },
+  "rules": [
+    {
+      "foreground": "#546E7A",
+      "fontStyle": "italic",
+      "token": "comment"
+    },
+    {
+      "foreground": "#FF9E64",
+      "token": "string"
+    },
+    {
+      "foreground": "#F78C6C",
+      "token": "constant.numeric"
+    },
+    {
+      "foreground": "#D67EEE",
+      "token": "keyword"
+    },
+    {
+      "foreground": "#D67EEE",
+      "token": "storage"
+    },
+    {
+      "foreground": "#ffffff",
+      "token": "variable"
+    },
+    {
+      "foreground": "#ffffff",
+      "token": "identifier"
+    }
+  ],
+  "encodedTokensColors": []
+}

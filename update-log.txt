@@ -1,0 +1,6 @@
+version: v3.6.2
+what's new:
+    some bugs were fixed(including the monaco theme change bug)
+    running code was officially added
+    official release of the desktop/electron version of lexius
+    cli access added for devs(or people who fork the project)

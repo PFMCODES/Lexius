@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="./assets/styles/theme.css">
     <link rel="stylesheet" href="./assets/styles/langs.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://microsoft.github.io/vscode-codicons/dist/codicon.css">
+    <link rel="stylesheet" href="./assets/styles/codicon.css">
     <script>
         // Wait for all prettier scripts to load
         window.addEventListener('load', function() {
@@ -29,6 +29,14 @@
     </script>
 </head>
 <body>
+    <div class="loading-screen">
+        <div class="logo">
+
+        </div>
+        <div class="loading-bar">
+            
+        </div>
+    </div>
     <div class='extras'>
         <div class="fileBtnOptions">
             <div class="clickable option" id="open-File">
@@ -47,12 +55,19 @@
         
         <div class="options">
             <div class="logo">
-                <img src="./assets/images/lexius.png" alt="Lexius Logo">
+                <img class="log0-img" src="./assets/images/favicon.svg" alt="Lexius Logo">
             </div>
             <div class="option">
                 <button class="clickable" id="File">
                 File
                 </button>
+            </div>
+            <div class="language">
+                <i class="codicon codicon-json"></i>
+                <p id="language"></p>
+            </div>
+            <div class="reload" onclick="window.location.reload()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-ccw-icon lucide-refresh-ccw"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
             </div>
         </div>
         <div class="right-side">
@@ -79,8 +94,8 @@
     <main>
         <div class="sideBar" id="sideBar">
             <i class="codicon codicon-files" id="closeBtn"></i>
-            <i style="font-size: 37px !important;" id="activateIndu" class="codicon codicon-chat-sparkle"></i>
-            <i style="font-size: 37px !important;" id="activateTerminal" class="codicon codicon-terminal-cmd"></i>
+            <i id="activateIndu" class="codicon codicon-chat-sparkle"></i>
+            <i id="activateTerminal" class="codicon codicon-terminal-cmd"></i>
             
         </div>
         <div class="files-tab resizable" id="files-tab">
@@ -98,9 +113,7 @@
         </div>
         <div class="drag-bar" data-direction="horizontal"></div>
         <div id="megaEditor">
-            <div class="resizable" id="editor">
-                
-            </div>
+            <div class="resizable" id="editor"></div>
         </div>
         <!-- <div class="indu drag-bar" data-direction="horizontal"></div> -->
         <!-- <div class="indu resizable" id="indu">
@@ -117,12 +130,12 @@
         </div> -->
         <div class="terminal">
             <div class="nav-terminal">
-                <div>
-                    <i data-lucide="x" id="terminalX"></i>
+                <div onclick="document.querySelector('.terminal').style.display = 'none';">
+                    <i data-lucide="x"></i>
                 </div>
             </div>
-            <div class="terminal-display">
-                
+            <div class="terminal-display" id="terminal-display">
+                $
             </div>
         </div>
     </main>

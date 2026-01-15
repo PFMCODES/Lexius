@@ -13,11 +13,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Respond to OS changes if no manual override
 
-  if (savedTheme === "light") {
-    document.querySelector(".logo img").src = window.location.href + 'assets/images/favicon-light.svg';
-    console.log("hi sir its done")
-  }
-
   if (!savedTheme) {
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
       const newTheme = e.matches ? "dark" : "light";

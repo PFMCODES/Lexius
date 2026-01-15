@@ -2,7 +2,13 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const fs = require('fs');
 
 let win;
-const isElectron = !!process.versions.electron;
+const isElectron = () => {
+  if (process.versions.electron) {
+    return true;
+  }
+};
+
+app.commandLine.appendSwitch("ignore-certificate-errors");
 
 app.whenReady().then(() => {
   win = new BrowserWindow({
@@ -11,7 +17,7 @@ app.whenReady().then(() => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: true,
+      devTools: !app.isPackaged,
     },
     icon: 'assets/images/lexius.png',
     autoHideMenuBar: true

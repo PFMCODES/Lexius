@@ -1,0 +1,58 @@
+{
+  "name": "lexius",
+  "version": "3.4.5",
+  "description": "A minimal, web-based code editor built for speed, clarity, and effortless development.",
+  "keywords": [
+    "editor",
+    "website",
+    "ai",
+    "code",
+    "web-app",
+    "code-editor",
+    "ai-code-editor",
+    "lexius",
+    "vscode",
+    "visual",
+    "studio",
+    "code",
+    "vs",
+    "code",
+    "javascript",
+    "html",
+    "hypertext",
+    "markup",
+    "language",
+    "typescript",
+    "electron",
+    "browser-based"
+  ],
+  "homepage": "https://github.com/PFMCODES/Lexius#readme",
+  "bugs": {
+    "url": "https://github.com/PFMCODES/Lexius/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PFMCODES/Lexius.git"
+  },
+  "license": "MIT",
+  "author": "PFMCODES",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^39.2.7",
+    "monaco-editor": "^0.55.1",
+    "monaco-editor-textmate": "^4.0.0",
+    "monaco-textmate": "^3.0.1",
+    "monaco-vscode-textmate-theme-converter": "^0.1.7",
+    "onigasm": "^2.2.5",
+    "shiki": "^3.20.0",
+    "vscode-textmate": "^9.3.0"
+  },
+  "devDependencies": {
+    "electron-reload": "^2.0.0-alpha.1",
+    "vite": "^7.3.0"
+  }
+}
