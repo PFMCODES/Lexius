@@ -42,12 +42,12 @@ async function monaco(lang, eValue) {
       semanticHighlighting: true,
       rules: [
         { token: "string", foreground: "#FF9E64" },
-        { token: "number", foreground: "#4CBBD1" },
-        { token: "comment", foreground: "#999999", fontStyle: "italic" },
-        { token: "keyword", foreground: "#CF9831" }
+        { token: "number", foreground: "#F78C6C" },
+        { token: "comment", foreground: "#546E7A", fontStyle: "italic" },
+        { token: "keyword", foreground: "#d67eeeff" },
       ],
       colors: {
-        "editor.background": "#8752C0",
+        "editor.background": "#ffffff",
         "editorLineNumber.foreground": "#4B526D",
         "editorCursor.foreground": "#FFCC00",
         "editor.selectionBackground": "#7e56c2"

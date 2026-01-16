@@ -30,9 +30,7 @@ const induInput = document.getElementById('activateIndu');
 const filesContainer = document.getElementsByClassName("files")[0];
 const filesTab = document.querySelector('.files-tab');
 const rightClickMenu = document.getElementById('rightClickMenu');
-const files = document.querySelectorAll(".file");
 const editor = document.getElementById("editor");
-const megaEditor = document.getElementById("megaEditor");
 const terminalDisplay = document.getElementById("terminal-display");
 
 // Global variables
@@ -54,11 +52,11 @@ let autosaveTimer;
 let idLimit = 999;
 let min = 0;
 let runIds = [];
-let id;
+let htmlDisplayExists = false;
 
 // Theme setup
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-const savedTheme = localStorage.getItem("theme");
+const savedTheme = localStorage.getItem("theme") || "light";
 const theme = savedTheme || (prefersDark ? "dark" : "light");
 
 // Monaco Editor setup
@@ -119,14 +117,19 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.querySelector(".language").style.display = "none";
   }
   navbar()
-  setInterval(() => {
+  setInterval(async () => {
   if (window.monacoReady === true && window.editorInstance) {
     window.editorInstance.onDidChangeModelContent(() => {
     if (!isAutoSaveEnabled) return;
-
     clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(() => {
-      autoSave();
+    autosaveTimer = setTimeout( async () => {
+      await autoSave();
+      
+      console.log(runIds.length);
+      if (runIds.length !== 0) {
+        console.log(runIds.length);
+        run(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
+    }
     }, 2000); // 2s debounce AFTER last change
     });
   }}, 50);
@@ -284,10 +287,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const selectedFile = document.querySelector('.selected');
     if (selectedFile) {
       const fileName = selectedFile.innerText;
-      const fileType = DetectFileType(fileName);
-      const content = localStorage.getItem(fileName);
       deleteFile(fileName);
-      const currentTheme = localStorage.getItem('theme');
     }
   }, 3000);
   openFile();
@@ -495,7 +495,7 @@ document.getElementById('renameFile')?.addEventListener('click', async () => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const files = await getAllFiles()
-      if (files.some(f => f.path === fileName)) {
+      if (files.some(f => f.path === input.value.trim())) {
         warn('error', 'A file with that name already exists.');
       }
       const newName = input.value.trim() || 'Untitled';
@@ -671,13 +671,16 @@ if (params.has('projectName')) {
 /* @Functions  */
 
 async function run(code, lang) {
+  saveFile(document.querySelector('.selected').textContent.trim(), code)
   function generateId() {
     return Math.floor(Math.random() * (idLimit - min + 1)) + min;
   }
-  id = generateId();
-  if (runIds.includes(id)) {
-    id = id * generateId();
-  }
+  let id;
+  do {
+    id = generateId();
+  } while (runIds.includes(id));
+
+  runIds.push(id);
   console.log(`run id: ${id}`)
   if (!Array.isArray(supportedLangs)) return;
 
@@ -686,43 +689,76 @@ async function run(code, lang) {
     return;
   }
 
-  try {
-    const res = await fetch(
-      "https://lexius-transpiler.onrender.com/run",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code, lang }),
+  if (lang !== 'html' && lang !== 'svg' && lang !== 'markdown') {
+    try {
+      const res = await fetch(
+        "https://lexius-transpiler.onrender.com/run",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code, lang }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
       }
-    );
 
-    if (!res.ok) {
-      throw new Error(`Server error: ${res.status}`);
+      const data = await res.json();
+      console.log(data, res);
+
+      const exec = data.result ?? {};
+
+      const stdout = exec.stdout ?? "";
+      const stderr = exec.stderr ?? "";
+      const result =
+        exec.result !== undefined && exec.result !== null
+          ? String(exec.result)
+          : "";
+
+      const output = [stdout, stderr, result]
+        .filter(Boolean)
+        .join("\n");
+
+      terminalDisplay.innerHTML += `lexius ${document.getElementsByClassName("selected")[0].textContent}<p id="run-${id}"></p> $`;
+      document.querySelector(`#run-${id}`).textContent = output;
+    } catch (err) {
+      terminalDisplay.textContent =
+        "Error: " + (err.message || err);
     }
-
-    const data = await res.json();
-    console.log(data, res);
-
-    const exec = data.result ?? {};
-
-    const stdout = exec.stdout ?? "";
-    const stderr = exec.stderr ?? "";
-    const result =
-      exec.result !== undefined && exec.result !== null
-        ? String(exec.result)
-        : "";
-
-    const output = [stdout, stderr, result]
-      .filter(Boolean)
-      .join("\n");
-
-    terminalDisplay.innerHTML += `lexius ${document.getElementsByClassName("selected")[0].textContent}<p id="run-${id}"></p> $`;
-    document.querySelector(`#run-${id}`).textContent = output;
-  } catch (err) {
-    terminalDisplay.textContent =
-      "Error: " + (err.message || err);
+  } else {
+    try {
+      const htmlDisplay = document.querySelector(".codeWindow");
+      if (lang === 'markdown') {
+        code = marked.parse(code);
+      }
+      if (!htmlDisplayExists) {
+        htmlDisplayExists = true
+        const iframe = document.createElement('iframe');
+        iframe.id = 'iframe';
+        iframe.style.height = "100%";
+        iframe.style.width = "100%";
+        iframe.setAttribute("sandbox", "allow-scripts");
+        htmlDisplay.style.display = 'flex';
+        iframe.srcdoc = code;
+        htmlDisplay.appendChild(iframe);
+      } else {
+         let iframe = document.getElementById("iframe");
+         iframe.remove();
+        const NewIframe = document.createElement('iframe');
+        NewIframe.id = 'iframe';
+        NewIframe.style.height = "100%";
+        NewIframe.style.width = "100%";
+        NewIframe.setAttribute("sandbox", "allow-scripts");
+        htmlDisplay.style.display = 'flex';
+        NewIframe.srcdoc = code;
+        htmlDisplay.appendChild(iframe);
+       }
+    } catch (err) {
+        console.error(err)
+    }
   }
 }
 
@@ -850,7 +886,7 @@ function Prompt() {
       const exists = files.some(f => f.path === fileName);
 
       if (exists) {
-        warn("error", "A file with that name already exists.");
+        console.warn("error", "A file with that name already exists.");
         return;
       }
 

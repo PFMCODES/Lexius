@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
   "name": "lexius",
-  "version": "3.6.2",
+  "version": "3.6.5",
   "description": "A minimal, web-based code editor built for speed, clarity, and effortless development.",
   "keywords": [
     "editor",

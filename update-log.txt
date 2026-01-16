@@ -1,6 +1,3 @@
-version: v3.6.2
+version: v3.6.5
 what's new:
-    some bugs were fixed(including the monaco theme change bug)
-    running code was officially added
-    official release of the desktop/electron version of lexius
-    cli access added for devs(or people who fork the project)
+    Now you can run html, svg, markdown files in lexius
