@@ -96,7 +96,6 @@
             <i class="codicon codicon-files" id="closeBtn"></i>
             <i id="activateIndu" class="codicon codicon-chat-sparkle"></i>
             <i id="activateTerminal" class="codicon codicon-terminal-cmd"></i>
-            
         </div>
         <div class="files-tab resizable" id="files-tab">
             <div class="fileMenu">
@@ -114,6 +113,11 @@
         <div class="drag-bar" data-direction="horizontal"></div>
         <div id="megaEditor">
             <div class="resizable" id="editor"></div>
+            <div class="codeWindow">
+                <div class="codeWindow-nav" onclick="document.querySelector('.codeWindow').style.display = 'none';">
+                    <i data-lucide="x"></i>
+                </div>
+            </div>
         </div>
         <!-- <div class="indu drag-bar" data-direction="horizontal"></div> -->
         <!-- <div class="indu resizable" id="indu">

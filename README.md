@@ -1,48 +1,71 @@
-### <svg width="150" height="150" viewBox="0 0 636 471" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M363.429 14.2727L599.483 356.818H127.375L363.429 14.2727Z" fill="#7E57C2"/><path d="M11 359.5L364 14.5L129.5 356L11 359.5Z" fill="#482A7D"/></svg>
-# **Lexius** Code Editor
+<p align="center">
+  <img src="assets/images/favicon.svg" width="120" alt="Lexius logo">
+</p>
 
-### ***Lexius** is a lightweight, fast, and customizable code editor built with web technologies. It includes features like syntax highlighting, live preview.*
+# **Lexius** — Code Editor
 
-[![GitHub](https://img.shields.io/badge/v3.6.2-Lexius-8208FB?logo=https://raw.githubusercontent.com/PFMCODES/Lexius/052a1eb26dca6f4e921becee7a979f1bce67e87d/assets/images/favicon.svg&logoColor=ff0000)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
+**Lexius** is a lightweight, fast, and customizable code editor built with modern web technologies.  
+It focuses on speed, clarity, and the ability to **run code directly inside the editor**.
+
+[![Download](https://img.shields.io/badge/Lexius-v3.6.5-8208FB?style=for-the-badge)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.5.exe)
+
+---
 
 ## 🚀 Features
 
 - ✨ Clean and modern UI
-- 🧠 Built-in syntax highlighting (Monaco-based)
-- ⚡ Extenson Support (coming soon)
-- 🧩 Plugin support (coming soon)
-- 🧑‍💻 Run your code directly on the web. [learn more.](#running-code)
-- 🏪 Now avaible for various platforms. [learn more.](#platforms)
+- 🧠 Monaco-based syntax highlighting
+- ⚡ Extension support *(coming soon)*
+- 🧩 Plugin system *(coming soon)*
+- 🧑‍💻 Run code directly inside Lexius
+- 🏪 Available on Web & Desktop
 
-## Running Code
+---
 
- ### With the new feature of not just editing but running directly inside **Lexius** as of v3.6.2
- ### But right now, **Lexius** can only run the following langauges
- - 🐍 Python
- - 🟨 JavaScript
- - 🟦 TypeScript
+## ▶️ Running Code (v3.6.5+)
 
- ### And can currently only run single files at once and doesn't support modules or libraries
+Lexius now supports **executing code directly inside the editor**.
 
-## Platforms
+### Supported languages:
+- 🐍 Python
+- 🟨 JavaScript
+- 🟦 TypeScript
+- 📄 Markdown
+- 🔶 SVG
+- 💬 HTML
 
-### The current avaible platfroms are:
- ### 🌐 web:
- - [Hosted by Render.com](https://lexius.onrender.com)
- - [Hosted by github pages](https://pfmcodes.github.io/Lexius/)
+⚠️ **Limitations**
+- Only single-file execution
+- No external libraries or modules
+- Code runs in a sandboxed environment
 
- ### 🖥️ Desktop:
- #### 🪟 windows
- - [Latest version(3.6.2)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
-  - [version 3.6.2](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
+---
 
-## Want to build your version of **Lexius**?
-### **Lexius** is free & Open Source that means you can build your version of **Lexius**
+## 🧩 Platforms
 
-Make your own version of **Lexius**:
+### 🌐 Web
+- [Render](https://lexius.onrender.com)
+- [GitHub Pages](https://pfmcodes.github.io/Lexius/)
+
+### 🖥️ Desktop
+
+#### 🪟 Windows
+- [Latest (v3.6.5)](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.5.exe)
+- [v3.6.2](https://github.com/PFMCODES/Lexius/releases/download/latest/lexius.Setup.3.6.2.exe)
+
+---
+
+## 🛠️ Build Your Own Lexius
+
+Lexius is **free & open source**, so you can customize and build your own version.
+
 ```bash
-git clone https://github.com/pfmcodes/Lexius.git
+git clone https://github.com/PFMCODES/Lexius.git
 cd Lexius
-code .
-npm run [web|desktop]
+npm install
+npm run web     # Web version
+npm run desktop # Desktop (Electron)
 ```
+
+## 📜 License
+ MIT © PFMCODES
