@@ -1,136 +1,433 @@
+/**
+ * IndexedDB wrapper for file storage with optional Electron filesystem sync.
+ * @module db
+ */
+
 import { isElectron, fs } from './langs.js.js';
 
 const params = new URLSearchParams(window.location.search);
 
-export const DB_NAME = params.get('projectName');
+// Workspace database (separate from files database)
+export const WORKSPACE_DB_NAME = 'lexius-workspaces';
+export const WORKSPACE_STORE_NAME = 'workspaces';
+export const WORKSPACE_DB_VERSION = 1;
+
+// Files database (per workspace)
 export const STORE_NAME = 'files';
+export const DB_VERSION = 1;
 
-export function openDB(version = 1) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, version); // Version must be >= 1
+// Current workspace ID (from URL or default)
+export function getCurrentWorkspaceId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('workspaceId') || 'default';
+}
 
-    request.onupgradeneeded = function (e) {
-      const db = e.target.result;
+export function getDBName(workspaceId = getCurrentWorkspaceId()) {
+  return `lexius-files-${workspaceId}`;
+}
+
+export function getProjectName(workspaceId = getCurrentWorkspaceId()) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('projectName') || workspaceId;
+}
+
+// Singleton database connections (one per workspace)
+const dbInstances = new Map();
+const dbOpenPromises = new Map();
+
+/**
+ * Opens (or creates) the IndexedDB database for a workspace.
+ * Reuses existing connection if already open.
+ * @param {string} workspaceId - Workspace ID
+ * @param {number} version - Database version (must be >= 1)
+ * @returns {Promise<IDBDatabase>} Database instance
+ */
+export function openDB(workspaceId = getCurrentWorkspaceId(), version = DB_VERSION) {
+  // Return existing connection if available
+  if (dbInstances.has(workspaceId)) {
+    return Promise.resolve(dbInstances.get(workspaceId));
+  }
+
+  // Return in-flight open promise if already opening
+  if (dbOpenPromises.has(workspaceId)) {
+    return dbOpenPromises.get(workspaceId);
+  }
+
+  const dbName = getDBName(workspaceId);
+  
+  const openPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(dbName, version);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: 'path' });
       }
     };
 
     request.onsuccess = () => {
-      const db = request.result;
+      const dbInstance = request.result;
 
-      // Double-check if store exists even after success
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.close(); // Close before deleting
-        indexedDB.deleteDatabase(DB_NAME); // Force recreate
-        reject(`Missing store "${STORE_NAME}". Deleted DB. Please refresh.`);
+      // Verify store exists
+      if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
+        dbInstance.close();
+        indexedDB.deleteDatabase(dbName);
+        reject(new Error(`Missing store "${STORE_NAME}". Database deleted. Please refresh.`));
         return;
       }
 
-      resolve(db);
+      // Handle unexpected version changes
+      dbInstance.onversionchange = () => {
+        dbInstance.close();
+        dbInstances.delete(workspaceId);
+        dbOpenPromises.delete(workspaceId);
+        console.warn('Database version changed externally. Connection closed.');
+      };
+
+      dbInstances.set(workspaceId, dbInstance);
+      resolve(dbInstance);
     };
 
+    request.onerror = () => {
+      dbOpenPromises.delete(workspaceId);
+      reject(request.error);
+    };
+
+    request.onblocked = () => {
+      console.warn('Database open blocked. Close other tabs with this database.');
+    };
+  });
+
+  dbOpenPromises.set(workspaceId, openPromise);
+  return openPromise;
+}
+
+/**
+ * Closes the database connection for a workspace.
+ * @param {string} workspaceId - Workspace ID (optional, closes all if not provided)
+ */
+export function closeDB(workspaceId) {
+  if (workspaceId) {
+    const dbInstance = dbInstances.get(workspaceId);
+    if (dbInstance) {
+      dbInstance.close();
+      dbInstances.delete(workspaceId);
+      dbOpenPromises.delete(workspaceId);
+    }
+  } else {
+    // Close all
+    for (const [id, dbInstance] of dbInstances) {
+      dbInstance.close();
+    }
+    dbInstances.clear();
+    dbOpenPromises.clear();
+  }
+}
+
+/**
+ * Creates a transaction and returns the object store.
+ * @param {'readonly' | 'readwrite'} mode - Transaction mode
+ * @param {string} workspaceId - Workspace ID
+ * @returns {Promise<IDBObjectStore>} Object store
+ */
+async function getStore(mode = 'readonly', workspaceId = getCurrentWorkspaceId()) {
+  const db = await openDB(workspaceId);
+  const tx = db.transaction(STORE_NAME, mode);
+  return tx.objectStore(STORE_NAME);
+}
+
+/**
+ * Saves a file to IndexedDB and optionally to Electron filesystem.
+ * @param {string} path - File path (used as key)
+ * @param {string} content - File content
+ * @param {string} [filePath] - Absolute filesystem path (Electron only)
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<void>}
+ */
+export async function saveFile(path, content, filePath, workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readwrite', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.put({ path, content });
+    
+    request.onsuccess = async () => {
+      // Electron: also write to filesystem
+      if (isElectron && filePath && fs) {
+        try {
+          await fs.promises.writeFile(filePath, content, 'utf8');
+        } catch (err) {
+          console.error('Failed to write to filesystem:', err);
+          // Don't reject - IndexedDB save succeeded
+        }
+      }
+      resolve();
+    };
+    
+    request.onerror = () => reject(new Error('Save failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Retrieves a single file by path.
+ * @param {string} path - File path
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<{path: string, content: string} | undefined>} File object or undefined
+ */
+export async function getFile(path, workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readonly', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.get(path);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(new Error('Get file failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Retrieves all files from the database.
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<Array<{path: string, content: string}>>} Array of file objects
+ */
+export async function getAllFiles(workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readonly', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(new Error('Get all files failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Deletes a file from the database.
+ * @param {string} path - File path
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<void>}
+ */
+export async function deleteFile(path, workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readwrite', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.delete(path);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(new Error('Delete failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Clears all files from the database.
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<void>}
+ */
+export async function clearAllFiles(workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readwrite', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.clear();
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(new Error('Clear failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Checks if the database is empty.
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<boolean>} True if no files stored
+ */
+export async function isIndexedDBEmpty(workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readonly', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.count();
+    request.onsuccess = () => resolve(request.result === 0);
+    request.onerror = () => reject(new Error('Count failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Gets the total number of files in the database.
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<number>} File count
+ */
+export async function getFileCount(workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readonly', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = store.count();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(new Error('Count failed: ' + request.error?.message));
+  });
+}
+
+/**
+ * Saves multiple files in a single transaction (batch operation).
+ * @param {Array<{path: string, content: string}>} files - Array of file objects
+ * @param {string} [workspaceId] - Workspace ID
+ * @returns {Promise<void>}
+ */
+export async function saveFilesBatch(files, workspaceId = getCurrentWorkspaceId()) {
+  const store = await getStore('readwrite', workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const tx = store.transaction;
+    
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(new Error('Batch save failed: ' + tx.error?.message));
+    
+    for (const { path, content } of files) {
+      store.put({ path, content });
+    }
+  });
+}
+
+/**
+ * Deletes the files database for a workspace.
+ * @param {string} [workspaceId] - Workspace ID (default: current)
+ * @returns {Promise<void>}
+ */
+export async function deleteDatabase(workspaceId = getCurrentWorkspaceId()) {
+  closeDB(workspaceId);
+  const dbName = getDBName(workspaceId);
+  
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(dbName);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(new Error('Delete database failed: ' + request.error?.message));
+    request.onblocked = () => console.warn('Database deletion blocked. Close other tabs.');
+  });
+}
+
+// ========== WORKSPACE FUNCTIONS ==========
+
+/**
+ * Opens the workspace database.
+ * @returns {Promise<IDBDatabase>} Workspace database instance
+ */
+async function openWorkspaceDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(WORKSPACE_DB_NAME, WORKSPACE_DB_VERSION);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(WORKSPACE_STORE_NAME)) {
+        const store = db.createObjectStore(WORKSPACE_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        store.createIndex('name', 'name', { unique: true });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
 
-export async function saveFile(path, content, filePath) {
-  const db = await openDB();
+/**
+ * Creates a new workspace.
+ * @param {string} name - Workspace name
+ * @returns {Promise<{id: number, name: string}>} Created workspace
+ */
+export async function createWorkspace(name) {
+  const db = await openWorkspaceDB();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.put({ path, content });
-    if (isElectron && filePath) {
-      // In Electron, also save to filesystem
-      fs.writeFile(filePath, content, (err) => {
-        if (err) {
-          reject(`Failed to save file to disk: ${err.message}`);
-        }
-      });
-    }
-
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject("Save transaction failed");
+    const tx = db.transaction(WORKSPACE_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(WORKSPACE_STORE_NAME);
+    const request = store.add({ name, createdAt: Date.now() });
+    request.onsuccess = () => resolve({ id: request.result, name });
+    request.onerror = () => reject(new Error('Create workspace failed: ' + request.error?.message));
   });
 }
 
-export async function getAllFiles() {
-  const db = await openDB();
-  const tx = db.transaction(STORE_NAME, 'readonly');
-  const store = tx.objectStore(STORE_NAME);
-
+/**
+ * Gets all workspaces.
+ * @returns {Promise<Array<{id: number, name: string, createdAt: number}>>} Array of workspaces
+ */
+export async function getAllWorkspaces() {
+  const db = await openWorkspaceDB();
   return new Promise((resolve, reject) => {
-    const getAllRequest = store.getAll();
-
-    getAllRequest.onsuccess = () => {
-      resolve(getAllRequest.result); // array of { path, content }
-    };
-
-    getAllRequest.onerror = () => {
-      reject("Failed to get files");
-    };
+    const tx = db.transaction(WORKSPACE_STORE_NAME, 'readonly');
+    const store = tx.objectStore(WORKSPACE_STORE_NAME);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(new Error('Get workspaces failed: ' + request.error?.message));
   });
 }
 
-export async function getFile(filename) {
-  const db = await openDB();
-  const tx = db.transaction(STORE_NAME, 'readonly');
-  const store = tx.objectStore(STORE_NAME);
+/**
+ * Gets a workspace by ID.
+ * @param {number} id - Workspace ID
+ * @returns {Promise<{id: number, name: string, createdAt: number} | undefined>} Workspace or undefined
+ */
+export async function getWorkspace(id) {
+  const db = await openWorkspaceDB();
   return new Promise((resolve, reject) => {
-    const getRequest = store.get(filename);
+    const tx = db.transaction(WORKSPACE_STORE_NAME, 'readonly');
+    const store = tx.objectStore(WORKSPACE_STORE_NAME);
+    const request = store.get(id);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(new Error('Get workspace failed: ' + request.error?.message));
+  });
+}
 
+/**
+ * Updates a workspace name.
+ * @param {number} id - Workspace ID
+ * @param {string} name - New name
+ * @returns {Promise<void>}
+ */
+export async function renameWorkspace(id, name) {
+  const db = await openWorkspaceDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(WORKSPACE_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(WORKSPACE_STORE_NAME);
+    const getRequest = store.get(id);
     getRequest.onsuccess = () => {
-      resolve(getRequest.result); // returns file or undefined
+      const workspace = getRequest.result;
+      if (!workspace) {
+        reject(new Error('Workspace not found'));
+        return;
+      }
+      workspace.name = name;
+      const putRequest = store.put(workspace);
+      putRequest.onsuccess = () => resolve();
+      putRequest.onerror = () => reject(new Error('Rename workspace failed: ' + putRequest.error?.message));
     };
-
-    getRequest.onerror = () => {
-      reject("Failed to get file");
-    };
+    getRequest.onerror = () => reject(new Error('Get workspace failed: ' + getRequest.error?.message));
   });
 }
 
-export async function deleteFile(path) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.delete(path);
-    
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject("Failed to delete file");
-  });
-}
-
-export function isIndexedDBEmpty() {
-  return new Promise((resolve, reject) => {
-    const request = openDB();
-
-    request.onerror = () => reject("Failed to open DB");
-    request.onsuccess = () => {
-      const db = request.result;
-      const tx = db.transaction(STORE_NAME, "readonly");
-      const store = tx.objectStore(STORE_NAME);
-      const countRequest = store.count();
-
-      countRequest.onsuccess = () => {
-        resolve(countRequest.result === 0); // true if empty
-      };
-
-      countRequest.onerror = () => {
-        reject("Count failed");
-      };
-    };
-  });
-}
-
-export async function clearAllFiles() {
-  const db = await openDB();
-  const tx = db.transaction(STORE_NAME, 'readwrite');
-  const store = tx.objectStore(STORE_NAME);
-  store.clear();
+/**
+ * Deletes a workspace and its files database.
+ * @param {number} id - Workspace ID
+ * @returns {Promise<void>}
+ */
+export async function deleteWorkspace(id) {
+  // First delete the files database
+  const workspace = await getWorkspace(id);
+  if (workspace) {
+    await deleteDatabase(workspace.id.toString());
+  }
   
+  // Then delete the workspace record
+  const db = await openWorkspaceDB();
   return new Promise((resolve, reject) => {
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject("Failed to clear files");
+    const tx = db.transaction(WORKSPACE_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(WORKSPACE_STORE_NAME);
+    const request = store.delete(id);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(new Error('Delete workspace failed: ' + request.error?.message));
   });
+}
+
+/**
+ * Switches to a workspace by updating URL and reloading.
+ * @param {number} workspaceId - Workspace ID
+ */
+export function switchWorkspace(workspaceId) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('workspaceId', workspaceId.toString());
+  window.location.search = params.toString();
+}
+
+// Export singleton getter for advanced use cases
+export function getDBInstance() {
+  return dbInstance;
 }

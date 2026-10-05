@@ -1,11 +1,10 @@
 import { monaco } from './monaco.js';
 import { loadMonaco } from './monacoLoader.js';
-import { sendMessage } from './indu.js';
+import NotficationSystem from './Notifications.js';
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty } from './db.js';
+import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty, getProjectName } from './db.js';
 
 // from database or indexed DB
-const noFiles = isIndexedDBEmpty();
 let isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
 
 // Electron
@@ -26,7 +25,7 @@ export class fs {
 // DOM Elements
 const toggleBtn = document.getElementById("toggle");
 const toggleImg = toggleBtn?.querySelector("img");
-const induInput = document.getElementById('activateIndu');
+// const induInput = document.getElementById('activateIndu');
 const filesContainer = document.getElementsByClassName("files")[0];
 const filesTab = document.querySelector('.files-tab');
 const rightClickMenu = document.getElementById('rightClickMenu');
@@ -54,6 +53,18 @@ let min = 0;
 let runIds = [];
 let htmlDisplayExists = false;
 
+(async ()=> {
+
+document.querySelector(".codeWindow").style.display = "none"; 
+  await checkForUpdates();
+})();
+
+setTimeout(() => {
+  const l = document.querySelector(".loading-screen");
+  if (!l) return;
+  l.style.display = "none"
+}, 5000)
+
 // Theme setup
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const savedTheme = localStorage.getItem("theme") || "light";
@@ -74,27 +85,27 @@ window.onload = () => {
   Welcome();
 }
 
-// Indu activation
-induInput.addEventListener('click', async () => {
-  document.querySelectorAll('.indu').forEach((induWindow) => {
-    if (!induWindow) return;
-    const induWindowStatus = induWindow.getAttribute('data-status');
-    if (induWindowStatus === "open") {
-      induWindow.setAttribute('data-status', 'close');
-      induWindow.style.display = "none";
-       document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px))';
-    } else {
-      induWindow.style.display = 'flex';
-      document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px) - 300px)';
-      requestAnimationFrame(() => {
-        induWindow.setAttribute('data-status', 'open');
-        requestAnimationFrame(() => {
-          layout();
-        });
-      });
-    }
-  });
-});
+// // Indu activation
+// induInput.addEventListener('click', async () => {
+//   document.querySelectorAll('.indu').forEach((induWindow) => {
+//     if (!induWindow) return;
+//     const induWindowStatus = induWindow.getAttribute('data-status');
+//     if (induWindowStatus === "open") {
+//       induWindow.setAttribute('data-status', 'close');
+//       induWindow.style.display = "none";
+//        document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px))';
+//     } else {
+//       induWindow.style.display = 'flex';
+//       document.getElementById('editor').style.minWidth = 'calc(100% - (15% + 20px) - 300px)';
+//       requestAnimationFrame(() => {
+//         induWindow.setAttribute('data-status', 'open');
+//         requestAnimationFrame(() => {
+//           layout();
+//         });
+//       });
+//     }
+//   });
+// });
 
 filesContainer.addEventListener('click', (e) => {
     const fileEl = e.target.closest('.file');
@@ -102,6 +113,41 @@ filesContainer.addEventListener('click', (e) => {
 
     openSelectedFile(fileEl);
 });
+
+const cs = document.getElementById("comingSoon");
+console.log(cs)
+window.cs = cs;
+
+cs.addEventListener("click", window.kn)
+
+window.kn = async () => {
+    try {
+        const res = await fetch("/Updates/Coming-Soon.md");
+        const content = marked.parse(await res.text());
+        if (window.N) {
+            window.N.new({
+                title: "What's Coming Soon",
+                content: content,
+                thumbnail: "/Updates/thumbnail-coming-soon.png",
+                onClose: () => {},
+            });
+        } else {
+            const notification = new NotficationSystem();
+            window.N = notification;
+            console.log("Notification instance created", notification);
+            notification.new({
+                title: "What's Coming Soon",
+                content: content,
+                thumbnail: "/Updates/thumbnail-coming-soon.png",
+                onClose: () => {},
+            });
+        }
+    } catch (e) {
+        console.error("Failed to load Coming-Soon:", e);
+    }
+}
+
+// window.kn = (async()=>{const r=await fetch('/Updates/Coming-Soon.md').catch(()=>null);document.querySelector('.codeWindow').style.display='flex';document.querySelector('#N-body').innerHTML=r ? marked.parse(await r.text()) : 'Coming Soon';document.querySelector('#N-Title').textContent="What's Coming Soon";});
 
 // Load files on DOM ready
 window.addEventListener('DOMContentLoaded', async () => {
@@ -111,12 +157,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       <p>Create or open a file to get started.</p>
   </div>
   `) {
-    document.querySelector(".language").style.display = "block";
+    document.querySelector(".language").style.display = "flex";
   }
   else {
     document.querySelector(".language").style.display = "none";
   }
-  navbar()
   setInterval(async () => {
   if (window.monacoReady === true && window.editorInstance) {
     window.editorInstance.onDidChangeModelContent(() => {
@@ -124,10 +169,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout( async () => {
       await autoSave();
-      
-      console.log(runIds.length);
+
       if (runIds.length !== 0) {
-        console.log(runIds.length);
         run(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
     }
     }, 2000); // 2s debounce AFTER last change
@@ -158,6 +201,18 @@ window.addEventListener('DOMContentLoaded', async () => {
       firstFileEl.classList.add('selected');
     }
   }
+  const mlk = document.querySelector("#ProjectName");
+  mlk.addEventListener("dblclick", (e) => {
+    e.preventDefault();
+    const input = document.createElement("input", { type: "text" })
+    mlk.innerHTML = "";
+    mlk.appendChild(input);
+    input.addEventListener("keydown", ({ key }) => {
+      if (key === "Enter") {
+        mlk.innerHTML = `<p class="text-ghost">Project Name:</p> ${input.value.trim()}`
+      }
+    })
+  });
   // // Wait for Monaco to be ready
   // await new Promise(resolve => {
   //   const wait = () => window.monacoReady ? resolve() : setTimeout(wait, 50);
@@ -282,14 +337,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     filesTab.setAttribute('data-status', "open");
   }
 
-  // Initialize layout with delay
-  setTimeout(async () => {
-    const selectedFile = document.querySelector('.selected');
-    if (selectedFile) {
-      const fileName = selectedFile.innerText;
-      deleteFile(fileName);
-    }
-  }, 3000);
   openFile();
 });
 
@@ -342,7 +389,6 @@ document.getElementById('activateTerminal').addEventListener('click', () => {
 document.getElementById("runCode").addEventListener("click", () => {
   if (!window.editorInstance) return;
   if (!window.editorInstance.getValue) return;
-  console.log(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
   run(window.editorInstance.getValue(), document.querySelector('#language').textContent.trim());
 });
 
@@ -472,7 +518,7 @@ document.getElementById('renameFile')?.addEventListener('click', async () => {
   const fileNameEl = clickedFileEl.querySelector('.fileName');
   const oldName = fileNameEl.textContent.trim();
 
-  fileNameEl.innerHTML = `<input type="text" class="rename-input" value="${oldName}" />`;
+  fileNameEl.innerHTML = `<input type="text" class="rename-input input" value="${oldName}" />`;
 
   const input = fileNameEl.querySelector('input');
   input.focus();
@@ -531,7 +577,7 @@ document.getElementById('deleteFile')?.addEventListener('click', async () => {
       const name = clickedFileEl.querySelector('.fileName').textContent.trim();
       if (confirm(`Delete "${name}"?`)) {
         localStorage.removeItem(name);
-        deleteFile(name);
+        await deleteFile(name);
         if (window.editorInstance) window.editorInstance.dispose();
         clickedFileEl.style.display = 'none';
         isAutoSaveEnabled = true
@@ -541,7 +587,7 @@ document.getElementById('deleteFile')?.addEventListener('click', async () => {
       const name = clickedFileEl.querySelector('.fileName').textContent.trim();
       if (confirm(`Delete "${name}"?`)) {
         localStorage.removeItem(name);
-        deleteFile(name);
+        await deleteFile(name);
         window.editorInstance.dispose();
         clickedFileEl.style.display = 'none';
         isAutoSaveEnabled = true
@@ -580,7 +626,6 @@ document.getElementById('newFolder')?.addEventListener('click', () => {
       icon.classList.toggle('codicon-chevron-right', !isOpen);
       icon.classList.toggle('codicon-chevron-up', isOpen);
     });
-    const filesContainer = filesTab?.querySelector('.files');
     if (filesContainer) {
       filesContainer.appendChild(folder);
     }
@@ -604,7 +649,6 @@ document.getElementById('newFolderCtx')?.addEventListener('click', () => {
       icon.classList.toggle('codicon-chevron-right', !isOpen);
       icon.classList.toggle('codicon-chevron-up', isOpen);
     });
-    const filesContainer = filesTab?.querySelector('.files');
     if (filesContainer) {
       filesContainer.appendChild(folder);
     }
@@ -681,7 +725,6 @@ async function run(code, lang) {
   } while (runIds.includes(id));
 
   runIds.push(id);
-  console.log(`run id: ${id}`)
   if (!Array.isArray(supportedLangs)) return;
 
   if (!supportedLangs.includes(lang)) {
@@ -707,7 +750,6 @@ async function run(code, lang) {
       }
 
       const data = await res.json();
-      console.log(data, res);
 
       const exec = data.result ?? {};
 
@@ -762,29 +804,10 @@ async function run(code, lang) {
   }
 }
 
-async function navbar() { 
-  if (!isElectron) console.warn('Not running in Electron');
-  const windowBtns = document.getElementById('windowBtns');
-  if (!windowBtns) console.warn('No window buttons container found');
-  windowBtns.style.display = 'block';
-  const minimize = document.getElementById("minimize");
-  const maximize = document.getElementById("maximize");
-  const close = document.getElementById("close");
-  maximize.addEventListener('click', () => {
-    window.env.maximize();
-  });
-  minimize.addEventListener('click', () => {
-    window.env.minimize();
-  });
-  close.addEventListener('click', () => {
-    window.env.close();
-  });
-}
-
-function Welcome() {
+async function Welcome() {
   if (!editor) return;
-  if (noFiles) return;
-  if (getAllFiles().length > 0) return;
+  if (await isIndexedDBEmpty()) return;
+  if ((await getAllFiles()).length > 0) return;
   if (document.getElementById('welcomeMessage')) return;
   if (editor.children.length > 0) return;
 
@@ -913,8 +936,8 @@ function createFile(name) {
     <div class="fileIcon"><img src="" alt=""></div>
     <div class="fileName">${name}</div>
   `;
-  if (filesTab) {
-    filesTab.appendChild(file);
+  if (filesContainer) {
+    filesContainer.appendChild(file);
   }
   return file;
 }
@@ -953,10 +976,8 @@ async function autoSave() {
     localStorage.setItem(fileName, value);
     if (isElectron) {
       await saveFile(fileName, value, filePath);
-      console.log(`Auto-saved ${fileName}`);
     }
     await saveFile(fileName, value);
-    console.log(`Auto-saved ${fileName}`);
   }
 }
 
@@ -1013,13 +1034,11 @@ function openFile() {
   }
 }
 
-
-
 async function initEditor(lang, value, theme) {
   await loadMonaco();
 
   const editorEl = document.getElementById('editor');
-  document.querySelector(".language").style.display = "block";
+  document.querySelector(".language").style.display = "flex";
   document.querySelector("#language").innerText = lang;
   if (!editorEl) {
     console.error('Editor element not found!');
@@ -1027,6 +1046,30 @@ async function initEditor(lang, value, theme) {
   }
 
   monaco(lang, value);
+}
+
+async function checkForUpdates() {
+  const currentVersion = localStorage.getItem('version') || 'v3.6.5';
+  let latestVersion = (await fetch("/version"));
+  latestVersion = await latestVersion.text();
+  console.log(currentVersion, latestVersion)
+  if (currentVersion !== latestVersion) {
+    const x = await fetch("/Updates/latest.md");
+    const content = marked.parse(await x.text());
+    showUpdateNotification(content, latestVersion);
+  }
+}
+
+function showUpdateNotification(content, latestVersion) {
+    const N = new NotficationSystem();
+    window.N = N;
+    console.log(content, latestVersion)
+    N.new({
+      title: `${latestVersion} is here`,
+      content: content,
+      thumbnail: "/Updates/thumbnail-latest.png",
+      onClose: () => localStorage.setItem('version', latestVersion),
+    });
 }
 
 // File type detection

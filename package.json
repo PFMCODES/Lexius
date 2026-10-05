@@ -64,10 +64,5 @@
       "installerHeader": "build/header.bmp",
       "installerSidebar": "build/sidebar.bmp"
     }
-  },
-  "devDependencies": {
-    "electron-builder": "^26.4.0",
-    "electron-reload": "^2.0.0-alpha.1",
-    "electron": "^39.2.7"
   }
 }

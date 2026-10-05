@@ -1,0 +1,52 @@
+/* Horizontal Separators */
+.hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+}
+
+.separator-h {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #666, transparent);
+  margin: 1.5rem 0;
+}
+
+.separator-h-with-text {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #888;
+  font-size: 0.875rem;
+}
+
+.separator-h-with-text::before,
+.separator-h-with-text::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+/* Vertical Separators */
+.vr {
+  border-left: 1px solid #ccc;
+  height: 100%;
+  margin: 0 1rem;
+}
+
+.flex-with-vr {
+  display: flex;
+  align-items: stretch;
+}
+
+.flex-with-vr .vr {
+  width: 1px;
+  background: #ddd;
+  margin: 0 1rem;
+}
+
+.separator-v {
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #666, transparent);
+  min-height: 100px;
+}
