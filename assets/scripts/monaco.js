@@ -13,53 +13,9 @@ async function monaco(lang, eValue) {
     editorInstance = null;
   }
 
-  // Define themes (only once)
-  if (!window.__lexiusThemesDefined) {
-
-    Monaco.editor.defineTheme("lexius-dark", {
-      base: "vs-dark",
-      inherit: true,
-      semanticHighlighting: true,
-      rules: [
-        { token: "string", foreground: "#FF9E64" },
-        { token: "number", foreground: "#F78C6C" },
-        { token: "comment", foreground: "#546E7A", fontStyle: "italic" },
-        { token: "keyword", foreground: "#d67eeeff" },
-        { token: "identifier", foreground: "#ffffffff" },
-      ],
-
-      colors: {
-        "editor.background": "#291039",
-        "editorLineNumber.foreground": "#4B526D",
-        "editorCursor.foreground": "#7b00ffff",
-        "editor.selectionBackground": "#7e56c280",
-      }
-    });
-
-    Monaco.editor.defineTheme("lexius-light", {
-      base: "vs",
-      inherit: true,
-      semanticHighlighting: true,
-      rules: [
-        { token: "string", foreground: "#FF9E64" },
-        { token: "number", foreground: "#F78C6C" },
-        { token: "comment", foreground: "#546E7A", fontStyle: "italic" },
-        { token: "keyword", foreground: "#d67eeeff" },
-      ],
-      colors: {
-        "editor.background": "#ffffff",
-        "editorLineNumber.foreground": "#4B526D",
-        "editorCursor.foreground": "#FFCC00",
-        "editor.selectionBackground": "#7e56c2"
-      }
-    });
-
-    window.__lexiusThemesDefined = true;
-  }
-
   // Determine theme
   // const monacoTheme = theme === "dark" ? "lexius-dark" : "lexius-light";
-  let theme = localStorage.getItem("theme") === "dark" ? "lexius-dark" : "lexius-light";
+  let theme = localStorage.getItem("theme") === "dark" ? "vs-dark" : "vs";
   
   // Create editor instance
   editorInstance = Monaco.editor.create(document.getElementById('editor'), {

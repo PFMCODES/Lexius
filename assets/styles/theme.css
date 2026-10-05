@@ -1,11 +1,11 @@
 body.dark {
-  --background-color: #431c5c;
+  --background-color: #07000f;;
   --text-color: #e0e0e0;
   --text-color-inerted: #333;
 }
 
 body.light {
-  --background-color: #a47ad1;
+  --background-color: #f1f1f1;
   --text-color: #fff;
   --text-color-inverted: #f0f0f0;
 }
@@ -27,4 +27,21 @@ body.light {
   padding: 0;
   width: 40px;
   height: 40px;
+}
+
+.fileMenu {
+  background-color: var(--color-bg-secondary) !important;
+  box-shadow: none;
+  border: none !important;
+}
+
+.fileMenu i.codicon {
+  font-size: 18px !important;
+}
+
+.sidebar i.codicon {
+  font-size: 32px !important;
+  cursor: pointer;
+  margin: 8px auto;
+  transition: color var(--transition-fast);
 }
