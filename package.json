@@ -64,5 +64,8 @@
       "installerHeader": "build/header.bmp",
       "installerSidebar": "build/sidebar.bmp"
     }
+  },
+  "dependencies": {
+    "@pfmcodes/caret": "^0.3.2" 
   }
 }

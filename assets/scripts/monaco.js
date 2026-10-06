@@ -1,3 +1,5 @@
+import { loadMonaco } from "./monacoLoader.js";
+
 let editorInstance = null;
 
 async function monaco(lang, eValue) {
