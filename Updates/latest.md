@@ -1,2 +1,50 @@
-# Lexius v4.1
-## The Coming Soon Blog has been updated
+# Lexius v4.5
+
+> The editor just got an upgrade.
+
+## Caret is finally here
+
+After all this time, **Caret is finally integrated into Lexius!** 🎉
+
+Caret is the editor engine built specifically for Lexius, and v4.5 marks its first proper appearance inside the editor.
+
+### ⚙️ Dual Editor Engines
+
+Lexius now supports **two editor engines**:
+
+- **Monaco** — the default and stable option
+- **Caret** — the new experimental option
+
+![Look at the Personalization option on the navbar](/Updates/upload-1.png)
+
+Click the **Personalization** option in the navbar to configure your editor engine.
+
+Caret is still experimental and definitely has some bugs to hunt down, but this is only the beginning. As development continues, we'll keep improving it and making it more reliable.
+
+## 🧩 Workspaces are here
+
+Workspaces are now fully working in Lexius!
+
+They make it easier to organize your projects and keep everything related to a project together.
+
+After the initial beta, the major issues have been fixed and Workspaces are now ready to be used normally.
+
+No more beta label. No more broken workspace nonsense. 💀
+
+Just create a workspace, give your project a name, and get to work.
+
+## 📛 Project Names
+
+Projects can now have their own names!
+
+It's a small feature, but it makes working with multiple projects much nicer. Instead of dealing with anonymous projects, you can actually give them an identity.
+
+## What's Next?
+
+V4.5 isn't the end of the road.
+
+Caret will continue getting improvements, Workspaces will continue evolving, and Lexius is getting closer to becoming a much more complete development environment.
+
+For now, though...
+
+**Welcome to Lexius v4.5. 🚀**

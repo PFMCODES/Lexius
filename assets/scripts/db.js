@@ -17,18 +17,18 @@ export const STORE_NAME = 'files';
 export const DB_VERSION = 1;
 
 // Current workspace ID (from URL or default)
-export function getCurrentWorkspaceId() {
+export function getWorkspaceName() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('workspaceId') || 'default';
+  return params.get('workspaceName') || 'default';
 }
 
-export function getDBName(workspaceId = getCurrentWorkspaceId()) {
-  return `lexius-files-${workspaceId}`;
+export function getDBName(workspaceName = getWorkspaceName()) {
+  return `lexius-files-${workspaceName}`;
 }
 
-export function getProjectName(workspaceId = getCurrentWorkspaceId()) {
+export function getProjectName(workspaceName = getWorkspaceName()) {
   const params = new URLSearchParams(window.location.search);
-  return params.get('projectName') || workspaceId;
+  return params.get('projectName') || workspaceName;
 }
 
 // Singleton database connections (one per workspace)
@@ -38,22 +38,22 @@ const dbOpenPromises = new Map();
 /**
  * Opens (or creates) the IndexedDB database for a workspace.
  * Reuses existing connection if already open.
- * @param {string} workspaceId - Workspace ID
+ * @param {string} workspaceName - Workspace ID
  * @param {number} version - Database version (must be >= 1)
  * @returns {Promise<IDBDatabase>} Database instance
  */
-export function openDB(workspaceId = getCurrentWorkspaceId(), version = DB_VERSION) {
+export function openDB(workspaceName = getWorkspaceName(), version = DB_VERSION) {
   // Return existing connection if available
-  if (dbInstances.has(workspaceId)) {
-    return Promise.resolve(dbInstances.get(workspaceId));
+  if (dbInstances.has(workspaceName)) {
+    return Promise.resolve(dbInstances.get(workspaceName));
   }
 
   // Return in-flight open promise if already opening
-  if (dbOpenPromises.has(workspaceId)) {
-    return dbOpenPromises.get(workspaceId);
+  if (dbOpenPromises.has(workspaceName)) {
+    return dbOpenPromises.get(workspaceName);
   }
 
-  const dbName = getDBName(workspaceId);
+  const dbName = getDBName(workspaceName);
   
   const openPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, version);
@@ -79,17 +79,17 @@ export function openDB(workspaceId = getCurrentWorkspaceId(), version = DB_VERSI
       // Handle unexpected version changes
       dbInstance.onversionchange = () => {
         dbInstance.close();
-        dbInstances.delete(workspaceId);
-        dbOpenPromises.delete(workspaceId);
+        dbInstances.delete(workspaceName);
+        dbOpenPromises.delete(workspaceName);
         console.warn('Database version changed externally. Connection closed.');
       };
 
-      dbInstances.set(workspaceId, dbInstance);
+      dbInstances.set(workspaceName, dbInstance);
       resolve(dbInstance);
     };
 
     request.onerror = () => {
-      dbOpenPromises.delete(workspaceId);
+      dbOpenPromises.delete(workspaceName);
       reject(request.error);
     };
 
@@ -98,21 +98,21 @@ export function openDB(workspaceId = getCurrentWorkspaceId(), version = DB_VERSI
     };
   });
 
-  dbOpenPromises.set(workspaceId, openPromise);
+  dbOpenPromises.set(workspaceName, openPromise);
   return openPromise;
 }
 
 /**
  * Closes the database connection for a workspace.
- * @param {string} workspaceId - Workspace ID (optional, closes all if not provided)
+ * @param {string} workspaceName - Workspace ID (optional, closes all if not provided)
  */
-export function closeDB(workspaceId) {
-  if (workspaceId) {
-    const dbInstance = dbInstances.get(workspaceId);
+export function closeDB(workspaceName) {
+  if (workspaceName) {
+    const dbInstance = dbInstances.get(workspaceName);
     if (dbInstance) {
       dbInstance.close();
-      dbInstances.delete(workspaceId);
-      dbOpenPromises.delete(workspaceId);
+      dbInstances.delete(workspaceName);
+      dbOpenPromises.delete(workspaceName);
     }
   } else {
     // Close all
@@ -127,11 +127,11 @@ export function closeDB(workspaceId) {
 /**
  * Creates a transaction and returns the object store.
  * @param {'readonly' | 'readwrite'} mode - Transaction mode
- * @param {string} workspaceId - Workspace ID
+ * @param {string} workspaceName - Workspace ID
  * @returns {Promise<IDBObjectStore>} Object store
  */
-async function getStore(mode = 'readonly', workspaceId = getCurrentWorkspaceId()) {
-  const db = await openDB(workspaceId);
+async function getStore(mode = 'readonly', workspaceName = getWorkspaceName()) {
+  const db = await openDB(workspaceName);
   const tx = db.transaction(STORE_NAME, mode);
   return tx.objectStore(STORE_NAME);
 }
@@ -141,11 +141,11 @@ async function getStore(mode = 'readonly', workspaceId = getCurrentWorkspaceId()
  * @param {string} path - File path (used as key)
  * @param {string} content - File content
  * @param {string} [filePath] - Absolute filesystem path (Electron only)
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<void>}
  */
-export async function saveFile(path, content, filePath, workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readwrite', workspaceId);
+export async function saveFile(path, content, filePath, workspaceName = getWorkspaceName()) {
+  const store = await getStore('readwrite', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.put({ path, content });
@@ -170,11 +170,11 @@ export async function saveFile(path, content, filePath, workspaceId = getCurrent
 /**
  * Retrieves a single file by path.
  * @param {string} path - File path
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<{path: string, content: string} | undefined>} File object or undefined
  */
-export async function getFile(path, workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readonly', workspaceId);
+export async function getFile(path, workspaceName = getWorkspaceName()) {
+  const store = await getStore('readonly', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.get(path);
@@ -185,11 +185,11 @@ export async function getFile(path, workspaceId = getCurrentWorkspaceId()) {
 
 /**
  * Retrieves all files from the database.
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<Array<{path: string, content: string}>>} Array of file objects
  */
-export async function getAllFiles(workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readonly', workspaceId);
+export async function getAllFiles(workspaceName = getWorkspaceName()) {
+  const store = await getStore('readonly', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.getAll();
@@ -201,11 +201,11 @@ export async function getAllFiles(workspaceId = getCurrentWorkspaceId()) {
 /**
  * Deletes a file from the database.
  * @param {string} path - File path
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<void>}
  */
-export async function deleteFile(path, workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readwrite', workspaceId);
+export async function deleteFile(path, workspaceName = getWorkspaceName()) {
+  const store = await getStore('readwrite', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.delete(path);
@@ -216,11 +216,11 @@ export async function deleteFile(path, workspaceId = getCurrentWorkspaceId()) {
 
 /**
  * Clears all files from the database.
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<void>}
  */
-export async function clearAllFiles(workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readwrite', workspaceId);
+export async function clearAllFiles(workspaceName = getWorkspaceName()) {
+  const store = await getStore('readwrite', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.clear();
@@ -231,11 +231,11 @@ export async function clearAllFiles(workspaceId = getCurrentWorkspaceId()) {
 
 /**
  * Checks if the database is empty.
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<boolean>} True if no files stored
  */
-export async function isIndexedDBEmpty(workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readonly', workspaceId);
+export async function isIndexedDBEmpty(workspaceName = getWorkspaceName()) {
+  const store = await getStore('readonly', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.count();
@@ -246,11 +246,11 @@ export async function isIndexedDBEmpty(workspaceId = getCurrentWorkspaceId()) {
 
 /**
  * Gets the total number of files in the database.
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<number>} File count
  */
-export async function getFileCount(workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readonly', workspaceId);
+export async function getFileCount(workspaceName = getWorkspaceName()) {
+  const store = await getStore('readonly', workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = store.count();
@@ -262,11 +262,11 @@ export async function getFileCount(workspaceId = getCurrentWorkspaceId()) {
 /**
  * Saves multiple files in a single transaction (batch operation).
  * @param {Array<{path: string, content: string}>} files - Array of file objects
- * @param {string} [workspaceId] - Workspace ID
+ * @param {string} [workspaceName] - Workspace ID
  * @returns {Promise<void>}
  */
-export async function saveFilesBatch(files, workspaceId = getCurrentWorkspaceId()) {
-  const store = await getStore('readwrite', workspaceId);
+export async function saveFilesBatch(files, workspaceName = getWorkspaceName()) {
+  const store = await getStore('readwrite', workspaceName);
   
   return new Promise((resolve, reject) => {
     const tx = store.transaction;
@@ -282,12 +282,12 @@ export async function saveFilesBatch(files, workspaceId = getCurrentWorkspaceId(
 
 /**
  * Deletes the files database for a workspace.
- * @param {string} [workspaceId] - Workspace ID (default: current)
+ * @param {string} [workspaceName] - Workspace ID (default: current)
  * @returns {Promise<void>}
  */
-export async function deleteDatabase(workspaceId = getCurrentWorkspaceId()) {
-  closeDB(workspaceId);
-  const dbName = getDBName(workspaceId);
+export async function deleteDatabase(workspaceName = getWorkspaceName()) {
+  closeDB(workspaceName);
+  const dbName = getDBName(workspaceName);
   
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase(dbName);
@@ -310,8 +310,7 @@ async function openWorkspaceDB() {
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains(WORKSPACE_STORE_NAME)) {
-        const store = db.createObjectStore(WORKSPACE_STORE_NAME, { keyPath: 'id', autoIncrement: true });
-        store.createIndex('name', 'name', { unique: true });
+        const store = db.createObjectStore(WORKSPACE_STORE_NAME, { keyPath: 'name' });
       }
     };
 
@@ -356,12 +355,12 @@ export async function getAllWorkspaces() {
  * @param {number} id - Workspace ID
  * @returns {Promise<{id: number, name: string, createdAt: number} | undefined>} Workspace or undefined
  */
-export async function getWorkspace(id) {
+export async function getWorkspace(name) {
   const db = await openWorkspaceDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(WORKSPACE_STORE_NAME, 'readonly');
     const store = tx.objectStore(WORKSPACE_STORE_NAME);
-    const request = store.get(id);
+    const request = store.get(name);
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(new Error('Get workspace failed: ' + request.error?.message));
   });
@@ -399,11 +398,11 @@ export async function renameWorkspace(id, name) {
  * @param {number} id - Workspace ID
  * @returns {Promise<void>}
  */
-export async function deleteWorkspace(id) {
+export async function deleteWorkspace(name) {
   // First delete the files database
-  const workspace = await getWorkspace(id);
+  const workspace = await getWorkspace(name);
   if (workspace) {
-    await deleteDatabase(workspace.id.toString());
+    await deleteDatabase(workspace.name);
   }
   
   // Then delete the workspace record
@@ -419,11 +418,11 @@ export async function deleteWorkspace(id) {
 
 /**
  * Switches to a workspace by updating URL and reloading.
- * @param {number} workspaceId - Workspace ID
+ * @param {number} workspaceName - Workspace ID
  */
-export function switchWorkspace(workspaceId) {
+export function switchWorkspace(workspaceName) {
   const params = new URLSearchParams(window.location.search);
-  params.set('workspaceId', workspaceId.toString());
+  params.set('workspaceName', workspaceName.toString());
   window.location.search = params.toString();
 }
 

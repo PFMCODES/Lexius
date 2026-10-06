@@ -20,7 +20,6 @@ export default class NotificationSystem {
         thumbnail,
         onClose
     }) {
-        console.log("Notification .new() called", this.window);
         this.window.style.display = "flex";
         this.body.innerHTML = content;;
         this.logo.src = logo ? logo : "/assets/images/favicon.svg";
@@ -29,7 +28,6 @@ export default class NotificationSystem {
             this.thumbnail.src = thumbnail;
         }
         this.onClose = onClose;
-        console.log({this: this}, { title, content, logo, thumbnail, onClose }, this.window.style.display)
     }
     onClose() {
         return;

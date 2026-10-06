@@ -1506,6 +1506,17 @@ html, body {
   line-height: 1.5;
 }
 
+.extras {
+  position: relative;
+  z-index: 100;
+
+}
+.extras .workspacesOptions,
+.extras .themeOptions,
+.extras .fileBtnOptions {
+  pointer-events: auto; /* menus clickable */
+}
+
 /* ========================================
    Header Component (commented indu)
    ======================================== */

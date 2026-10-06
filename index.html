@@ -21,6 +21,7 @@
     <script src="https://kit.fontawesome.com/1460605c6c.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://esm.sh/@pfmcodes/caret@0.2.9/index.css"">
     <script>
         // Wait for all prettier scripts to load
         window.addEventListener('load', function() {
@@ -53,29 +54,44 @@
                 Manage Workspaces
             </div>
         </div>
+        <div class="personalizationOptions Options">
+            <div class="clickable option btn btn--ghost btn--sm" data-editor="caret">
+                <i class="codicon codicon-symbol-class"></i> Caret (Lightweight)
+            </div>
+            <div class="seperator"></div>
+            <div class="clickable option btn btn--ghost btn--sm" data-editor="monaco">
+                <i class="codicon codicon-symbol-method"></i> Monaco (Recomended)
+            </div>
+        </div>
         <div class="themeOptions Options">
             <div class="clickable option btn btn--ghost btn--sm active">
+                <i class="codicon codicon-color-mode"></i>
                 System Default
             </div>
             <div class="seperator"></div>
             <div class="clickable option btn btn--ghost btn--sm">
+                <i data-lucide="sun" class="icons"></i>
                 Light
             </div>
             <div class="seperator"></div>
             <div class="clickable option btn btn--ghost btn--sm">
+                <i data-lucide="moon" class="icons"></i>
                 Dark
             </div>
         </div>
         <div class="fileBtnOptions Options">
             <div class="clickable option btn btn--ghost btn--sm" id="open-File">
+                <i class="icons" data-lucide="file-input"></i>
                 Open File
             </div>
             <div class="seperator"></div>
             <div class="clickable option btn btn--ghost btn--sm" id="open-folder">
+                <i class="icons" data-lucide="folder-input"></i>
                 Open Folder
             </div>
             <div class="seperator"></div>
             <div class="clickable option btn btn--ghost btn--sm" id="autosave">
+                <i class="icons" data-lucide="save"></i>
                 AutoSave
                 <div class="true" id='autosave-check'></div>
             </div>
@@ -88,17 +104,26 @@
             </div>
             <div class="option">
                 <button class="clickable btn btn--ghost btn--sm" id="File">
+                <i class="codicon codicon-file"></i>
                 File
                 </button>
             </div>
             <div class="option">
                 <button class="clickable btn btn--ghost btn--sm" id="Theme">
+                <i class="codicon codicon-color-mode"></i>
                 Theme
                 </button>
             </div>
             <div class="option">
                 <button class="clickable btn btn--ghost btn--sm" id="Workspaces">
+                <i class="codicon codicon-symbol-folder"></i>
                 Workspaces
+                </button>
+            </div>
+            <div class="option">
+                <button class="clickable btn btn--ghost btn--sm" id="Personalization">
+                    <i class="icons codicon codicon-settings" ></i>
+                Personalization
                 </button>
             </div>
             <div class="language">
@@ -145,6 +170,7 @@
         <div class="drag-bar" data-direction="horizontal"></div>
         <div id="megaEditor">
             <div class="resizable" id="editor"></div>
+            <div class="iframe"></div>
             <div class="codeWindow">
                 <div class="codeWindow-nav" style="display: flex; justify-content: space-between; align-items: center; color: var(--color-text-secondary);">
                     <div class="otherSide"  style="display: flex; align-items: center; gap: 10px;">
