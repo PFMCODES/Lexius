@@ -1,50 +1,151 @@
-# Lexius v4.5
+# Lexius v4.6 — Stability, Security & Electron Update
 
-> The editor just got an upgrade.
+> A more stable editor, stronger security, and a proper Electron foundation.
 
-## Caret is finally here
+## 🔧 Bug Fixes
 
-After all this time, **Caret is finally integrated into Lexius!** 🎉
+### 1. Fixed Multiple Caret Instances on Editor Switch
 
-Caret is the editor engine built specifically for Lexius, and v4.5 marks its first proper appearance inside the editor.
+Switching between **Caret** and **Monaco** could previously create multiple editor instances that stayed alive in memory.
 
-### ⚙️ Dual Editor Engines
+This could cause:
 
-Lexius now supports **two editor engines**:
+* Memory leaks
+* Duplicate keyboard handlers
+* Broken editor state
+* Increasing resource usage after repeated switching
 
-- **Monaco** — the default and stable option
-- **Caret** — the new experimental option
+This has now been fixed.
 
-![Look at the Personalization option on the navbar](/Updates/upload-1.png)
+Editor switching now properly cleans up the previous editor before initializing the new one.
 
-Click the **Personalization** option in the navbar to configure your editor engine.
+### 2. Fixed Editor Switch Event Handling
 
-Caret is still experimental and definitely has some bugs to hunt down, but this is only the beginning. As development continues, we'll keep improving it and making it more reliable.
+The editor selection dropdown had a nested event-listener issue that caused additional click handlers to be registered every time the option was clicked.
 
-## 🧩 Workspaces are here
+This meant that repeated switching could trigger `initEditor()` multiple times.
 
-Workspaces are now fully working in Lexius!
+The event handling has been cleaned up so each option has a single click handler.
 
-They make it easier to organize your projects and keep everything related to a project together.
+---
 
-After the initial beta, the major issues have been fixed and Workspaces are now ready to be used normally.
+## 🔒 Security Improvements
 
-No more beta label. No more broken workspace nonsense. 💀
+### Content Security Policy Overhaul
 
-Just create a workspace, give your project a name, and get to work.
+Lexius now has a more practical and restrictive **Content Security Policy**.
 
-## 📛 Project Names
+The previous CSP was too restrictive for the resources Lexius actually uses, blocking required CDN resources such as:
 
-Projects can now have their own names!
+* unpkg
+* jsDelivr
+* Font Awesome
+* esm.sh
+* Monaco resources
 
-It's a small feature, but it makes working with multiple projects much nicer. Instead of dealing with anonymous projects, you can actually give them an identity.
+The new policy explicitly allows the required resources while keeping a restrictive baseline.
 
-## What's Next?
+This also makes Electron development cleaner by reducing unnecessary CSP violations.
 
-V4.5 isn't the end of the road.
+---
 
-Caret will continue getting improvements, Workspaces will continue evolving, and Lexius is getting closer to becoming a much more complete development environment.
+## 🖥️ Electron Support
 
-For now, though...
+### Lexius now has its own local URI
 
-**Welcome to Lexius v4.5. 🚀**
+Lexius Desktop now uses:
+
+```text
+lexius://app/
+```
+
+instead of loading the application directly through `file://`.
+
+This gives Lexius a proper application origin while allowing the existing web code to keep using normal root-relative paths.
+
+For example:
+
+```html
+<link href="/assets/styles/codicon.css">
+<script src="/assets/main.js"></script>
+<img src="/assets/images/lexius.png">
+```
+
+These paths continue to work without needing separate Electron-specific paths.
+
+The custom protocol maps:
+
+```text
+lexius://app/assets/main.js
+```
+
+to:
+
+```text
+<Lexius app root>/assets/main.js
+```
+
+This keeps the web and desktop versions much closer together.
+
+### Why this matters
+
+Lexius can now use the same `/assets/...` structure across:
+
+* Web
+* Electron
+
+No rewriting paths just because the application is running on desktop.
+
+---
+
+## 🧹 Better Editor Lifecycle
+
+Caret and Monaco now properly clean themselves up when switching engines.
+
+### Caret → Monaco
+
+The existing Caret instance is deleted before Monaco is created.
+
+### Monaco → Caret
+
+The existing Monaco instance is disposed before Caret is created.
+
+This keeps editor switching predictable and prevents old instances from piling up.
+
+---
+
+## 📁 Files Modified
+
+| File                         | Changes                                         |
+| ---------------------------- | ----------------------------------------------- |
+| `index.html`                 | Updated CSP policy                              |
+| `main.js`                    | Added `lexius://` protocol and Electron loading |
+| `assets/scripts/navbar.js`   | Fixed editor-switch event handling              |
+| `assets/scripts/langs.js.js` | Added proper editor cleanup                     |
+
+---
+
+## ✅ Verification
+
+The v4.6 update should be verified against:
+
+* Switching Caret ↔ Monaco repeatedly
+* Checking for duplicate editor instances
+* Checking for memory leaks
+* Checking Electron asset loading
+* Checking stylesheets, scripts, fonts, and images
+* Checking CSP violations
+* Running the web version normally
+* Confirming `/assets/...` paths continue working
+
+---
+
+## 🚀 v4.6
+
+Lexius v4.6 is primarily about making the foundations stronger.
+
+With **editor lifecycle fixes, improved CSP handling, and the new `lexius://` Electron origin**, Lexius is becoming more consistent across both web and desktop.
+
+The goal isn't just adding more features.
+
+It's making the features already in Lexius **actually behave properly**.

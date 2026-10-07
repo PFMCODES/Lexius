@@ -21,6 +21,7 @@ body.dark {
 
 .codeWindow {
   display: flex;
+  color: var(--color-text-primary) !important;
 }
 
 body.light {
@@ -404,4 +405,8 @@ tr {
 
 .workspace-delete {
   background-color: transparent;
+}
+
+pre, code {
+  background-color: var(--background-color) !important;
 }

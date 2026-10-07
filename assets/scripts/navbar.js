@@ -137,34 +137,21 @@ personalizationOptions?.querySelectorAll('.clickable.option[data-editor]').forEa
   opt.addEventListener('click', async () => {
     const editor = opt.dataset.editor;
     localStorage.setItem('editor', editor);
-    
-  personalizationOptions?.querySelectorAll('.clickable.option[data-editor]').forEach(o => {
-    o.addEventListener('click', async () => {
-      const editor = o.dataset.editor;
-      localStorage.setItem('editor', editor);
-      // Remove all old checkmarks first
-      personalizationOptions.querySelectorAll('.clickable.option[data-editor] [data-lucide="check"]').forEach(i => i.remove());
-      personalizationOptions.querySelectorAll('.clickable.option[data-editor]').forEach(opt => {
-        const active = opt.dataset.editor === editor;
-        opt.classList.toggle('active', active);
-        if (active) {
-          const i = document.createElement('i');
-          i.setAttribute('data-lucide', 'check');
-          i.style.cssText = 'margin-left:6px;width:14px;height:14px;display:inline-block;vertical-align:middle;';
-          opt.appendChild(i);
-        }
-      });
-      if (window.lucide) lucide.createIcons();
-      const selectedFile = document.querySelector('.selected');
-      if (selectedFile) {
-        const fileName = selectedFile.querySelector('.fileName')?.textContent?.trim();
-        const lang = window.DetectFileType ? window.DetectFileType(fileName || 'new.js') : 'javascript';
-        const value = fileName ? (localStorage.getItem(fileName) || '') : '';
-        const theme = localStorage.getItem('theme') || 'light';
-        if (window.initEditor) await window.initEditor(lang, value, theme);
+
+    // Remove all old checkmarks first
+    personalizationOptions.querySelectorAll('.clickable.option[data-editor] [data-lucide="check"]').forEach(i => i.remove());
+    personalizationOptions.querySelectorAll('.clickable.option[data-editor]').forEach(opt => {
+      const active = opt.dataset.editor === editor;
+      opt.classList.toggle('active', active);
+      if (active) {
+        const i = document.createElement('i');
+        i.setAttribute('data-lucide', 'check');
+        i.style.cssText = 'margin-left:6px;width:14px;height:14px;display:inline-block;vertical-align:middle;';
+        opt.appendChild(i);
       }
     });
-  });
+    if (window.lucide) lucide.createIcons();
+
     // Reinitialize editor with new choice
     if (window.initEditor) {
       const selectedFile = document.querySelector('.selected');
@@ -178,7 +165,7 @@ personalizationOptions?.querySelectorAll('.clickable.option[data-editor]').forEa
         }
       }
     }
-    
+
     // Close dropdown
     personalizationOptions.classList.remove('show');
   });

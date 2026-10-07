@@ -1043,16 +1043,38 @@ async function initEditor(lang, value, theme) {
   }
 
   if (editorChoice === 'monaco') {
+    // Clean up Caret instance if it exists
+    const caretInstance = getCaretInstance();
+    if (caretInstance && caretInstance.delete) {
+      try { caretInstance.delete(); } catch (_) {}
+    }
+    window.caretInstance = null;
+    window.setCaretTheme = null;
 
-    if (window.editorInstance && window.editorInstance.delete) window.editorInstance.delete();
-    editorEl.innerHTML = ""
+    // Clean up Monaco instance if it exists
+    if (window.editorInstance && window.editorInstance.dispose) {
+      window.editorInstance.dispose();
+    }
+    window.editorInstance = null;
+
+    editorEl.innerHTML = "";
     // Initialize Monaco editor
     monaco(lang, value);
   } else {
-    const previous = getCaretInstance();
-    if (previous) {
-      // Skip package delete() which errors when nodes already cleared; DOM reset by caret()
+    // Clean up Monaco instance if it exists
+    if (window.editorInstance && window.editorInstance.dispose) {
+      window.editorInstance.dispose();
     }
+    window.editorInstance = null;
+
+    // Clean up Caret instance if it exists (before creating new one)
+    const previous = getCaretInstance();
+    if (previous && previous.delete) {
+      try { previous.delete(); } catch (_) {}
+    }
+    window.caretInstance = null;
+    window.setCaretTheme = null;
+
     // Initialize Caret editor (default)
     await caret(lang, value);
     // Apply theme

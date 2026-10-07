@@ -22,6 +22,7 @@ export default class NotificationSystem {
     }) {
         this.window.style.display = "flex";
         this.body.innerHTML = content;;
+        if (typeof hljs !== 'undefined' && hljs.highlightAll) hljs.highlightAll();
         this.logo.src = logo ? logo : "/assets/images/favicon.svg";
         this.title.textContent = title;
         if (thumbnail) {

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src * lexius: 'unsafe-inline' 'unsafe-eval' data: blob:;">
     <title>Lexius - Javascript</title>
     <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/styles/codicon.css">
@@ -10,7 +11,7 @@
     <link rel="stylesheet" href="/assets/styles/index.css">
     <link rel="stylesheet" href="/assets/styles/component.css">
     <link rel="stylesheet" href="/assets/styles/github-markdown.css">
-    <link rel="stylesheet" href="/assets/styles/hljs-github.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@pfmcodes/highlight.js@1.0.0/styles/tokyo-night-dark.css">
     <link rel="stylesheet" href="/assets/styles/pilcrow.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
@@ -228,5 +229,12 @@
     <script type="module" src="/assets/scripts/monaco.js"></script>
     <script type="module" src="/assets/scripts/db.js"></script>
     <script type="module" src="/assets/scripts/navbar.js"></script>
+    <script type="module">
+        if (typeof hljs !== 'undefined' && hljs.highlightAll) hljs.highlightAll();
+    </script>
+    <script>
+        if (typeof hljs !== 'undefined') window.highlightjs = hljs;
+        if (typeof highlightjs !== 'undefined' && highlightjs.highlightAll) highlightjs.highlightAll();
+    </script>
 </body>
 </html>
