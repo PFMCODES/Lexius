@@ -66,6 +66,15 @@
     }
   },
   "dependencies": {
-    "@pfmcodes/caret": "^0.3.2" 
+    "@pfmcodes/caret": "^0.3.2",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electronmon": "^2.0.4"
+  },
+  "devDependencies": {
+    "electron": "^44.6.0",
+    "electron-builder": "^26.15.3"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
   }
 }
