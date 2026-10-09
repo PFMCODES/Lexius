@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexius - Downloads</title>
+    <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+    <script type="module"> 
+        import { loadMonaco } from "/assets/scripts/monacoLoader.js";
+        loadMonaco();
+    </script>
+    <link rel="stylesheet" href="/assets/styles/codicon.css">
+    <link rel="stylesheet" href="/assets/styles/theme.css">
+    <link rel="stylesheet" href="/assets/styles/Downloads.css">
+    <link rel="stylesheet" href="/assets/styles/component.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://esm.sh/@pfmcodes/caret@0.2.9/index.css"">
+</head>
+<body>
+    <section class="hero-section main">
+        <div class="backdrop">
+        </div>
+        <div class="hs-x">
+                <div style="display: flex; flex-direction: column; gap: 0;">
+                    <div style="display: flex; flex-direction: row; margin: 0; padding: 0; text-align: center; margin-left: 50px;">
+                        <img src="/assets/images/favicon.svg" style="width: 100px; height: 100px; margin-top: 27px;" >
+                        <h1 style="font-size: 56px; text-align: center;">Lexius <span>v4.6</span></h1>
+                    </div>
+                    <div>
+                    <h2 class="text-ghost" style="text-align: center; font-size: 30px;">The code editor that keeps it simple.</h2>
+                    </div>
+                </div>
+            <div class="codeWindow">
+                <div class="linux">
+                    <button class="btn btn-primary" style="font-size: 18px;" id="appimage">
+                        <i class="icons codicon codicon-terminal-linux"></i>
+                        Download For Linux(.appimage)
+                    </button>
+                    <button class="btn btn-primary" style="font-size: 18px;" id="snap">
+                        <i class="icons codicon codicon-terminal-ubuntu"></i>
+                        Download For Linux(.snap)
+                    </button>
+                    <button class="btn btn-primary" style="font-size: 18px;" id="deb">
+                        <i class="icons codicon codicon-terminal-debian"></i>
+                        Download For Linux(.deb)
+                    </button>
+                </div>
+                <div class="windows">
+                    <button class="btn btn-primary" style="font-size: 18px;" id="win">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 16 16" fill="currentColor"><path d="M7.5 1.5H1.5V7.5H7.5V1.5Z"/><path d="M14.5 1.5H8.5V7.5H14.5V1.5Z"/><path d="M14.5 8.5H8.5V14.5H14.5V8.5Z"/><path d="M7.5 8.5H1.5V14.5H7.5V8.5Z"/></svg>
+                        Download For Windows(.exe)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Initialize lucide icons after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+    <script type="module" src="/assets/scripts/theme.js"></script>
+    <script>
+        const t = navigator.userAgent;
+        if (t.includes("Linux")) {
+            document.querySelector(".linux").style.display = "flex"
+        } else if (t.includes("Windows")) {
+            document.querySelector(".windows").style.display = "flex"
+        }
+
+        document.querySelector("#appimage").addEventListener("click", () => {
+            window.location.href = "/dist/Lexius-4.6.0.AppImage"
+        });
+        document.querySelector("#deb").addEventListener("click", () => {
+            window.location.href = "/dist/lexius_4.6.0_amd64.deb"
+        });
+        document.querySelector("#snap").addEventListener("click", () => {
+            window.location.href = "/dist/lexius_4.6.0_amd64"
+        });
+        document.querySelector("#win").addEventListener("click", () => {
+            window.location.href = "/dist/Lexius Setup 4.6.0.exe"
+        });
+    </script>
+</body>
+</html>

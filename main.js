@@ -51,9 +51,11 @@ app.whenReady().then(() => {
       nodeIntegration: false,
       contextIsolation: true,
       devTools: !app.isPackaged,
+      preload: path.join(__dirname, "assets", "scripts", "preload.js")
     },
     icon: 'assets/images/lexius.png',
     autoHideMenuBar: true,
+    frame: false,
   });
   win.loadURL("lexius://app/");;
   win.webContents.openDevTools();

@@ -1,6 +1,7 @@
 /**
- * Combined Web Server for Lexius
- * Serves static files and provides File Access API for web version
+ * Web File Access API Server
+ * Provides file read/write operations for the web version of Lexius
+ * Uses the File System Access API when available, falls back to localStorage
  */
 
 const http = require('http');
@@ -41,30 +42,6 @@ function normalizePath(filePath) {
   return resolved;
 }
 
-async function listFilesRecursive(dir, baseDir = dir) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  const files = [];
-
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    const relativePath = path.relative(baseDir, fullPath);
-    
-    if (entry.isDirectory()) {
-      const subFiles = await listFilesRecursive(fullPath, baseDir);
-      files.push(...subFiles);
-    } else {
-      const stats = await fs.stat(fullPath);
-      files.push({
-        path: relativePath,
-        size: stats.size,
-        modified: stats.mtime
-      });
-    }
-  }
-
-  return files;
-}
-
 const server = http.createServer(async (req, res) => {
   // CORS headers for web access
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -80,8 +57,6 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const pathname = url.pathname;
 
-  // ========== FILE ACCESS API ENDPOINTS ==========
-  
   // API endpoint: List files
   if (pathname === '/api/files' && req.method === 'GET') {
     try {
@@ -185,8 +160,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // ========== STATIC FILE SERVING ==========
-  
+  // Serve static files for the web app
   let filePath = pathname === '/' ? '/index.html' : pathname;
   filePath = path.join(__dirname, filePath);
   
@@ -203,10 +177,33 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+async function listFilesRecursive(dir, baseDir = dir) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    const relativePath = path.relative(baseDir, fullPath);
+    
+    if (entry.isDirectory()) {
+      const subFiles = await listFilesRecursive(fullPath, baseDir);
+      files.push(...subFiles);
+    } else {
+      const stats = await fs.stat(fullPath);
+      files.push({
+        path: relativePath,
+        size: stats.size,
+        modified: stats.mtime
+      });
+    }
+  }
+
+  return files;
+}
+
 ensureWorkspaceDir().then(() => {
   server.listen(PORT, () => {
-    console.log(`Lexius Web Server running on http://localhost:${PORT}`);
+    console.log(`Web File API Server running on http://localhost:${PORT}`);
     console.log(`Workspace directory: ${WORKSPACE_DIR}`);
-    console.log(`File API available at http://localhost:${PORT}/api/files`);
   });
 });

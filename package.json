@@ -1,7 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
   "name": "lexius",
-  "version": "3.6.5",
+  "version": "4.6.0",
+  "email": "pfm37yt@gmail.com",
   "description": "A minimal, web-based code editor built for speed, clarity, and effortless development.",
   "keywords": [
     "editor",
@@ -39,18 +40,28 @@
   "author": "PFMCODES",
   "type": "commonjs",
   "main": "main.js",
+  "desktopName": "com.koreorg.lexius",
   "scripts": {
     "start": "electron .",
     "desktop": "electron .",
     "web": "node web.js",
+    "web:api": "node web-api.js",
     "build": "npx electron-builder"
   },
   "build": {
-    "appId": "com.pfmcodes.lexius",
+    "appId": "com.koreorg.lexius",
     "productName": "Lexius",
     "win": {
       "target": "nsis",
       "icon": "assets/images/lexius.ico"
+    },
+    "linux": {
+      "target": ["AppImage", "deb", "snap"],
+      "icon": "assets/images/lexius.png",
+      "category": "Development",
+      "maintainer": "Kore Org. <pfm37yt@gmail.com>",
+      "vendor": "Kore Org.",
+      "syncDesktopName": true
     },
     "nsis": {
       "oneClick": false,

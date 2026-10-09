@@ -21,3 +21,16 @@ function getSystemTheme() {
   
   return isDark ? 'dark' : 'light';
 }
+
+// Theme setup
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const savedTheme = localStorage.getItem("theme") || "light";
+const theme = savedTheme || (prefersDark ? "dark" : "light");
+
+// Initialize theme
+document.body.classList.remove("light", "dark");
+document.body.classList.add(theme);
+
+window.onload = () => {
+  Welcome();
+}

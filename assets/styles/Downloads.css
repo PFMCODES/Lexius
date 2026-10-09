@@ -1,0 +1,88 @@
+body.dark {
+    --hero-bg: #111;
+}
+
+body.light {
+    --hero-bg: #f1f1f1;
+}
+
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    background-color: var(--hero-bg);
+}
+
+/* Dot grid */
+.backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image: radial-gradient(
+        circle,
+        rgba(168, 85, 247, 0.45) 1px,
+        transparent 1px
+    );
+
+    background-size: 24px 24px;
+}
+
+/* Content stays above the grid */
+.hs-x {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: var(--color-text-primary);
+    padding: clamp(2rem, 8vw, 8rem);
+    margin-top: 0;
+    padding-top: 20px;
+
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        #111 100%
+    );
+}
+
+.codeWindow {
+    border: none !important;
+    background-color: var(--color-bg-secondary);
+    display: flex;
+    padding: 20px;
+    align-items: center;
+    width: fit-content !important;
+    height: fit-content !important;
+}
+
+.linux, .windows {
+    display: none;
+    flex-direction: row;
+    gap: 10px;
+    padding: 5px;
+}
+
+h1 span {
+    background: linear-gradient(34deg, #7e56c2, #9b7ed9);
+
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.icons {
+    font-size: 30px !important;
+}
+
+.btn-primary {
+    background-color: var(--color-primary-light);
+    color: var(--color-bg-secondary);
+}
+
+::selection {
+   background: linear-gradient(34deg, #7e56c2, #9b7ed9)
+}

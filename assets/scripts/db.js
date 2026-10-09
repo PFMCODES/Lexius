@@ -3,7 +3,7 @@
  * @module db
  */
 
-import { isElectron, fs } from './langs.js.js';
+import { isElectron, fs, isWeb, API_BASE } from './langs.js.js';
 
 const params = new URLSearchParams(window.location.search);
 
@@ -151,14 +151,11 @@ export async function saveFile(path, content, filePath, workspaceName = getWorks
     const request = store.put({ path, content });
     
     request.onsuccess = async () => {
-      // Electron: also write to filesystem
-      if (isElectron && filePath && fs) {
-        try {
-          await fs.promises.writeFile(filePath, content, 'utf8');
-        } catch (err) {
-          console.error('Failed to write to filesystem:', err);
-          // Don't reject - IndexedDB save succeeded
-        }
+      // Electron: also write to filesystem via IPC; Web: sync to REST API
+      if (isElectron && filePath && window.fs) {
+        try { await window.fs.writeFile(filePath, content); } catch (err) { console.error('Failed filesystem write:', err); }
+      } else if (isWeb && fs) {
+        try { await fs.writeFile(path, content); } catch (err) { console.error('Failed web API write:', err); }
       }
       resolve();
     };
@@ -178,7 +175,13 @@ export async function getFile(path, workspaceName = getWorkspaceName()) {
   
   return new Promise((resolve, reject) => {
     const request = store.get(path);
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = async () => {
+      const result = request.result;
+      if (result) { resolve(result); return; }
+      if (isWeb && fs) {
+        try { const content = await fs.readFile(path); resolve({ path, content }); } catch (e) { resolve(undefined); }
+      } else { resolve(undefined); }
+    };
     request.onerror = () => reject(new Error('Get file failed: ' + request.error?.message));
   });
 }

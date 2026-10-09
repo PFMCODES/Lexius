@@ -1,6 +1,5 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron');
-const fs = require('fs');
 
 contextBridge.exposeInMainWorld('env', {
   isElectron: true,
@@ -9,9 +8,8 @@ contextBridge.exposeInMainWorld('env', {
   close: () => ipcRenderer.invoke('close')
 });
 
-contextBridge.exposeInMainWorld('fs', {
-  writeFile: (path, content) =>
-    ipcRenderer.invoke('save-file', { path, content }),
-  readFile: (path) =>
-    ipcRenderer.invoke('read-file', path)
-});
+// FS DISABLED
+// contextBridge.exposeInMainWorld('fs', {
+//   writeFile: (path, content) => ipcRenderer.invoke('writeFile', { path, content }),
+//   readFile: (path) => ipcRenderer.invoke('readFile', path)
+// });
