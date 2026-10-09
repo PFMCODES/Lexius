@@ -1,3 +1,0 @@
-version: v3.6.5
-what's new:
-    Now you can run html, svg, markdown files in lexius

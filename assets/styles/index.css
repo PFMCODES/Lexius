@@ -408,5 +408,15 @@ tr {
 }
 
 pre, code {
-  background-color: var(--background-color) !important;
+  background-color: var(--color-bg-primary) !important;
+}
+
+.nav-bar, .logo {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.right-side, .options {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 }

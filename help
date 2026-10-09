@@ -1,21 +1,40 @@
-assets/images -> contains all the images/svgs/icons necessary for the project
-assets/scripts -> contains all the scripts required for the frontend tp run(both web and desktop)
-assets/styles -> contains all the css files
-assets/themes -> theme files for monaco
+Lexius Help / File Reference
+----------------------------
 
-assets/images/cursor -> contains custom cursor images
-assets/images/langs -> contains all the file icons
+File Access (Electron + Web)
+- Electron: preload.js exposes fs.readFile / fs.writeFile via IPC; main.js handles channels
+- Web: web-api.js / web.js serve REST endpoints at /api/files (read/write/delete/list)
+- Web frontend: fs class in assets/scripts/langs.js.js uses File System Access API first, then REST fallback; API_BASE = window.location.origin
+- db.js sync: IndexedDB + filesystem sync; web saves also push to REST API; getFile falls back to API if DB missing
 
-assets/scripts/db.js -> helps store user file data
-assets/scripts/langs.js.js -> main file, handles ui chnages, saving files and etc.
-assets/scripts/monaco.js -> creates monaco editor and applys themes and syntax highlighting
-assets/scripts/monacoLoader.js -> loads monaco code before everything else
-assets/scripts/preload.js -> lets the renderer process access certain node modules and things
-assets/scripts/theme.js ->  just helps change theme nothing else
+Prompt System (built-in, replaces browser prompt())
+- PromptModal({ title, placeholder, defaultValue, onSubmit, onCancel }) -> modal for workspace names / other inputs (used in navbar.js)
+- Prompt(message, placeholder) -> direct input in file list for file/folder creation (used in langs.js.js newFile/newFolder)
 
+File / Folder Creation & Opening
+- newFile / newFileCtx: await Prompt('Enter new file name', '') -> creates file, sets icon, saves empty content
+- newFolderCtx: await Prompt('Enter folder name', '') -> creates folder
+- File click on .filesContainer -> openSelectedFile() -> getFile() -> initEditor()
+- Open Folder button (id: open-folder) -> showDirectoryPicker() -> window.dirHandle set
+- Rename: right-click -> renameFile -> inline input -> save
 
-build/ -> has .bmp files for required installer
-update-log.txt -> contains what's added in the new update
-version -> current version of the app
-web.js -> runs lexius code locally on the web
-package.json -> handles nsis installer settings, and app info
+Project Files
+assets/images -> icons/images
+assets/scripts -> frontend JS (db.js, langs.js.js, monaco.js, preload.js, theme.js, navbar.js)
+assets/scripts/langs.js.js -> main UI, file mgmt, Prompt(), fs class, editor init
+assets/scripts/db.js -> IndexedDB wrapper with Electron/web filesystem sync
+assets/scripts/preload.js -> Electron contextBridge (window control + fs)
+assets/scripts/monaco.js -> Monaco editor loader
+assets/scripts/theme.js -> theme switcher
+assets/scripts/navbar.js -> navbar dropdown, workspace creation (PromptModal), folder picker
+assets/styles -> CSS
+assets/themes -> Monaco theme files
+
+Web Server
+- web.js: combined static + file API server (port 3456 by default, WORKSPACE_DIR = web-workspace/)
+- web-api.js: standalone REST file API server
+- package.json: scripts include start, desktop, web, web:api, build
+
+Update Log
+update-log.txt -> changes per version
+version -> current version

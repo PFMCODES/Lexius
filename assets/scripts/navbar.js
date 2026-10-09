@@ -1,5 +1,6 @@
 import { setTheme } from "./theme.js";
 import { getAllWorkspaces, createWorkspace, deleteWorkspace, switchWorkspace, getProjectName, getWorkspace, getWorkspaceName } from "./db.js";
+import { PromptModal, fs, isWeb } from "./langs.js.js";
 
 const themeToggle = document.getElementById('Theme');
 const fileToggle = document.getElementById('File');
@@ -55,6 +56,17 @@ fileToggle.addEventListener('click', (event) => {
   fileOptions.classList.toggle('show');
 });
 
+// Open Folder picker using File System Access API
+const openFolderBtn = document.getElementById('open-folder');
+openFolderBtn?.addEventListener('click', async () => {
+  try {
+    if (!window.showDirectoryPicker) { alert('File System Access API not supported in this browser'); return; }
+    const dirHandle = await window.showDirectoryPicker();
+    window.dirHandle = dirHandle;
+    console.log('Folder opened:', dirHandle.name);
+  } catch (e) { console.log('Folder picker cancelled'); }
+});
+
 // Load workspaces into dropdown
 async function loadWorkspaces() {
   if (!workspacesOptions) return;
@@ -68,12 +80,17 @@ async function loadWorkspaces() {
   const newWs = document.createElement('div');
   newWs.className = 'clickable option btn btn--ghost btn--sm';
   newWs.innerHTML = '<i class="codicon codicon-add"></i> New Workspace';
-  newWs.addEventListener('click', async () => {
-    const name = prompt('Enter workspace name:');
-    if (name) {
-      const ws = await createWorkspace(name);
-      switchWorkspace(ws.name);
-    }
+  newWs.addEventListener('click', () => {
+    PromptModal({
+      title: 'New Workspace',
+      placeholder: 'Enter workspace name',
+      onSubmit: async (name) => {
+        if (name) {
+          const ws = await createWorkspace(name);
+          switchWorkspace(ws.name);
+        }
+      }
+    });
   });
   workspacesOptions.appendChild(newWs);
   

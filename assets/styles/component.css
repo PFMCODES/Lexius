@@ -178,6 +178,9 @@ body.dark {
 html, body {
   height: 100%;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
 }
 
 /* Button Component */
@@ -1594,4 +1597,8 @@ main {
 .right-click-menu.show {
   display: flex;
   flex-direction: column;
+}
+
+a, button {
+  cursor: pointer;
 }

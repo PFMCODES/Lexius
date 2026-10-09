@@ -140,6 +140,17 @@
                 <p class="text-ghost">Project Name:</p>
                 Untitled
             </div>
+            <div class="windowControls" style="display: none; flex-direction: row;">
+                <button class="minimize btn btn--secondary btn--md" style="border: none !important;" id="minimize">
+                    <i data-lucide="minus"></i>
+                </button>
+                <button class="maximize btn btn--secondary btn--md" style="border: none !important;" id="maximize">
+                    <i data-lucide="square"></i>
+                </button>
+                <button class="close btn btn--secondary btn--md" style="background-color: rgb(255, 43, 43); color: white; border: none;" id="close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
         </div>
     </nav>
     <main>
@@ -178,7 +189,7 @@
                         <img id="N-logo" src="/assets/images/favicon.svg" style="width: 32px;" alt="Lexius">
                         <p id="N-Title"></p>
                     </div>
-                    <i style="cursor: pointer;" data-lucide="x" id="N-X"></i>
+                    <i style="cursor: pointer;" class="icons" data-lucide="x" id="N-X"></i>
                 </div>
 
                 <div class="N-parent" id="N-parent">
@@ -235,6 +246,25 @@
     <script>
         if (typeof hljs !== 'undefined') window.highlightjs = hljs;
         if (typeof highlightjs !== 'undefined' && highlightjs.highlightAll) highlightjs.highlightAll();
+    </script>
+    <script type="module">
+        const isElectronRenderer = typeof window !== 'undefined' && 
+            window.navigator && 
+            window.navigator.userAgent.includes('Electron');
+
+        if (isElectronRenderer) {
+            const WC = document.querySelector(".windowControls");
+            WC.style.display = "flex";
+            WC.querySelector(".minimize").addEventListener("click", () => {
+                window.env.minimize();
+            });
+            WC.querySelector(".maximize").addEventListener("click", () => {
+                window.env.maximize();
+            });
+            WC.querySelector(".close").addEventListener("click", () => {
+                window.env.close();
+            });
+        }
     </script>
 </body>
 </html>

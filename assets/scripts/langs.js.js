@@ -1,27 +1,30 @@
 import { monaco } from './monaco.js';
 import { loadMonaco } from './monacoLoader.js';
-import { caret, loadCaret, prettifyCode, setCaretTheme, getCaretInstance } from './caret.js';
+import { caret, setCaretTheme, getCaretInstance } from './caret.js';
 import NotficationSystem from './Notifications.js';
 import { marked } from 'https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js';
-import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty, getProjectName, getFile } from './db.js';
+import { saveFile, deleteFile, getAllFiles, isIndexedDBEmpty, getFile } from './db.js';
 
 // from database or indexed DB
 let isAutoSaveEnabled = localStorage.getItem("autosave") === "true";
 
 // Electron
 export const isElectron = window.env?.isElectron === true;
+
+// Web: check if we're in a browser with File System Access API support
+export const isWeb = typeof window !== 'undefined' && !isElectron;
+
+// API base URL for web version (can be overridden via environment)
+export const API_BASE = (typeof window !== 'undefined' && window.location)
+  ? `${window.location.origin}`
+  : (typeof process !== 'undefined' && process.env?.API_BASE) || '';
+
 export class fs {
-  static writeFile(path, content) {
-    if (isElectron) {
-      return window.fs.writeFile(path, content);
-    }
-  }
-  static readFile(path) {
-    if (isElectron) {
-      return window.fs.readFile(path);
-      }
-    }
-  }
+  static async writeFile(path, content) { throw new Error('fs disabled'); }
+  static async readFile(path) { throw new Error('fs disabled'); }
+  static setFileHandle(handle) { console.log('fs disabled'); }
+}
+
 
 // DOM Elements
 // const toggleBtn = document.getElementById("toggle");
@@ -70,24 +73,11 @@ setTimeout(() => {
   l.style.display = "none"
 }, 5000)
 
-// Theme setup
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-const savedTheme = localStorage.getItem("theme") || "light";
-const theme = savedTheme || (prefersDark ? "dark" : "light");
-
 // // Monaco Editor setup
 // require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs' } });
 // require(['vs/editor/editor.main'], () => {
 //   window.monacoReady = true;
 // });
-
-// Initialize theme
-document.body.classList.remove("light", "dark");
-document.body.classList.add(theme);
-
-window.onload = () => {
-  Welcome();
-}
 
 // // Indu activation
 // induInput.addEventListener('click', async () => {
@@ -313,17 +303,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (localStorage.getItem('autosave') === 'true') {
     const autosaveCheck = document.getElementById('autosave-check');
     if (autosaveCheck) {
-      if (isElectron === true && filePermission === true) {
-        autosaveCheck.classList.add('false');
-        autosaveCheck.addEventListener('click', () => {
-          localStorage.setItem('autosave', 'true');
-          autosaveCheck.classList.remove('false');
-          autosaveCheck.classList.add('true');
-        });
-      }
-      else {
         autosaveCheck.classList.add('true');
-      }
     }
   }
   if (!localStorage.getItem('autosave')) {
@@ -487,7 +467,7 @@ document.addEventListener('click', () => {
 
 // New file creation
 document.getElementById('newFileCtx')?.addEventListener('click', async () => {
-  const name = Prompt('Enter new file name', '');
+  const name = await Prompt('Enter new file name', '');
   if (name) {
     const newFile = createFile(name);
     const icon = returnFileIcon(name);
@@ -500,7 +480,7 @@ document.getElementById('newFileCtx')?.addEventListener('click', async () => {
 
 // New file creation
 document.getElementById('newFile')?.addEventListener('click', async () => {
-  const name = Prompt('Enter new file name', '');
+  const name = await Prompt('Enter new file name', '');
   if (name) {
     const newFile = createFile(name);
     const icon = returnFileIcon(name);
@@ -610,8 +590,8 @@ document.getElementById('projectNameButton')?.addEventListener('click', () => {
 });
 
 // New folder creation
-document.getElementById('newFolder')?.addEventListener('click', () => {
-  const name = Prompt('Enter new folder name', 'NewFolder');
+document.getElementById('newFolder')?.addEventListener('click', async () => {
+  const name = await Prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
     folder.classList.add('folder', 'close');
@@ -633,8 +613,8 @@ document.getElementById('newFolder')?.addEventListener('click', () => {
 });
 
 // New folder creation
-document.getElementById('newFolderCtx')?.addEventListener('click', () => {
-  const name = Prompt('Enter new folder name', 'NewFolder');
+document.getElementById('newFolderCtx')?.addEventListener('click', async () => {
+  const name = await Prompt('Enter new folder name', 'NewFolder');
   if (name) {
     const folder = document.createElement('div');
     folder.classList.add('folder', 'close');
@@ -873,65 +853,79 @@ function warn(type, message) {
   }
 }
 
-function Prompt() {
-  const promptInputEl = document.createElement("div");
-  const promptInputIcon = document.createElement("div");
-  const promptInputIconImage = document.createElement("img");
-  const promptInputElement = document.createElement("div");
-  const input = document.createElement("input");
+// Modal prompt system for workspace names and other inputs
+export function PromptModal({ title = 'Enter value', placeholder = '', defaultValue = '', onSubmit, onCancel }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'prompt-overlay';
+  overlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;`;
+  const modal = document.createElement('div');
+  modal.className = 'prompt-modal';
+  modal.style.cssText = `background: var(--color-bg-secondary,#1e1e1e); border:1px solid var(--color-border,#333); border-radius:8px; padding:20px; min-width:300px; max-width:500px; box-shadow:0 10px 40px rgba(0,0,0,0.3);`;
+  modal.innerHTML = `<h3 style="margin:0 0 16px 0; color:var(--color-text,#fff); font-size:16px;">${title}</h3><input type="text" class="prompt-input" placeholder="${placeholder}" value="${defaultValue}" style="width:100%; padding:10px 12px; border:1px solid var(--color-border,#333); border-radius:4px; background:var(--color-bg,#252525); color:var(--color-text,#fff); font-size:14px; box-sizing:border-box; outline:none;"><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;"><button class="prompt-cancel btn btn--ghost btn--sm" style="padding:6px 16px;">Cancel</button><button class="prompt-ok btn btn--primary btn--sm" style="padding:6px 16px;">OK</button></div>`;
+  const input = modal.querySelector('.prompt-input');
+  const okBtn = modal.querySelector('.prompt-ok');
+  const cancelBtn = modal.querySelector('.prompt-cancel');
+  overlay.appendChild(modal); document.body.appendChild(overlay); setTimeout(() => input.focus(), 10);
+  const cleanup = () => { document.removeEventListener('keydown', keyHandler); overlay.remove(); };
+  const handleSubmit = () => { const value = input.value.trim(); cleanup(); if (onSubmit) onSubmit(value); };
+  const handleCancel = () => { cleanup(); if (onCancel) onCancel(); };
+  okBtn.addEventListener('click', handleSubmit); cancelBtn.addEventListener('click', handleCancel);
+  const keyHandler = (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); } else if (e.key === 'Escape') { e.preventDefault(); handleCancel(); } };
+  document.addEventListener('keydown', keyHandler); overlay.addEventListener('click', (e) => { if (e.target === overlay) handleCancel(); });
+}
 
-  promptInputEl.className = "file";
-  promptInputIcon.className = "fileIcon";
-  promptInputElement.className = "fileName";
+// Direct input prompt for file/folder creation (placeholder input in file list)
+function Prompt(message = '', placeholder = '') {
+  return new Promise((resolve, reject) => {
+    const promptInputEl = document.createElement("div");
+    const promptInputIcon = document.createElement("div");
+    const promptInputIconImage = document.createElement("img");
+    const promptInputElement = document.createElement("div");
+    const input = document.createElement("input");
 
-  filesContainer.appendChild(promptInputEl);
-  promptInputEl.appendChild(promptInputIcon);
-  promptInputEl.appendChild(promptInputElement);
-  promptInputElement.appendChild(input);
-  promptInputIcon.appendChild(promptInputIconImage);
+    promptInputEl.className = "file";
+    promptInputIcon.className = "fileIcon";
+    promptInputElement.className = "fileName";
 
-  input.focus();
+    filesContainer.appendChild(promptInputEl);
+    promptInputEl.appendChild(promptInputIcon);
+    promptInputEl.appendChild(promptInputElement);
+    promptInputElement.appendChild(input);
+    promptInputIcon.appendChild(promptInputIconImage);
 
-  function cleanup() {
-    document.removeEventListener("mousedown", outsideClickHandler);
-    promptInputEl.remove();
-  }
+    input.placeholder = placeholder || message || "Enter file name";
+    input.focus();
 
-  function outsideClickHandler(e) {
-    if (!promptInputEl.contains(e.target)) {
-      cleanup();
+    function cleanup() {
+      document.removeEventListener("mousedown", outsideClickHandler);
+      promptInputEl.remove();
     }
-  }
 
-  document.addEventListener("mousedown", outsideClickHandler);
+    function outsideClickHandler(e) {
+      if (!promptInputEl.contains(e.target)) {
+        cleanup();
+        resolve('');
+      }
+    }
 
-  input.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+    document.addEventListener("mousedown", outsideClickHandler);
 
-      const fileName = input.value.trim() || "Untitled";
-
-      const files = await getAllFiles(); // ✅ await here
-
-      const exists = files.some(f => f.path === fileName);
-
-      if (exists) {
-        console.warn("error", "A file with that name already exists.");
-        return;
+    input.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const fileName = input.value.trim() || "Untitled";
+        document.removeEventListener("mousedown", outsideClickHandler);
+        promptInputEl.remove();
+        resolve(fileName);
       }
 
-      document.removeEventListener("mousedown", outsideClickHandler);
-
-      saveFile(fileName, "");
-      promptInputIconImage.src = returnFileIcon(fileName);
-
-      promptInputElement.textContent = fileName;
-    }
-
-    if (e.key === "Escape") {
-      e.preventDefault();
-      cleanup();
-    }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        document.removeEventListener("mousedown", outsideClickHandler);
+        promptInputEl.remove();
+        resolve('');
+      }
+    });
   });
 }
 
